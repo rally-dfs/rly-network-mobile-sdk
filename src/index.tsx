@@ -20,3 +20,5 @@ const RlyNetworkMobileSdk = NativeModules.RlyNetworkMobileSdk
 export function multiply(a: number, b: number): Promise<number> {
   return RlyNetworkMobileSdk.multiply(a, b);
 }
+
+export * from './account';

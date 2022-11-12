@@ -1,18 +1,36 @@
+import type { Wallet } from 'ethers';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'rly-network-mobile-sdk';
+import { getAccount } from 'rly-network-mobile-sdk';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [accountLoaded, setAccountLoaded] = useState(false);
+  const [rlyAccount, setRlyAccount] = useState<Wallet | undefined>();
 
-  React.useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
+  useEffect(() => {
+    const readAccount = async () => {
+      const account = await getAccount();
+
+      setAccountLoaded(true);
+
+      if (account) {
+        setRlyAccount(account);
+      }
+    };
+    readAccount();
+  });
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      {accountLoaded ? (
+        <Text>
+          RLY Account Key = {rlyAccount?.publicKey || 'No Account Exists'}
+        </Text>
+      ) : (
+        <Text> Loading RLY Account </Text>
+      )}
     </View>
   );
 }
