@@ -1,4 +1,4 @@
-import { getWallet } from 'src/account';
+import { getWallet } from '../account';
 import type { Network } from '../network';
 
 const balances: Record<string, number> = {};
