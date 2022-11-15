@@ -10,12 +10,24 @@ export function LoadingModal({
   title: string;
 }) {
   return (
+    <StandardModal show={show}>
+      <HeadingText>{title}</HeadingText>
+      <ActivityIndicator />
+    </StandardModal>
+  );
+}
+
+export function StandardModal({
+  show,
+  children,
+}: {
+  show: boolean;
+  children: React.ReactNode;
+}) {
+  return (
     <Modal visible={show} transparent>
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <HeadingText>{title}</HeadingText>
-          <ActivityIndicator />
-        </View>
+        <View style={styles.modalView}>{children} </View>
       </View>
     </Modal>
   );

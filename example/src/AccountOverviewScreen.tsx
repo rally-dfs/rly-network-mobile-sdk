@@ -3,9 +3,9 @@ import { AppContainer } from './components/AppContainer';
 import { BodyText, HeadingText } from './components/text';
 import { Button, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useEffect, useState } from 'react';
-import { RlyDummyNetwork } from 'rly-network-mobile-sdk';
+import { getAccountPhrase, RlyDummyNetwork } from 'rly-network-mobile-sdk';
 import { RlyCard } from './components/RlyCard';
-import { LoadingModal } from './components/LoadingModal';
+import { LoadingModal, StandardModal } from './components/LoadingModal';
 
 const RlyNetwork = RlyDummyNetwork;
 
@@ -16,6 +16,8 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const [transferBalance, setTransferBalance] = useState('');
   const [transferAddress, setTranferAddress] = useState('');
+
+  const [mnemonic, setMnemonic] = useState<string>();
 
   const fetchBalance = async () => {
     const bal = await RlyNetwork.getBalance();
@@ -37,7 +39,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const transferTokens = async () => {
     setPerformingAction('Transfering Tokens');
-    await RlyNetwork.transfer(transferAddress, transferBalance);
+    await RlyNetwork.transfer(transferAddress, parseInt(transferBalance, 10));
 
     await fetchBalance();
     setPerformingAction(undefined);
@@ -45,26 +47,43 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     setTranferAddress('');
   };
 
+  const revealMnemonic = async () => {
+    const value = await getAccountPhrase();
+
+    if (!value) {
+      throw 'Something went wrong, no Mnemonic when there should be one';
+    }
+
+    setMnemonic(value);
+  };
+
   return (
     <>
       <AppContainer>
         <ScrollView>
-          <HeadingText>Welcome to RLY</HeadingText>
+          <View style={styles.alignMiddle}>
+            <HeadingText>Welcome to RLY</HeadingText>
+          </View>
           <View style={styles.addressContainer}>
             <BodyText>{props.rlyAccount || 'No Account Exists'}</BodyText>
           </View>
           <RlyCard style={styles.balanceCard}>
             <View style={styles.balanceContainer}>
               <BodyText>Your Current Balance Is</BodyText>
-              <BodyText>{balance}</BodyText>
+              <HeadingText>{balance}</HeadingText>
             </View>
           </RlyCard>
-          <View style={styles.balanceCard}>
+          <View
+            style={Object.assign({}, styles.balanceCard, styles.alignMiddle)}
+          >
             <BodyText>What Would You Like to Do?</BodyText>
           </View>
 
           <RlyCard style={styles.balanceCard}>
-            <Button onPress={registerAccount} title="Register My Account" />
+            <View style={styles.alignMiddle}>
+              <BodyText>Register My Account</BodyText>
+            </View>
+            <Button onPress={registerAccount} title="Register" />
           </RlyCard>
 
           <RlyCard style={styles.balanceCard}>
@@ -90,8 +109,27 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             </View>
             <Button onPress={transferTokens} title="Transfer" />
           </RlyCard>
+
+          <RlyCard style={styles.balanceCard}>
+            <View style={styles.alignMiddle}>
+              <BodyText>Export Your Account</BodyText>
+            </View>
+            <Button title="Reveal my Mnemonic" onPress={revealMnemonic} />
+          </RlyCard>
         </ScrollView>
       </AppContainer>
+
+      <StandardModal show={!!mnemonic}>
+        <View>
+          <BodyText>{mnemonic}</BodyText>
+        </View>
+        <Button
+          title="Close"
+          onPress={() => {
+            setMnemonic(undefined);
+          }}
+        />
+      </StandardModal>
 
       <LoadingModal
         title={performingAction || 'Loading'}
