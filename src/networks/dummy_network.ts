@@ -1,3 +1,4 @@
+import { MissingWallet } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
 
@@ -6,7 +7,7 @@ const balances: Record<string, number> = {};
 async function transfer(destinationAddress: string, amount: number) {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'Unable to get Balance, so Wallet on device';
+    throw MissingWallet;
   }
   const sourceBalance = balances[wallet.publicKey] || 0;
 
@@ -26,7 +27,7 @@ async function transfer(destinationAddress: string, amount: number) {
 async function getBalance() {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'Unable to get Balance, so Wallet on device';
+    throw MissingWallet;
   }
   return balances[wallet.publicKey] || 0;
 }
@@ -34,7 +35,7 @@ async function getBalance() {
 async function registerAccount() {
   const account = await getWallet();
   if (!account) {
-    throw 'Unable to get Balance, so Wallet on device';
+    throw MissingWallet;
   }
   const existingBalance = balances[account.publicKey];
 
