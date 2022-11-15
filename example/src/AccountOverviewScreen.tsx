@@ -1,16 +1,11 @@
 import * as React from 'react';
 import { AppContainer } from './components/AppContainer';
 import { BodyText, HeadingText } from './components/text';
-import {
-  ActivityIndicator,
-  Button,
-  Modal,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { RlyDummyNetwork } from 'rly-network-mobile-sdk';
 import { RlyCard } from './components/RlyCard';
+import { LoadingModal } from './components/LoadingModal';
 
 const RlyNetwork = RlyDummyNetwork;
 
@@ -59,19 +54,12 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
         </RlyCard>
       </AppContainer>
 
-      <Modal visible={loading} transparent>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <HeadingText>Loading...</HeadingText>
-            <ActivityIndicator />
-          </View>
-        </View>
-      </Modal>
+      <LoadingModal title="Registering Account" show={loading} />
     </>
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   balanceCard: {
     marginTop: 24,
   },
@@ -81,26 +69,5 @@ const styles = StyleSheet.create({
   },
   addressContainer: {
     marginTop: 16,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: '#212121',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
 });
