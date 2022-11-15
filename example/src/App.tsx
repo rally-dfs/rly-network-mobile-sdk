@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createAccount, getAccount } from 'rly-network-mobile-sdk';
 import { AccountOverviewScreen } from './AccountOverviewScreen';
 import { GenerateAccountScreen } from './GenerateAccountScreen';
-import { LoadingScreen } from './LoadingScreen.1';
+import { LoadingScreen } from './LoadingScreen';
 
 export default function App() {
   const [accountLoaded, setAccountLoaded] = useState(false);

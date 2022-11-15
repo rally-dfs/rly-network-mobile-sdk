@@ -8,7 +8,9 @@ export const AppContainer = (props: { children: React.ReactNode }) => {
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingVertical: 60,
+    paddingHorizontal: 12,
+    backgroundColor: '#121212',
     alignItems: 'center',
-    justifyContent: 'center',
   },
 });
