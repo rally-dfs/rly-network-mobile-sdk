@@ -21,10 +21,10 @@ export async function createAccount(overwrite?: boolean) {
 
   setGenericPassword('', privateKey);
 
-  return newWallet;
+  return newWallet.address;
 }
 
-export async function getAccount() {
+export async function getWallet() {
   const credentials = await getGenericPassword();
   if (!credentials) {
     return;
@@ -34,12 +34,18 @@ export async function getAccount() {
   return new Wallet(privateKey);
 }
 
-export async function getAccountPhrase() {
-  const account = await getAccount();
+export async function getAccount() {
+  const wallet = await getWallet();
 
-  if (!account) {
+  return wallet?.address;
+}
+
+export async function getAccountPhrase() {
+  const wallet = await getWallet();
+
+  if (!wallet) {
     return;
   }
 
-  return account.mnemonic.phrase;
+  return wallet.mnemonic.phrase;
 }

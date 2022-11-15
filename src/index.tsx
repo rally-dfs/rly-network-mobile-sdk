@@ -21,4 +21,5 @@ export function multiply(a: number, b: number): Promise<number> {
   return RlyNetworkMobileSdk.multiply(a, b);
 }
 
-export * from './account';
+export { getAccount, getAccountPhrase, createAccount } from './account';
+export * from './network';
