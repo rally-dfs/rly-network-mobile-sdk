@@ -32,43 +32,46 @@ export default function App() {
     setRlyAccount(rlyAct);
   };
 
-  return (
-    <View style={styles.container}>
-      {accountLoaded ? (
-        <AccountView
-          rlyAccount={rlyAccount}
-          generateAccount={() => {
-            createRlyAccount();
-          }}
-        />
-      ) : (
-        <LoadingScreen />
-      )}
-    </View>
-  );
+  if (!accountLoaded) {
+    return <LoadingScreen />;
+  }
+
+  if (!rlyAccount) {
+    return <GenerateAccountView generateAccount={createRlyAccount} />;
+  }
+
+  return <AccountView rlyAccount={rlyAccount} />;
 }
 
-const AccountView = (props: {
-  rlyAccount?: Wallet;
-  generateAccount: () => void;
-}) => {
-  if (!props.rlyAccount?.publicKey) {
-    return (
-      <>
-        <Text>No Account Exists, You need to generate one</Text>
-        <Button title="Create RLY Account" onPress={props.generateAccount} />
-      </>
-    );
-  }
+const AppContainer = (props: { children: React.ReactNode }) => {
+  return <View style={styles.container}>{props.children}</View>;
+};
+
+const GenerateAccountView = (props: { generateAccount: () => void }) => {
   return (
-    <Text>
-      RLY Account Key = {props.rlyAccount?.publicKey || 'No Account Exists'}
-    </Text>
+    <AppContainer>
+      <Text>No Account Exists, You need to generate one</Text>
+      <Button title="Create RLY Account" onPress={props.generateAccount} />
+    </AppContainer>
+  );
+};
+
+const AccountView = (props: { rlyAccount?: Wallet }) => {
+  return (
+    <AppContainer>
+      <Text>
+        RLY Account Key = {props.rlyAccount?.publicKey || 'No Account Exists'}
+      </Text>
+    </AppContainer>
   );
 };
 
 const LoadingScreen = () => {
-  return <Text> Loading RLY Account </Text>;
+  return (
+    <AppContainer>
+      <Text> Loading RLY Account </Text>
+    </AppContainer>
+  );
 };
 
 const styles = StyleSheet.create({
