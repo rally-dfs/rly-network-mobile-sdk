@@ -11,8 +11,10 @@ export function LoadingModal({
 }) {
   return (
     <StandardModal show={show}>
-      <HeadingText>{title}</HeadingText>
-      <ActivityIndicator />
+      <>
+        <HeadingText>{title}</HeadingText>
+        <ActivityIndicator />
+      </>
     </StandardModal>
   );
 }
@@ -27,7 +29,7 @@ export function StandardModal({
   return (
     <Modal visible={show} transparent>
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>{children} </View>
+        <View style={styles.modalView}>{children}</View>
       </View>
     </Modal>
   );
