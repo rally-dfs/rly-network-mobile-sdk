@@ -18,12 +18,9 @@ export async function createAccount(overwrite?: boolean) {
 
   console.log('Preparing to Generate Wallet');
   const newWallet = Wallet.createRandom();
-
-  const privateKey = newWallet.privateKey;
   console.log('Wallet Generated');
 
   console.log('Storing in secure device storage');
-  await setGenericPassword('', privateKey, { service: 'rly-pkey' });
   await setGenericPassword('', newWallet.mnemonic.phrase, {
     service: 'rly-mnemonic',
   });
@@ -34,7 +31,7 @@ export async function createAccount(overwrite?: boolean) {
 
 export async function getWallet() {
   console.log('reading key from secure device storage');
-  const credentials = await getGenericPassword({ service: 'rly-pkey' });
+  const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
 
   if (!credentials) {
     return;
@@ -42,8 +39,8 @@ export async function getWallet() {
 
   console.log('Key found');
 
-  const privateKey = credentials.password;
-  return new Wallet(privateKey);
+  const mnemonic = credentials.password;
+  return Wallet.fromMnemonic(mnemonic);
 }
 
 export async function getAccount() {
