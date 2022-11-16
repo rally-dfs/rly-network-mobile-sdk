@@ -27,8 +27,6 @@ export default function App() {
   }, [accountLoaded]);
 
   const createRlyAccount = async () => {
-    console.log('Going to generate account');
-
     const rlyAct = await createAccount();
     setRlyAccount(rlyAct);
   };

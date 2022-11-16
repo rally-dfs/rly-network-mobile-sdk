@@ -9,35 +9,27 @@ import { Wallet } from 'ethers';
 import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
 
 export async function createAccount(overwrite?: boolean) {
-  console.log('Checking for existing account');
   const existingWallet = await getWallet();
 
   if (existingWallet && !overwrite) {
     throw 'Account already exists';
   }
 
-  console.log('Preparing to Generate Wallet');
   const newWallet = Wallet.createRandom();
-  console.log('Wallet Generated');
 
-  console.log('Storing in secure device storage');
   await setGenericPassword('', newWallet.mnemonic.phrase, {
     service: 'rly-mnemonic',
   });
-  console.log('Storage complete');
 
   return newWallet.address;
 }
 
 export async function getWallet() {
-  console.log('reading key from secure device storage');
   const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
 
   if (!credentials) {
     return;
   }
-
-  console.log('Key found');
 
   const mnemonic = credentials.password;
   return Wallet.fromMnemonic(mnemonic);
