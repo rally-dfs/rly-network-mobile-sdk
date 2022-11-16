@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { AppContainer } from './components/AppContainer';
 import { BodyText, HeadingText } from './components/text';
-import { Button, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  Button,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useEffect, useState } from 'react';
 import { getAccountPhrase, RlyDummyNetwork } from 'rly-network-mobile-sdk';
 import { RlyCard } from './components/RlyCard';
@@ -71,6 +78,16 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <View style={styles.balanceContainer}>
               <BodyText>Your Current Balance Is</BodyText>
               <HeadingText>{balance}</HeadingText>
+            </View>
+            <View style={styles.balanceContainer}>
+              <Button
+                title="View on Polygon"
+                onPress={() => {
+                  Linking.openURL(
+                    `https://mumbai.polygonscan.com/address/${props.rlyAccount}`
+                  );
+                }}
+              />
             </View>
           </RlyCard>
           <View
