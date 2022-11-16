@@ -121,14 +121,21 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
       <StandardModal show={!!mnemonic}>
         <View>
-          <BodyText>{mnemonic}</BodyText>
+          <View>
+            <BodyText>Copy The Phrase below to export your wallet</BodyText>
+          </View>
+          <View style={styles.balanceCard}>
+            <HeadingText>{mnemonic}</HeadingText>
+          </View>
+          <View style={styles.balanceCard}>
+            <Button
+              title="Close"
+              onPress={() => {
+                setMnemonic(undefined);
+              }}
+            />
+          </View>
         </View>
-        <Button
-          title="Close"
-          onPress={() => {
-            setMnemonic(undefined);
-          }}
-        />
       </StandardModal>
 
       <LoadingModal
