@@ -8,6 +8,8 @@ import '@ethersproject/shims';
 import { Wallet } from 'ethers';
 import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
 
+let _cachedWallet: Wallet | undefined;
+
 export async function createAccount(overwrite?: boolean) {
   const existingWallet = await getWallet();
 
@@ -20,11 +22,15 @@ export async function createAccount(overwrite?: boolean) {
   await setGenericPassword('', newWallet.mnemonic.phrase, {
     service: 'rly-mnemonic',
   });
+  _cachedWallet = newWallet;
 
   return newWallet.address;
 }
 
 export async function getWallet() {
+  if (_cachedWallet) {
+    return _cachedWallet;
+  }
   const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
 
   if (!credentials) {
@@ -32,7 +38,9 @@ export async function getWallet() {
   }
 
   const mnemonic = credentials.password;
-  return Wallet.fromMnemonic(mnemonic);
+  const wallet = Wallet.fromMnemonic(mnemonic);
+  _cachedWallet = wallet;
+  return wallet;
 }
 
 export async function getAccount() {
@@ -42,12 +50,11 @@ export async function getAccount() {
 }
 
 export async function getAccountPhrase() {
-  const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
-  const mnemonic = credentials && credentials.password;
+  const wallet = await getWallet();
 
-  if (!mnemonic) {
+  if (!wallet) {
     return;
   }
 
-  return mnemonic;
+  return wallet.mnemonic.phrase;
 }
