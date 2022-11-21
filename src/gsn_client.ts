@@ -1,7 +1,7 @@
 import '@ethersproject/shims';
 import type { NetworkConfig } from './network_config/network_config';
+import Web3 from 'web3';
 import { RelayProvider } from '@opengsn/provider';
-import { HttpProvider } from 'web3-providers-http';
 import { Wallet, providers, Signer } from 'ethers';
 
 export const getGSNProvider = async (
@@ -10,7 +10,7 @@ export const getGSNProvider = async (
 ): Promise<Signer> => {
   const { rpcUrl, gsn } = config;
 
-  const web3provider = new HttpProvider(rpcUrl);
+  const web3provider = new Web3.providers.HttpProvider(rpcUrl);
 
   let gsnProvider = RelayProvider.newProvider({
     provider: web3provider,

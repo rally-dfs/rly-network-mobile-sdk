@@ -21,7 +21,7 @@
     "babel-plugin-module-resolver": "^4.1.0",
     "metro-react-native-babel-preset": "0.72.3"
   },
-  "react-native":{
+  "react-native": {
     "http": "@tradle/react-native-http"
   }
 }

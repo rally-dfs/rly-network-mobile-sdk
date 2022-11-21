@@ -22,7 +22,7 @@ module.exports = {
           new RegExp(`^${escape(path.join(root, 'node_modules', m))}\\/.*$`)
       )
     ),
-
+    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
     extraNodeModules: modules.reduce((acc, name) => {
       acc[name] = path.join(__dirname, 'node_modules', name);
       return acc;
