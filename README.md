@@ -11,11 +11,11 @@ npm install rly-network-mobile-sdk
 ## Usage
 
 ```js
-import { multiply } from 'rly-network-mobile-sdk';
+import { getAccount } from 'rly-network-mobile-sdk';
 
 // ...
 
-const result = await multiply(3, 7);
+const account = await getAccount();
 ```
 
 ## Contributing
