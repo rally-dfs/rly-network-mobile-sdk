@@ -44,6 +44,7 @@ async function getBalance() {
   if (!account) {
     throw MissingWallet;
   }
+
   const provider = await getGSNProvider(localNetworkConfig, account);
   const token = tokenFaucet(localNetworkConfig, provider);
   return await token.balanceOf(account.publicKey);
@@ -59,6 +60,7 @@ async function registerAccount() {
   if (existingBalance && existingBalance > 0) {
     throw 'Account already dusted, will not dust again';
   }
+
   const provider = await getGSNProvider(localNetworkConfig, account);
   const faucet = tokenFaucet(localNetworkConfig, provider);
   //dust account

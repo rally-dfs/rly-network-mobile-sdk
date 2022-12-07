@@ -2,12 +2,25 @@ const path = require('path');
 const escape = require('escape-string-regexp');
 const exclusionList = require('metro-config/src/defaults/exclusionList');
 const pak = require('../package.json');
+const reactNativeNodeLibs = require('node-libs-react-native');
+
 
 const root = path.resolve(__dirname, '..');
 
 const modules = Object.keys({
   ...pak.peerDependencies,
 });
+
+const peerDeps = modules.reduce((acc, name) => {
+  acc[name] = path.join(__dirname, 'node_modules', name);
+  return acc;
+}, {})
+
+const extraNodeModules = {
+  ...reactNativeNodeLibs,
+  ...peerDeps,
+  fs: path.join(__dirname, 'node_modules', 'react-native-level-fs'),
+}
 
 module.exports = {
   projectRoot: __dirname,
@@ -22,11 +35,7 @@ module.exports = {
           new RegExp(`^${escape(path.join(root, 'node_modules', m))}\\/.*$`)
       )
     ),
-    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
-    extraNodeModules: modules.reduce((acc, name) => {
-      acc[name] = path.join(__dirname, 'node_modules', name);
-      return acc;
-    }, {}),
+    extraNodeModules
   },
 
   transformer: {
