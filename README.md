@@ -1,3 +1,5 @@
+# NOTE: This repo is currently a work in progress, things may fail or work unexpectedly while testing
+
 # rly-network-mobile-sdk
 
 An SDK to make working with token economies as easy as credit cards
@@ -11,11 +13,10 @@ npm install rly-network-mobile-sdk
 ## Usage
 
 ```js
-import { multiply } from 'rly-network-mobile-sdk';
-
+import { getAccount } from 'rly-network-mobile-sdk';
 // ...
 
-const result = await multiply(3, 7);
+const account = await getAccount();
 ```
 
 ## Contributing
