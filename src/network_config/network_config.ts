@@ -1,12 +1,26 @@
-import type { GSNConfig } from '@opengsn/common';
+import type { PrefixedHexString, IntString } from '../gsnClient/utils';
 
 export interface NetworkConfig {
-  rpcUrl: string;
   contracts: {
-    paymaster: string;
-    tokenFaucet: string;
+    tokenFaucet: PrefixedHexString;
   };
-  gsn: GSNConfig;
+  gsn: {
+    paymasterAddress: PrefixedHexString;
+    forwarderAddress: PrefixedHexString;
+    relayHubAddress: PrefixedHexString;
+    relayWorkerAddress: PrefixedHexString;
+    relayUrl: string;
+    rpcUrl: string;
+    chainId: IntString;
+    maxAcceptanceBudget: IntString;
+    domainSeparatorName: string;
+    gtxDataZero: number;
+    gtxDataNonZero: number;
+    requestValidSeconds: number;
+    maxPaymasterDataLength: number;
+    maxApprovalDataLength: number;
+    maxRelayNonceGap: number;
+  };
 }
 
 export * from './network_config_local';

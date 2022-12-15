@@ -1,11 +1,12 @@
+import { ethers } from 'ethers';
 import { MissingWallet } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
-import { getGSNProvider } from '../gsn_client';
 import { localNetworkConfig } from '../network_config/network_config_local';
-import { tokenFaucet } from '../contract';
-
-const balances: Record<string, number> = {};
+import { tokenFaucet } from '../contracts/tokenFaucet';
+import { gsnLightClient } from '../gsnClient/gsnClient';
+import { rlyEnv } from '../gsnClient/utils';
+import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
 
 async function transfer(destinationAddress: string, amount: number) {
   const account = await getWallet();
@@ -20,10 +21,12 @@ async function transfer(destinationAddress: string, amount: number) {
   if (sourceFinalBalance < 0) {
     throw 'Unable to transfer, insufficient balance';
   }
+  const gsnClient = new gsnLightClient(account, rlyEnv.local);
+  await gsnClient.init();
 
-  const provider = await getGSNProvider(localNetworkConfig, account);
-  const token = tokenFaucet(localNetworkConfig, provider);
-  await token.transfer(destinationAddress, amount);
+  const transferTx = await getTransferTx(account, destinationAddress, amount);
+
+  await gsnClient.relayTransaction(transferTx);
 }
 
 /*
@@ -45,9 +48,12 @@ async function getBalance() {
     throw MissingWallet;
   }
 
-  const provider = await getGSNProvider(localNetworkConfig, account);
+  const provider = new ethers.providers.JsonRpcProvider(
+    localNetworkConfig.gsn.rpcUrl
+  );
   const token = tokenFaucet(localNetworkConfig, provider);
-  return await token.balanceOf(account.publicKey);
+  const bal = await token.balanceOf(account.address);
+  return bal.toNumber();
 }
 
 async function registerAccount() {
@@ -55,16 +61,19 @@ async function registerAccount() {
   if (!account) {
     throw MissingWallet;
   }
-  const existingBalance = balances[account.publicKey];
+
+  const existingBalance = await getBalance();
 
   if (existingBalance && existingBalance > 0) {
     throw 'Account already dusted, will not dust again';
   }
 
-  const provider = await getGSNProvider(localNetworkConfig, account);
-  const faucet = tokenFaucet(localNetworkConfig, provider);
-  //dust account
-  await faucet.claim();
+  const gsnClient = new gsnLightClient(account, rlyEnv.local);
+  await gsnClient.init();
+
+  const claimTx = await getClaimTx(account);
+
+  await gsnClient.relayTransaction(claimTx);
 }
 
 export const RlyLocalNetwork: Network = {
