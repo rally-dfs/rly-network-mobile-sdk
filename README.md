@@ -2,7 +2,7 @@
 
 # rly-network-mobile-sdk
 
-An SDK to make working with token economies as easy as credit cards
+An SDK to make working with mobile wallets easy
 
 ## Installation
 
