@@ -36,25 +36,42 @@ const mnemonic = await getAccountPhrase();
 ### Network
 
 ```js
-
 import { RlyMumbaiNetwork } from 'rly-network-mobile-sdk';
 
-
 // sends 10 RLY to user's account, at which point they can transact
-await RlyMumbaiNetwork.registerAccount()
+await RlyMumbaiNetwork.registerAccount();
 
 // transfers 2 RLY from user's account to account = 0x
-await RlyMumbaiNetwork.transfer('0x', 2)
+await RlyMumbaiNetwork.transfer('0x', 2);
 
 // returns the user's current RLY balance
-await RlyMumbaiNetwork.getBalance()
-
-
-## License
-
-MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+await RlyMumbaiNetwork.getBalance();
 ```
+
+## Example
+
+An example wallet application can be found in `/example`. This app allows a user to create a new account, register their account and transfer RLY to a specific address.
+
+To run the example do the following from the top level of this repo.
+
+**Make Sure you have all required React Native deps installed**
+
+[react native start guide](https://reactnative.dev/docs/environment-setup)
+
+**Install dependencies**
+
+`yarn install`
+
+`yarn bootstrap`
+
+**Start Metro**
+
+In one terminal start Metro, the react native JS bundler
+
+`yarn example start`
+
+**Run App**
+
+In another terminal run build and run the ios app, this should open the app in the ios emulator
+
+`yarn example ios`
