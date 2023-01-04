@@ -13,6 +13,7 @@ export default function App() {
   useEffect(() => {
     const readAccount = async () => {
       const account = await getAccount();
+      console.log('user account', account);
 
       setAccountLoaded(true);
 
@@ -28,6 +29,7 @@ export default function App() {
 
   const createRlyAccount = async () => {
     const rlyAct = await createAccount();
+    console.log('user account = ', rlyAct);
     setRlyAccount(rlyAct);
   };
 

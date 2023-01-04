@@ -1,8 +1,13 @@
-import type { GsnTransactionDetails, AccountKeypair, rlyEnv } from './utils';
+import type { GsnTransactionDetails, AccountKeypair } from './utils';
 
 import type { RelayRequest } from './EIP712/RelayRequest';
 
 import axios from 'axios';
+
+import type {
+  GSNConfig,
+  NetworkConfig,
+} from 'src/network_config/network_config';
 
 import {
   estimateGasWithoutCallData,
@@ -12,21 +17,16 @@ import {
   getRelayRequestID,
 } from './gsnTxHelpers';
 
-import {
-  gsnLightClientConfig,
-  gsnLightClientRLYConfig,
-} from './gsnLightClientConfig';
-
 import { ethers, providers } from 'ethers';
 
 export class gsnLightClient {
   private readonly account: AccountKeypair;
-  config: gsnLightClientConfig;
+  config: GSNConfig;
   web3Provider: providers.JsonRpcProvider;
 
-  constructor(account: AccountKeypair, rlyEnv: rlyEnv) {
+  constructor(account: AccountKeypair, config: NetworkConfig) {
     this.account = account;
-    this.config = gsnLightClientRLYConfig[rlyEnv];
+    this.config = config.gsn;
     this.web3Provider = new ethers.providers.JsonRpcProvider(
       this.config.rpcUrl
     );
@@ -58,7 +58,7 @@ export class gsnLightClient {
 
   _updateConfig = async () => {
     const { data } = await axios.get(`${this.config.relayUrl}/getaddr`);
-    //get current relay worker address from server
+    //get current relay worker address from relay server config
     this.config.relayWorkerAddress = data.relayWorkerAddress;
     return;
   };
@@ -75,7 +75,6 @@ export class gsnLightClient {
       this.config.gtxDataZero
     );
 
-    //calculate valid until time based on confi
     const secondsNow = Math.round(Date.now() / 1000);
     const validUntilTime = (
       secondsNow + this.config.requestValidSeconds
@@ -128,7 +127,7 @@ export class gsnLightClient {
 
   _buildRelayHttpRequest = async (
     relayRequest: RelayRequest,
-    config: gsnLightClientConfig
+    config: GSNConfig
   ) => {
     const signature = await signRequest(
       relayRequest,
@@ -148,7 +147,6 @@ export class gsnLightClient {
     const relayMaxNonce = relayLastKnownNonce + config.maxRelayNonceGap;
 
     const metadata = {
-      domainSeparatorName: config.domainSeparatorName,
       maxAcceptanceBudget: config.maxAcceptanceBudget,
       relayHubAddress: config.relayHubAddress,
       signature,

@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { MissingWallet } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
-import { localNetworkConfig } from '../network_config/network_config_local';
+import { mumbaiNetworkConfig } from '../network_config/network_config';
 import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
@@ -20,14 +20,14 @@ async function transfer(destinationAddress: string, amount: number) {
   if (sourceFinalBalance < 0) {
     throw 'Unable to transfer, insufficient balance';
   }
-  const gsnClient = new gsnLightClient(account, localNetworkConfig);
+  const gsnClient = new gsnLightClient(account, mumbaiNetworkConfig);
   await gsnClient.init();
 
   const transferTx = await getTransferTx(
     account,
     destinationAddress,
     ethers.utils.parseEther(amount.toString()),
-    localNetworkConfig
+    mumbaiNetworkConfig
   );
 
   await gsnClient.relayTransaction(transferTx);
@@ -53,9 +53,9 @@ async function getBalance() {
   }
 
   const provider = new ethers.providers.JsonRpcProvider(
-    localNetworkConfig.gsn.rpcUrl
+    mumbaiNetworkConfig.gsn.rpcUrl
   );
-  const token = tokenFaucet(localNetworkConfig, provider);
+  const token = tokenFaucet(mumbaiNetworkConfig, provider);
   const bal = await token.balanceOf(account.address);
   return Number(ethers.utils.formatEther(bal));
 }
@@ -72,15 +72,15 @@ async function registerAccount() {
     throw 'Account already dusted, will not dust again';
   }
 
-  const gsnClient = new gsnLightClient(account, localNetworkConfig);
+  const gsnClient = new gsnLightClient(account, mumbaiNetworkConfig);
   await gsnClient.init();
 
-  const claimTx = await getClaimTx(account, localNetworkConfig);
+  const claimTx = await getClaimTx(account, mumbaiNetworkConfig);
 
   await gsnClient.relayTransaction(claimTx);
 }
 
-export const RlyLocalNetwork: Network = {
+export const RlyMumbaiNetwork: Network = {
   transfer: transfer,
   getBalance: getBalance,
   registerAccount: registerAccount,

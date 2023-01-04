@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import { Buffer } from 'buffer';
 import type { RelayRequest } from './EIP712/RelayRequest';
-import type { gsnLightClientConfig } from './gsnLightClientConfig';
+
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type {
   PrefixedHexString,
@@ -9,10 +9,11 @@ import type {
   Address,
   AccountKeypair,
 } from './utils';
-import { localNetworkConfig } from '../network_config/network_config';
+import type {
+  GSNConfig,
+  NetworkConfig,
+} from '../network_config/network_config';
 import { tokenFaucet } from '../contract';
-
-//TODO: move outside of @opengsn
 
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
@@ -58,7 +59,7 @@ export const estimateGasWithoutCallData = (
 
 export const estimateCalldataCostForRequest = async (
   relayRequestOriginal: RelayRequest,
-  config: gsnLightClientConfig
+  config: GSNConfig
 ): Promise<PrefixedHexString> => {
   // protecting the original object from temporary modifications done here
   const relayRequest = Object.assign({}, relayRequestOriginal, {
@@ -160,12 +161,13 @@ export const getRelayRequestID = (
   return `0x${prefixedRelayRequestId}`;
 };
 
-export const getClaimTx = async (account: AccountKeypair) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    localNetworkConfig.gsn.rpcUrl
-  );
+export const getClaimTx = async (
+  account: AccountKeypair,
+  config: NetworkConfig
+) => {
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
-  const faucet = tokenFaucet(localNetworkConfig, provider);
+  const faucet = tokenFaucet(config, provider);
 
   const tx = await faucet.populateTransaction.claim?.();
   const gas = await faucet.estimateGas.claim?.();
@@ -191,14 +193,13 @@ export const getClaimTx = async (account: AccountKeypair) => {
 export const getTransferTx = async (
   account: AccountKeypair,
   destinationAddress: Address,
-  amount: number
+  amount: BigNumber,
+  config: NetworkConfig
 ) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    localNetworkConfig.gsn.rpcUrl
-  );
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   //get instance of faucet contract at deployed address with the gsn provider and account as signer
-  const faucet = tokenFaucet(localNetworkConfig, provider);
+  const faucet = tokenFaucet(config, provider);
 
   const tx = await faucet.populateTransaction.transfer?.(
     destinationAddress,
