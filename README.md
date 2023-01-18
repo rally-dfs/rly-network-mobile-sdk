@@ -1,6 +1,28 @@
 # rly-network-mobile-sdk
 
-An SDK to make working with token economies as easy as credit cards
+## What is rly-network-mobile-sdk?
+Rly-network-mobile-sdk is a set of libraries, tools, and smart contracts that streamlines blockchain integration for developers to enable frictionless user onboarding and simplify on-chain transactions. 
+
+Rly-network-mobile-sdk currently offers the following services:  
+* Self custodied accounts: Create on-chain user custodied accounts (wallets) on their mobile device 
+* Dust wallets: Programmatically push RLY tokens directly to end user accounts   
+* Gasless transactions: Enable gasless transactions so that your users do not have to pay for gas 
+
+
+## Benefits of using the rly-network-mobile-sdk
+
+#### Developer Benefits
+* Streamlined blockchain integration; create user custodied accounts and fund them with RLY tokens in two lines of code
+* Relayer, smart contracts, and web3 technology maintained by RLY Network so you can focus on your application
+* Extensive knowledge of blockchain is not required to integrate 
+
+#### User Benefits
+* Engage with applications without going through the complex process of securing an on-chain account, sourcing funds, maintaining balances, signing transactions, and paying for gas fees
+* Instantly initiate on-chain transactions with dusted tokens and gasless transactions
+* Engage with applications without having to go through the step of creating an account 
+* Engage with applications without having to provide personal identifiable information
+* Agency over their self custodied wallet; export or move funds to another account 
+* Engage with applications without being having to be blockchain literate
 
 ## Installation
 
