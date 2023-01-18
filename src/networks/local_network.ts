@@ -1,5 +1,9 @@
 import { ethers } from 'ethers';
-import { MissingWallet } from '../errors';
+import {
+  InsufficientBalanceError,
+  MissingWalletError,
+  PriorDustingError,
+} from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
 import { localNetworkConfig } from '../network_config/network_config_local';
@@ -10,7 +14,7 @@ import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
 async function transfer(destinationAddress: string, amount: number) {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
 
   const sourceBalance = await getBalance();
@@ -18,7 +22,7 @@ async function transfer(destinationAddress: string, amount: number) {
   const sourceFinalBalance = sourceBalance - amount;
 
   if (sourceFinalBalance < 0) {
-    throw 'Unable to transfer, insufficient balance';
+    throw InsufficientBalanceError;
   }
   const gsnClient = new gsnLightClient(account, localNetworkConfig);
   await gsnClient.init();
@@ -49,7 +53,7 @@ async function getnativeTokenBalance() {
 async function getBalance() {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
 
   const provider = new ethers.providers.JsonRpcProvider(
@@ -63,13 +67,13 @@ async function getBalance() {
 async function registerAccount() {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
 
   const existingBalance = await getBalance();
 
   if (existingBalance && existingBalance > 0) {
-    throw 'Account already dusted, will not dust again';
+    throw PriorDustingError;
   }
 
   const gsnClient = new gsnLightClient(account, localNetworkConfig);

@@ -1,4 +1,8 @@
-import { MissingWallet } from '../errors';
+import {
+  InsufficientBalanceError,
+  MissingWalletError,
+  PriorDustingError,
+} from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
 
@@ -7,14 +11,14 @@ const balances: Record<string, number> = {};
 async function transfer(destinationAddress: string, amount: number) {
   const wallet = await getWallet();
   if (!wallet) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
   const sourceBalance = balances[wallet.publicKey] || 0;
 
   const sourceFinalBalance = sourceBalance - amount;
 
   if (sourceFinalBalance < 0) {
-    throw 'Unable to transfer, insufficient balance';
+    throw InsufficientBalanceError;
   }
 
   const receiverInitialBalance = balances[destinationAddress] || 0;
@@ -27,7 +31,7 @@ async function transfer(destinationAddress: string, amount: number) {
 async function getBalance() {
   const wallet = await getWallet();
   if (!wallet) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
   return balances[wallet.publicKey] || 0;
 }
@@ -35,12 +39,12 @@ async function getBalance() {
 async function registerAccount() {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
   const existingBalance = balances[account.publicKey];
 
   if (existingBalance && existingBalance > 0) {
-    throw 'Account already dusted, will not dust again';
+    throw PriorDustingError;
   }
 
   balances[account.publicKey] = 10;
