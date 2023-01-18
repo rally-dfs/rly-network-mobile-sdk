@@ -15,6 +15,7 @@ import {
   getSenderNonce,
   signRequest,
   getRelayRequestID,
+  getClientId,
 } from './gsnTxHelpers';
 
 import { ethers, providers } from 'ethers';
@@ -86,6 +87,8 @@ export class gsnLightClient {
       this.web3Provider
     );
 
+    const clientId = await getClientId();
+
     const relayRequest: RelayRequest = {
       request: {
         from: transaction.from,
@@ -108,7 +111,7 @@ export class gsnLightClient {
         forwarder: this.config.forwarderAddress,
         paymasterData: transaction.paymasterData,
         //can't find documentation on what this should be, setting to 1 as this is default in defaultGsnConfig
-        clientId: '1',
+        clientId,
       },
     };
 
@@ -136,7 +139,7 @@ export class gsnLightClient {
       this.account
     );
 
-    //TODO: when shoudl this be used?
+    //TODO: when should this be used?
     const approvalData = '0x';
 
     const wallet = new ethers.VoidSigner(

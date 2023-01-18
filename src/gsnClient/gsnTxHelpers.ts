@@ -1,8 +1,8 @@
 import { ethers, BigNumber } from 'ethers';
+import { NativeModules } from 'react-native';
 import { Buffer } from 'buffer';
-import type { RelayRequest } from './EIP712/RelayRequest';
-
 import { TypedGsnRequestData } from './EIP712/typedSigning';
+import type { RelayRequest } from './EIP712/RelayRequest';
 import type {
   PrefixedHexString,
   GsnTransactionDetails,
@@ -17,6 +17,8 @@ import { tokenFaucet } from '../contract';
 
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
+
+const { RlyNetworkMobileSdk } = NativeModules;
 
 const calculateCalldataBytesZeroNonzero = (
   calldata: PrefixedHexString
@@ -226,4 +228,14 @@ export const getTransferTx = async (
   } as GsnTransactionDetails;
 
   return gsnTx;
+};
+
+export const getClientId = async (): Promise<string> => {
+  //get bundleId string from application convert it to integer for use in GSN
+  //get bundle id from native module
+  const bundleId = await RlyNetworkMobileSdk.getBundleId();
+  //convert bundle to hex
+  const hexValue = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(bundleId));
+  //convert hex to int
+  return BigNumber.from(hexValue).toString();
 };
