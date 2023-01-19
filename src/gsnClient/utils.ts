@@ -3,7 +3,7 @@ export type Address = string;
 export type IntString = string;
 
 export enum rlyEnv {
-  local = "local",
+  local = 'local',
 }
 
 export interface AccountKeypair {
