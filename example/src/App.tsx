@@ -13,6 +13,7 @@ export default function App() {
   useEffect(() => {
     const readAccount = async () => {
       const account = await getAccount();
+      console.log('user account', account);
 
       setAccountLoaded(true);
 

@@ -10,11 +10,11 @@ import {
   View,
 } from 'react-native';
 import { useEffect, useState } from 'react';
-import { getAccountPhrase, RlyDummyNetwork } from 'rly-network-mobile-sdk';
+import { getAccountPhrase, RlyMumbaiNetwork } from 'rly-network-mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 
-const RlyNetwork = RlyDummyNetwork;
+const RlyNetwork = RlyMumbaiNetwork;
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();

@@ -5,8 +5,8 @@
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
-  "react-native": "src/index",
   "source": "src/index",
+  "react-native": "src/index",
   "files": [
     "src",
     "lib",
@@ -70,10 +70,10 @@
     "react": "18.1.0",
     "react-native": "0.70.5",
     "react-native-builder-bob": "^0.20.1",
-    "release-it": "^15.0.0",
-    "typescript": "^4.5.2",
+    "react-native-get-random-values": "^1.8.0",
     "react-native-keychain": "^8.1.1",
-    "react-native-get-random-values": "^1.8.0"
+    "release-it": "^15.0.0",
+    "typescript": "^4.5.2"
   },
   "resolutions": {
     "@types/react": "17.0.21"
@@ -81,8 +81,8 @@
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
-    "react-native-keychain": "^8.1.1",
-    "react-native-get-random-values": "^1.8.0"
+    "react-native-get-random-values": "^1.8.0",
+    "react-native-keychain": "^8.1.1"
   },
   "jest": {
     "preset": "react-native",
@@ -158,10 +158,12 @@
     ]
   },
   "dependencies": {
-    "yarn": "^1.22.19",
+    "@ethersproject/shims": "^5.7.0",
     "@maticnetwork/maticjs": "^3.5.0",
     "@maticnetwork/maticjs-ethers": "^1.0.2",
+    "axios": "^1.2.1",
+    "buffer": "^6.0.3",
     "ethers": "^5.7.2",
-    "@ethersproject/shims": "^5.7.0"
+    "yarn": "^1.22.19"
   }
 }

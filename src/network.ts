@@ -5,3 +5,5 @@ export interface Network {
 }
 
 export * from './networks/dummy_network';
+export * from './networks/local_network';
+export * from './networks/mumbai_network';
