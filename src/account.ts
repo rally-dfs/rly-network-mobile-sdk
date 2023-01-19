@@ -5,11 +5,8 @@
 import 'react-native-get-random-values';
 import '@ethersproject/shims';
 
-import { NativeModules } from 'react-native';
-import { ethers, Wallet, BigNumber } from 'ethers';
+import { Wallet } from 'ethers';
 import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
-
-const { RlyNetworkMobileSdk } = NativeModules;
 
 let _cachedWallet: Wallet | undefined;
 
