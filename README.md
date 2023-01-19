@@ -1,4 +1,7 @@
+# NOTE: This repo is currently a work in progress, things may fail or work unexpectedly while testing
+
 # rly-network-mobile-sdk
+
 
 ## What is rly-network-mobile-sdk?
 Rly-network-mobile-sdk is a set of libraries, tools, and open source smart contracts that streamlines blockchain integration for developers to enable frictionless user onboarding and simplify on-chain transactions.
@@ -29,6 +32,7 @@ Rly-network-mobile-sdk currently offers the following services:
 * Engage with applications without having to source funds, maintain balances, sign transactions, and pay for gas fees
 * Instantly initiate the first on-chain transactions with dusted tokens and gasless transactions
 * Engage with applications without being having to be blockchain literate
+
 
 ## Installation
 
@@ -66,6 +70,7 @@ const mnemonic = await getAccountPhrase();
 ### Network
 
 ```js
+
 import { RlyMumbaiNetwork } from 'rly-network-mobile-sdk';
 
 // sends 10 RLY to user's account, at which point they can transact
@@ -87,6 +92,7 @@ import { DummyNetwork as Network } from 'rly-network-mobile-sdk';
 // This network makes requests to a locally running blockchain and gas station network.
 // This is a great choice if you are confident running you own end to end local environment, or want to test with your own custom contracts.
 import { LocalNetwork as Network } from 'rly-network-mobile-sdk';
+
 ```
 
 ## Full Example App
