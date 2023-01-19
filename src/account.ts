@@ -19,7 +19,7 @@ export async function createAccount(overwrite?: boolean) {
 
   const newWallet = Wallet.createRandom();
 
-  await setGenericPassword('', newWallet.mnemonic.phrase, {
+  await setGenericPassword('rly-sdk-private-key', newWallet.mnemonic.phrase, {
     service: 'rly-mnemonic',
   });
   _cachedWallet = newWallet;

@@ -19,6 +19,11 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
     promise.resolve(a * b)
   }
 
+  @ReactMethod
+  fun getBundleId(promise:Promise){
+    promise.resolve(reactApplicationContext.packageName)
+  }
+
   companion object {
     const val NAME = "RlyNetworkMobileSdk"
   }
