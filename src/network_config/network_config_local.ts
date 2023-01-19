@@ -1,6 +1,6 @@
 import type { NetworkConfig } from './network_config';
 
-export const localNetworkConfig: NetworkConfig = {
+export const LocalNetworkConfig: NetworkConfig = {
   contracts: {
     tokenFaucet: '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c',
   },

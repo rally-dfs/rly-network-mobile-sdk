@@ -6,7 +6,7 @@ import {
 } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
-import { localNetworkConfig } from '../network_config/network_config_local';
+import { LocalNetworkConfig } from '../network_config/network_config_local';
 import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
@@ -24,14 +24,14 @@ async function transfer(destinationAddress: string, amount: number) {
   if (sourceFinalBalance < 0) {
     throw InsufficientBalanceError;
   }
-  const gsnClient = new gsnLightClient(account, localNetworkConfig);
+  const gsnClient = new gsnLightClient(account, LocalNetworkConfig);
   await gsnClient.init();
 
   const transferTx = await getTransferTx(
     account,
     destinationAddress,
     ethers.utils.parseEther(amount.toString()),
-    localNetworkConfig
+    LocalNetworkConfig
   );
 
   await gsnClient.relayTransaction(transferTx);
@@ -57,9 +57,9 @@ async function getBalance() {
   }
 
   const provider = new ethers.providers.JsonRpcProvider(
-    localNetworkConfig.gsn.rpcUrl
+    LocalNetworkConfig.gsn.rpcUrl
   );
-  const token = tokenFaucet(localNetworkConfig, provider);
+  const token = tokenFaucet(LocalNetworkConfig, provider);
   const bal = await token.balanceOf(account.address);
   return Number(ethers.utils.formatEther(bal));
 }
@@ -76,10 +76,10 @@ async function registerAccount() {
     throw PriorDustingError;
   }
 
-  const gsnClient = new gsnLightClient(account, localNetworkConfig);
+  const gsnClient = new gsnLightClient(account, LocalNetworkConfig);
   await gsnClient.init();
 
-  const claimTx = await getClaimTx(account, localNetworkConfig);
+  const claimTx = await getClaimTx(account, LocalNetworkConfig);
 
   await gsnClient.relayTransaction(claimTx);
 }

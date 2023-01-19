@@ -1,6 +1,6 @@
 import type { NetworkConfig } from './network_config';
 
-export const mumbaiNetworkConfig: NetworkConfig = {
+export const MumbaiNetworkConfig: NetworkConfig = {
   contracts: {
     tokenFaucet: '0xD934Ac8fB32336C5a2b51dF6a97432C4De0594F3',
   },
