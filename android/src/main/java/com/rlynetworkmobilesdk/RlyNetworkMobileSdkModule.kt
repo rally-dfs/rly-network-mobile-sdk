@@ -12,11 +12,9 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun multiply(a: Double, b: Double, promise: Promise) {
-    promise.resolve(a * b)
+  fun hello() {
+    promise.resolve("Hello world")
   }
 
   companion object {
