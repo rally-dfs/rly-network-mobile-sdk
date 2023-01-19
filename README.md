@@ -40,6 +40,14 @@ Rly-network-mobile-sdk currently offers the following services:
 npm install rly-network-mobile-sdk
 ```
 
+This app makes use of 3rd party react native libraries that contain native code. In order to avoid conflicts if your app already uses these same libraries they are declared as peer dependencies. This means you'll need to add them as dependencies to your own project:
+
+```sh
+npm install --save react-native-get-random-values
+npm install --save react-native-keychain
+```
+
+
 ## Basic Usage
 
 ### Account
