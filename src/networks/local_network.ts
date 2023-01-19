@@ -1,8 +1,12 @@
 import { ethers } from 'ethers';
-import { MissingWallet } from '../errors';
+import {
+  InsufficientBalanceError,
+  MissingWalletError,
+  PriorDustingError,
+} from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
-import { localNetworkConfig } from '../network_config/network_config_local';
+import { LocalNetworkConfig } from '../network_config/network_config_local';
 import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
@@ -10,7 +14,7 @@ import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
 async function transfer(destinationAddress: string, amount: number) {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
 
   const sourceBalance = await getBalance();
@@ -18,16 +22,16 @@ async function transfer(destinationAddress: string, amount: number) {
   const sourceFinalBalance = sourceBalance - amount;
 
   if (sourceFinalBalance < 0) {
-    throw 'Unable to transfer, insufficient balance';
+    throw InsufficientBalanceError;
   }
-  const gsnClient = new gsnLightClient(account, localNetworkConfig);
+  const gsnClient = new gsnLightClient(account, LocalNetworkConfig);
   await gsnClient.init();
 
   const transferTx = await getTransferTx(
     account,
     destinationAddress,
     ethers.utils.parseEther(amount.toString()),
-    localNetworkConfig
+    LocalNetworkConfig
   );
 
   await gsnClient.relayTransaction(transferTx);
@@ -49,13 +53,13 @@ async function getnativeTokenBalance() {
 async function getBalance() {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
 
   const provider = new ethers.providers.JsonRpcProvider(
-    localNetworkConfig.gsn.rpcUrl
+    LocalNetworkConfig.gsn.rpcUrl
   );
-  const token = tokenFaucet(localNetworkConfig, provider);
+  const token = tokenFaucet(LocalNetworkConfig, provider);
   const bal = await token.balanceOf(account.address);
   return Number(ethers.utils.formatEther(bal));
 }
@@ -63,19 +67,19 @@ async function getBalance() {
 async function registerAccount() {
   const account = await getWallet();
   if (!account) {
-    throw MissingWallet;
+    throw MissingWalletError;
   }
 
   const existingBalance = await getBalance();
 
   if (existingBalance && existingBalance > 0) {
-    throw 'Account already dusted, will not dust again';
+    throw PriorDustingError;
   }
 
-  const gsnClient = new gsnLightClient(account, localNetworkConfig);
+  const gsnClient = new gsnLightClient(account, LocalNetworkConfig);
   await gsnClient.init();
 
-  const claimTx = await getClaimTx(account, localNetworkConfig);
+  const claimTx = await getClaimTx(account, LocalNetworkConfig);
 
   await gsnClient.relayTransaction(claimTx);
 }
