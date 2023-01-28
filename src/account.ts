@@ -6,7 +6,7 @@ import 'react-native-get-random-values';
 import '@ethersproject/shims';
 
 import { Wallet } from 'ethers';
-import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
+//import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
 
 let _cachedWallet: Wallet | undefined;
 
@@ -19,9 +19,9 @@ export async function createAccount(overwrite?: boolean) {
 
   const newWallet = Wallet.createRandom();
 
-  await setGenericPassword('rly-sdk-private-key', newWallet.mnemonic.phrase, {
+  /*await setGenericPassword('rly-sdk-private-key', newWallet.mnemonic.phrase, {
     service: 'rly-mnemonic',
-  });
+  });*/
   _cachedWallet = newWallet;
 
   return newWallet.address;
@@ -31,7 +31,12 @@ export async function getWallet() {
   if (_cachedWallet) {
     return _cachedWallet;
   }
-  const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
+  /*const credentials = await getGenericPassword({ service: 'rly-mnemonic' });*/
+
+  const credentials = {
+    password:
+      'genuine blanket glimpse spoon anchor jacket emerge odor gospel credit wait nothing',
+  };
 
   if (!credentials) {
     return;

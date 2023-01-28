@@ -14,7 +14,7 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun hello(promise: Promise) {
-    promise.resolve("Hello world")
+    promise.resolve("Hello World")
   }
 
   @ReactMethod

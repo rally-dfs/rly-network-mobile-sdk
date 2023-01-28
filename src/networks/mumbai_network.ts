@@ -10,6 +10,7 @@ import { MumbaiNetworkConfig } from '../network_config/network_config';
 import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
+import { NativeCodeWrapper } from '../native_code_wrapper';
 
 async function transfer(destinationAddress: string, amount: number) {
   const account = await getWallet();
@@ -55,6 +56,10 @@ async function getBalance() {
   if (!account) {
     throw MissingWalletError;
   }
+
+  const bundle = await NativeCodeWrapper.getBundleId();
+
+  console.log('bundleId', bundle);
 
   const provider = new ethers.providers.JsonRpcProvider(
     MumbaiNetworkConfig.gsn.rpcUrl

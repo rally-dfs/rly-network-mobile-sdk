@@ -110,7 +110,6 @@ export class gsnLightClient {
         paymaster: this.config.paymasterAddress,
         forwarder: this.config.forwarderAddress,
         paymasterData: transaction.paymasterData,
-        //can't find documentation on what this should be, setting to 1 as this is default in defaultGsnConfig
         clientId,
       },
     };
