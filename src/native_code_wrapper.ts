@@ -1,22 +1,9 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
 
-const LINKING_ERROR =
-  `The package 'rly-network-mobile-sdk' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+const RlyNativeModule =
+  NativeModules.RlyNetworkMobileSdk && NativeModules.RlyNetworkMobileSdk;
 
-const RlyNativeModule = NativeModules.RlyNetworkMobileSdk
-  ? NativeModules.RlyNetworkMobileSdk
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-
+// types needed for native modules
 /* https://github.com/expo/expo/blob/1bed2683739276f6392d52af48a487a0a4a99928/packages/expo-modules-core/src/requireNativeModule.ts*/
 
 type ExpoObject = {
@@ -41,6 +28,24 @@ declare global {
         [key: string]: any;
       };
 }
+
+//from react-native-keychain
+//https://github.com/oblador/react-native-keychain/blob/f3003e8208f6561a77d6fad0544d9a73a6731663/index.js#L110
+
+type UserCredentials = {
+  username: string;
+  password: string;
+  service: string;
+  storage: string;
+};
+
+//from react-native-keychain
+//https://github.com/oblador/react-native-keychain/blob/f3003e8208f6561a77d6fad0544d9a73a6731663/index.js#L121
+
+const AUTH_PROMPT_DEFAULTS = {
+  title: 'Authenticate to retrieve secret',
+  cancel: 'Cancel',
+};
 
 export const NativeCodeWrapper = {
   hello: (): Promise<string> => {
@@ -73,5 +78,72 @@ export const NativeCodeWrapper = {
     } else {
       return new Promise((resolve) => resolve('bundle not found'));
     }
+  },
+  setSecureItem: (
+    username: string,
+    password: string,
+    options: any,
+    expoOpts: any = {}
+  ): Promise<false | string> => {
+    // Bare RN
+    if (NativeModules.RNKeychainManager) {
+      options.authenticationPrompt = {
+        ...AUTH_PROMPT_DEFAULTS,
+      };
+      return NativeModules.RNKeychainManager.setGenericPasswordForOptions(
+        options,
+        username,
+        password
+      );
+      // Expo SDK 48+
+    } else if (global.expo?.modules) {
+      const ExpoNativeProxy = global.expo?.modules?.NativeModulesProxy;
+      return ExpoNativeProxy.callMethod(
+        'ExpoSecureStore',
+        'setValueWithKeyAsync',
+        [password, username, expoOpts]
+      );
+    } else if (global.ExpoModules) {
+      const ExpoNativeProxy = global.ExpoModules.NativeModulesProxy;
+      return ExpoNativeProxy.callMethod(
+        'ExpoSecureStore',
+        'setValueWithKeyAsync',
+        [password, username, expoOpts]
+      );
+    } else {
+      return new Promise((resolve) => resolve(false));
+    }
+  },
+  getSecureItem: (
+    item: any,
+    service: any,
+    options: any = {}
+  ): Promise<false | string | UserCredentials> => {
+    // Bare RN
+    if (NativeModules.RNKeychainManager) {
+      service.authenticationPrompt = {
+        ...AUTH_PROMPT_DEFAULTS,
+      };
+      return NativeModules.RNKeychainManager.getGenericPasswordForOptions(
+        service
+      );
+      // Expo SDK 48+
+    } else if (global.expo?.modules) {
+      const ExpoNativeProxy = global.expo?.modules?.NativeModulesProxy;
+      return ExpoNativeProxy.callMethod(
+        'ExpoSecureStore',
+        'getValueWithKeyAsync',
+        [item, options]
+      );
+      // Expo SDK 45+
+    } else if (global.ExpoModules) {
+      const ExpoNativeProxy = global.ExpoModules.NativeModulesProxy;
+      return ExpoNativeProxy.callMethod(
+        'ExpoSecureStore',
+        'getValueWithKeyAsync',
+        [item, options]
+      );
+    }
+    return new Promise((resolve) => resolve(false));
   },
 };
