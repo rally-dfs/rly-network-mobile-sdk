@@ -12,6 +12,11 @@ RCT_EXTERN_METHOD(getBundleId:
     rejecter: (RCTPromiseRejectBlock) reject
 )
 
+RCT_EXTERN_METHOD(getMnemonic:
+    (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
 + (BOOL)requiresMainQueueSetup
 {
   return NO;

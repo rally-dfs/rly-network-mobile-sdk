@@ -7,6 +7,8 @@ import '@ethersproject/shims';
 
 import { Wallet } from 'ethers';
 import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
+import { NativeCodeWrapper } from '../src/native_code_wrapper';
+
 
 let _cachedWallet: Wallet | undefined;
 
@@ -31,14 +33,14 @@ export async function getWallet() {
   if (_cachedWallet) {
     return _cachedWallet;
   }
-  const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
+  var t0 = performance.now()
 
-  if (!credentials) {
-    return;
-  }
 
-  const mnemonic = credentials.password;
-  const wallet = Wallet.fromMnemonic(mnemonic);
+  const mnemonic = await NativeCodeWrapper.getMnemonic()
+
+  const wallet = new Wallet(mnemonic);
+  var t1 = performance.now()
+  console.log(`wallet generation for account (${wallet.address}) from c took ${(t1 - t0)} milliseconds.`)
   _cachedWallet = wallet;
   return wallet;
 }
