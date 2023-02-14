@@ -24,13 +24,14 @@ export async function getWallet() {
     return _cachedWallet;
   }
 
-  let mnemonic = '';
-  try {
-    mnemonic = await NativeCodeWrapper.getMnemonic();
-  } catch (error) {
+  let mnemonic = await NativeCodeWrapper.getMnemonic();
+
+  if (!mnemonic) {
     mnemonic = await NativeCodeWrapper.generateMnemonic();
     await NativeCodeWrapper.saveMnemonic(mnemonic);
   }
+
+  console.log(mnemonic);
 
   const pkey = await NativeCodeWrapper.getPrivateKeyFromMnemonic(mnemonic);
   const wallet = new Wallet(pkey);

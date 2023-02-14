@@ -31,8 +31,7 @@ RCT_EXTERN_METHOD(saveMnemonic:
 
 
 RCT_EXTERN_METHOD(deleteMnemonic:
-    (NSString) mnemonic
-    resolver: (RCTPromiseResolveBlock) resolve
+    (RCTPromiseResolveBlock) resolve
     rejecter: (RCTPromiseRejectBlock) reject
 )
 

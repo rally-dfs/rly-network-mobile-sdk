@@ -30,11 +30,11 @@ export const NativeCodeWrapper = {
   generateMnemonic: (): Promise<string> => {
     return RlyNativeModule.generateMnemonic();
   },
-  saveMnemonic: (mnemonic: string): Promise<Uint8Array> => {
+  saveMnemonic: (mnemonic: string): Promise<boolean> => {
     return RlyNativeModule.saveMnemonic(mnemonic);
   },
-  deleteMnemonic: (mnemonic: string): Promise<Uint8Array> => {
-    return RlyNativeModule.deleteMnemonic(mnemonic);
+  deleteMnemonic: (): Promise<boolean> => {
+    return RlyNativeModule.deleteMnemonic();
   },
   getPrivateKeyFromMnemonic: (mnemonic: string): Promise<Uint8Array> => {
     return RlyNativeModule.getPrivateKeyFromMnemonic(mnemonic);

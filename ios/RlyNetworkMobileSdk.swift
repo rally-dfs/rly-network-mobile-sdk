@@ -1,6 +1,6 @@
 @objc(RlyNetworkMobileSdk)
 class RlyNetworkMobileSdk: NSObject {
-    let MNEMONIC_LENGTH = 16
+    let MNEMONIC_STRENGTH = 24
     let SERVICE_KEY = "WALLET_STORAGE"
     let MNEMONIC_ACCOUNT_KEY = "BIP39_MNEMONIC"
 
@@ -25,7 +25,7 @@ class RlyNetworkMobileSdk: NSObject {
         let mnemonicData = KeychainHelper.standard.read(service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
 
         if (mnemonicData == nil) {
-            reject("mnemonic_retrieval_failure", "failed to get mnemonic from keychain", nil);
+            resolve(nil)
         } else {
             let mnemonicString = String(data: mnemonicData!, encoding: .utf8)
             resolve(mnemonicString)
@@ -36,11 +36,11 @@ class RlyNetworkMobileSdk: NSObject {
       _ resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
     ) -> Void {
-        var data = [UInt8](repeating: 0, count: MNEMONIC_LENGTH)
+        var data = [UInt8](repeating: 0, count: MNEMONIC_STRENGTH)
         let result = SecRandomCopyBytes(kSecRandomDefault, data.count, &data)
         
         if result == errSecSuccess {
-            let mnemonicString = String(cString: mnemonic_from_data(&data, CInt(MNEMONIC_LENGTH)))
+            let mnemonicString = String(cString: mnemonic_from_data(&data, CInt(MNEMONIC_STRENGTH)))
             
             if (mnemonic_check(mnemonicString) == 0) {
                 reject("mnemonic_generation_failure", "mnemonic failed to pass check", nil);
@@ -64,8 +64,7 @@ class RlyNetworkMobileSdk: NSObject {
     }
     
     @objc public func deleteMnemonic(
-      _ mnemonic: String,
-      resolver resolve: RCTPromiseResolveBlock,
+      _ resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
     ) -> Void {
         KeychainHelper.standard.delete(service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
