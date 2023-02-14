@@ -9,13 +9,13 @@ const LINKING_ERROR =
 const RlyNativeModule = NativeModules.RlyNetworkMobileSdk
   ? NativeModules.RlyNetworkMobileSdk
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );
 
 export const NativeCodeWrapper = {
   hello: (): Promise<string> => {
@@ -24,7 +24,19 @@ export const NativeCodeWrapper = {
   getBundleId: (): Promise<string> => {
     return RlyNativeModule.getBundleId();
   },
-  getMnemonic: (): Promise<Uint8Array> => {
+  getMnemonic: (): Promise<string> => {
     return RlyNativeModule.getMnemonic();
+  },
+  generateMnemonic: (): Promise<string> => {
+    return RlyNativeModule.generateMnemonic();
+  },
+  saveMnemonic: (mnemonic: string): Promise<Uint8Array> => {
+    return RlyNativeModule.saveMnemonic(mnemonic);
+  },
+  deleteMnemonic: (mnemonic: string): Promise<Uint8Array> => {
+    return RlyNativeModule.deleteMnemonic(mnemonic);
+  },
+  getPrivateKeyFromMnemonic: (mnemonic: string): Promise<Uint8Array> => {
+    return RlyNativeModule.getPrivateKeyFromMnemonic(mnemonic);
   },
 };

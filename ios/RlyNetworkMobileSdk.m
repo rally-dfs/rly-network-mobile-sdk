@@ -17,6 +17,32 @@ RCT_EXTERN_METHOD(getMnemonic:
     rejecter: (RCTPromiseRejectBlock) reject
 )
 
+RCT_EXTERN_METHOD(generateMnemonic:
+    (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
+
+RCT_EXTERN_METHOD(saveMnemonic:
+    (NSString) mnemonic
+    resolver: (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
+
+RCT_EXTERN_METHOD(deleteMnemonic:
+    (NSString) mnemonic
+    resolver: (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
+
+RCT_EXTERN_METHOD(getPrivateKeyFromMnemonic:
+    (NSString) mnemonic
+    resolver: (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
 + (BOOL)requiresMainQueueSetup
 {
   return NO;

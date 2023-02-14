@@ -24,6 +24,7 @@
 		01FACC2A299AFEF300DB3B85 /* aeskey.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC16299AFEF300DB3B85 /* aeskey.c */; };
 		01FACC2B299AFEF300DB3B85 /* curves.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC17299AFEF300DB3B85 /* curves.c */; };
 		01FACC2C299AFEF300DB3B85 /* sha2.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC1A299AFEF300DB3B85 /* sha2.c */; };
+		01FACC2E299B3FDA00DB3B85 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC2D299B3FDA00DB3B85 /* KeychainHelper.swift */; };
 		F4FF95D7245B92E800C19C63 /* RlyNetworkMobileSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* RlyNetworkMobileSdk.swift */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 		01FACC19299AFEF300DB3B85 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = macros.h; path = crypto/macros.h; sourceTree = "<group>"; };
 		01FACC1A299AFEF300DB3B85 /* sha2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sha2.c; path = crypto/sha2.c; sourceTree = "<group>"; };
 		01FACC1B299AFEF300DB3B85 /* pbkdf2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pbkdf2.h; path = crypto/pbkdf2.h; sourceTree = "<group>"; };
+		01FACC2D299B3FDA00DB3B85 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		134814201AA4EA6300B7C361 /* libRlyNetworkMobileSdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRlyNetworkMobileSdk.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E7B5891CC2AC0600A0062D /* RlyNetworkMobileSdk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RlyNetworkMobileSdk.m; sourceTree = "<group>"; };
 		F4FF95D5245B92E700C19C63 /* RlyNetworkMobileSdk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RlyNetworkMobileSdk-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 			children = (
 				01FACB8A299AE89600DB3B85 /* crypto */,
 				F4FF95D6245B92E800C19C63 /* RlyNetworkMobileSdk.swift */,
+				01FACC2D299B3FDA00DB3B85 /* KeychainHelper.swift */,
 				B3E7B5891CC2AC0600A0062D /* RlyNetworkMobileSdk.m */,
 				F4FF95D5245B92E700C19C63 /* RlyNetworkMobileSdk-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
@@ -218,6 +221,7 @@
 				01FACC24299AFEF300DB3B85 /* base58.c in Sources */,
 				01FACC28299AFEF300DB3B85 /* rand.c in Sources */,
 				01FACC27299AFEF300DB3B85 /* aestab.c in Sources */,
+				01FACC2E299B3FDA00DB3B85 /* KeychainHelper.swift in Sources */,
 				01FACC1F299AFEF300DB3B85 /* sha3.c in Sources */,
 				01FACC22299AFEF300DB3B85 /* pbkdf2.c in Sources */,
 				01FACC21299AFEF300DB3B85 /* bignum.c in Sources */,
