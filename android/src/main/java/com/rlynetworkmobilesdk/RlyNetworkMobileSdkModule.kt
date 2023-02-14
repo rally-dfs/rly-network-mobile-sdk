@@ -71,7 +71,6 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
     for (i in 2..64 step 2) {
       val intString = "${pkey[i]}${pkey[i+1]}"
-      println(intString)
       result.pushInt(parseInt(intString, 16))
     }
 
