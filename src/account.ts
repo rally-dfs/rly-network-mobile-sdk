@@ -31,8 +31,6 @@ export async function getWallet() {
     await NativeCodeWrapper.saveMnemonic(mnemonic);
   }
 
-  console.log(mnemonic);
-
   const pkey = await NativeCodeWrapper.getPrivateKeyFromMnemonic(mnemonic);
   const wallet = new Wallet(pkey);
 
