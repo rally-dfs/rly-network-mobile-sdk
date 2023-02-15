@@ -142,6 +142,7 @@ dependencies {
   implementation 'com.github.komputing.kethereum:bip39_wordlist_en:0.85.7'
   implementation "com.github.komputing.kethereum:bip32:0.85.7"
   implementation "com.github.komputing.kethereum:crypto_impl_spongycastle:0.85.7"
+  implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha03'
 
 
 // From node_modules

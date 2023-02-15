@@ -1,5 +1,7 @@
 package com.rlynetworkmobilesdk
 
+import android.content.Context
+import androidx.security.crypto.MasterKey
 import com.facebook.react.bridge.*
 import org.kethereum.bip39.generateMnemonic
 import org.kethereum.bip39.validate
@@ -14,6 +16,13 @@ import java.lang.Integer.parseInt
 
 class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
+  private val prefHelper: EncryptedSharedPreferencesHelper
+  private val MNEMONIC_PREFERENCE_KEY = "BIP39_MNEMONIC"
+
+
+  init {
+    prefHelper = EncryptedSharedPreferencesHelper(reactContext.applicationContext)
+  }
 
   override fun getName(): String {
     return NAME
@@ -31,7 +40,8 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getMnemonic(promise:Promise){
-    promise.resolve(null)
+    val mnemonic = prefHelper.read(MNEMONIC_PREFERENCE_KEY)
+    promise.resolve(mnemonic)
   }
 
   @ReactMethod
@@ -46,11 +56,14 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
       promise.reject("mnemonic_verification_failure", "mnemonic failed to pass check");
       return;
     }
+
+    prefHelper.save(MNEMONIC_PREFERENCE_KEY, mnemonic)
     promise.resolve(true)
   }
 
   @ReactMethod
   fun deleteMnemonic(promise:Promise){
+    prefHelper.delete(MNEMONIC_PREFERENCE_KEY)
     promise.resolve(true)
   }
 
