@@ -78,24 +78,14 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
     val seed = words.toSeed()
     val key = seed.toKey("m/44'/60'/0'/0/0")
 
-    val privateKey = hexToEthersIntArray(key.keyPair.privateKey.key.toHexString())
+    val privateKey = key.keyPair.privateKey.key.toByteArray()
 
     val result = WritableNativeArray();
-    privateKey.forEach { result.pushInt(it) }
+    // and 0xFF fixes twos complement integer representation and
+    // ensures unsigned int values pass through since
+    // we cannot directly cast bytes to unsigned int
+    privateKey.forEach { result.pushInt(it.toInt() and 0xFF) }
     promise.resolve(result)
-  }
-
-  private fun hexToEthersIntArray(hex: String): IntArray {
-    val len = hex.length
-
-    val array = IntArray(len / 2 - 1)
-
-    for (i in 2..len - 1 step 2) {
-      val intString = "${hex[i]}${hex[i+1]}"
-      array[i / 2 - 1] = parseInt(intString, 16)
-    }
-
-    return array
   }
 
   companion object {
