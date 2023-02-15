@@ -78,16 +78,24 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
     val seed = words.toSeed()
     val key = seed.toKey("m/44'/60'/0'/0/0")
 
-    val pkey = key.keyPair.privateKey.key.toHexString()
+    val privateKey = hexToEthersIntArray(key.keyPair.privateKey.key.toHexString())
 
     val result = WritableNativeArray();
+    privateKey.forEach { result.pushInt(it) }
+    promise.resolve(result)
+  }
 
-    for (i in 2..64 step 2) {
-      val intString = "${pkey[i]}${pkey[i+1]}"
-      result.pushInt(parseInt(intString, 16))
+  private fun hexToEthersIntArray(hex: String): IntArray {
+    val len = hex.length
+
+    val array = IntArray(len / 2 - 1)
+
+    for (i in 2..len - 1 step 2) {
+      val intString = "${hex[i]}${hex[i+1]}"
+      array[i / 2 - 1] = parseInt(intString, 16)
     }
 
-    promise.resolve(result)
+    return array
   }
 
   companion object {
