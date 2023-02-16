@@ -24,19 +24,4 @@ export const NativeCodeWrapper = {
   getBundleId: (): Promise<string> => {
     return RlyNativeModule.getBundleId();
   },
-  getMnemonic: (): Promise<string> => {
-    return RlyNativeModule.getMnemonic();
-  },
-  generateMnemonic: (): Promise<string> => {
-    return RlyNativeModule.generateMnemonic();
-  },
-  saveMnemonic: (mnemonic: string): Promise<boolean> => {
-    return RlyNativeModule.saveMnemonic(mnemonic);
-  },
-  deleteMnemonic: (): Promise<boolean> => {
-    return RlyNativeModule.deleteMnemonic();
-  },
-  getPrivateKeyFromMnemonic: (mnemonic: string): Promise<Uint8Array> => {
-    return RlyNativeModule.getPrivateKeyFromMnemonic(mnemonic);
-  },
 };
