@@ -160,6 +160,7 @@
     "axios": "^1.2.1",
     "buffer": "^6.0.3",
     "ethers": "^5.7.2",
+    "react-native-get-random-values": "^1.8.0",
     "yarn": "^1.22.19"
   }
 }
