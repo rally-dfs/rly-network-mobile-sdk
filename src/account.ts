@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import { NativeCodeWrapper } from '../src/native_code_wrapper';
+import KeyManager from './keyManager';
 
 let _cachedWallet: Wallet | undefined;
 
@@ -10,8 +10,8 @@ export async function createAccount(overwrite?: boolean) {
     throw 'Account already exists';
   }
 
-  const mnemonic = await NativeCodeWrapper.generateMnemonic();
-  const pkey = await NativeCodeWrapper.getPrivateKeyFromMnemonic(mnemonic);
+  const mnemonic = await KeyManager.generateMnemonic();
+  const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
   const newWallet = new Wallet(pkey);
 
   _cachedWallet = newWallet;
@@ -24,14 +24,14 @@ export async function getWallet() {
     return _cachedWallet;
   }
 
-  let mnemonic = await NativeCodeWrapper.getMnemonic();
+  let mnemonic = await KeyManager.getMnemonic();
 
   if (!mnemonic) {
-    mnemonic = await NativeCodeWrapper.generateMnemonic();
-    await NativeCodeWrapper.saveMnemonic(mnemonic);
+    mnemonic = await KeyManager.generateMnemonic();
+    await KeyManager.saveMnemonic(mnemonic);
   }
 
-  const pkey = await NativeCodeWrapper.getPrivateKeyFromMnemonic(mnemonic);
+  const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
   const wallet = new Wallet(pkey);
 
   _cachedWallet = wallet;
@@ -46,7 +46,7 @@ export async function getAccount() {
 
 export async function getAccountPhrase() {
   try {
-    return await NativeCodeWrapper.getMnemonic();
+    return await KeyManager.getMnemonic();
   } catch (error) {
     return;
   }

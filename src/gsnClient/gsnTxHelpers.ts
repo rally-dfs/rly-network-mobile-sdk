@@ -171,6 +171,7 @@ export const getClaimTx = async (
 
   const tx = await faucet.populateTransaction.claim?.();
   const gas = await faucet.estimateGas.claim?.();
+
   const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
   if (!tx) {

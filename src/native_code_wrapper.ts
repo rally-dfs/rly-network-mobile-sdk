@@ -1,42 +1,47 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
 
-const LINKING_ERROR =
-  `The package 'rly-network-mobile-sdk' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+const RlyNativeModule =
+  NativeModules.RlyNetworkMobileSdk && NativeModules.RlyNetworkMobileSdk;
 
-const RlyNativeModule = NativeModules.RlyNetworkMobileSdk
-  ? NativeModules.RlyNetworkMobileSdk
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+type ExpoObject = {
+  modules: undefined | { [key: string]: any };
+};
+
+declare global {
+  var expo: ExpoObject | undefined;
+  var ExpoModules: undefined | { [key: string]: any };
+}
 
 export const NativeCodeWrapper = {
   hello: (): Promise<string> => {
-    return RlyNativeModule.hello();
+    if (NativeModules.RlyNetworkMobileSdk) {
+      return RlyNativeModule.hello();
+    } else {
+      return new Promise((resolve) => resolve('Hello World'));
+    }
   },
   getBundleId: (): Promise<string> => {
-    return RlyNativeModule.getBundleId();
-  },
-  getMnemonic: (): Promise<string> => {
-    return RlyNativeModule.getMnemonic();
-  },
-  generateMnemonic: (): Promise<string> => {
-    return RlyNativeModule.generateMnemonic();
-  },
-  saveMnemonic: (mnemonic: string): Promise<boolean> => {
-    return RlyNativeModule.saveMnemonic(mnemonic);
-  },
-  deleteMnemonic: (): Promise<boolean> => {
-    return RlyNativeModule.deleteMnemonic();
-  },
-  getPrivateKeyFromMnemonic: (mnemonic: string): Promise<Uint8Array> => {
-    return RlyNativeModule.getPrivateKeyFromMnemonic(mnemonic);
+    // Bare RN
+    if (NativeModules.RlyNetworkMobileSdk) {
+      return RlyNativeModule.getBundleId().then();
+      // Expo SDK 48+
+    } else if (global.expo?.modules) {
+      return new Promise((resolve) =>
+        resolve(
+          global.expo?.modules?.NativeModulesProxy.modulesConstants
+            .ExpoApplication.applicationId
+        )
+      );
+      // Expo SDK 45+
+    } else if (global.ExpoModules) {
+      return new Promise((resolve) =>
+        resolve(
+          global.ExpoModules?.NativeModulesProxy.modulesConstants
+            .ExpoApplication.applicationId
+        )
+      );
+    } else {
+      return new Promise((resolve) => resolve('bundle not found'));
+    }
   },
 };

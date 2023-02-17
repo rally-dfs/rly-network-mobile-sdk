@@ -15,7 +15,7 @@ import {
   getSenderNonce,
   signRequest,
   getRelayRequestID,
-  getClientId,
+  //getClientId,
 } from './gsnTxHelpers';
 
 import { ethers, providers } from 'ethers';
@@ -24,10 +24,14 @@ export class gsnLightClient {
   private readonly account: AccountKeypair;
   config: GSNConfig;
   web3Provider: providers.JsonRpcProvider;
+  minMaxPriorityFee: string;
+  maxMaxFeePerGas: string;
 
   constructor(account: AccountKeypair, config: NetworkConfig) {
     this.account = account;
     this.config = config.gsn;
+    this.minMaxPriorityFee = '0';
+    this.maxMaxFeePerGas = '0';
     this.web3Provider = new ethers.providers.JsonRpcProvider(
       this.config.rpcUrl
     );
@@ -44,16 +48,18 @@ export class gsnLightClient {
       this.config
     );
 
-    //TODO: what is this used for? tx monitoring?
     const relayRequestId = getRelayRequestID(
       httpRequest.relayRequest,
       httpRequest.metadata.signature
     );
 
+    //update request metadata with relayrequestid
+
+    httpRequest.metadata.relayRequestId = relayRequestId;
+
     //this is where we relay the transaction
 
     const res = await axios.post(`${this.config.relayUrl}/relay`, httpRequest);
-
     return { res, relayRequestId };
   };
 
@@ -61,6 +67,11 @@ export class gsnLightClient {
     const { data } = await axios.get(`${this.config.relayUrl}/getaddr`);
     //get current relay worker address from relay server config
     this.config.relayWorkerAddress = data.relayWorkerAddress;
+
+    //get accepted fees from server
+    //TODO: update gas calcualtions
+    this.minMaxPriorityFee = data.minMaxPriorityFeePerGas;
+    this.maxMaxFeePerGas = data.maxMaxFeePerGas;
     return;
   };
 
@@ -87,8 +98,6 @@ export class gsnLightClient {
       this.web3Provider
     );
 
-    const clientId = await getClientId();
-
     const relayRequest: RelayRequest = {
       request: {
         from: transaction.from,
@@ -100,18 +109,14 @@ export class gsnLightClient {
         validUntilTime,
       },
       relayData: {
-        maxFeePerGas: parseInt(transaction.maxFeePerGas, 16).toString(),
-        maxPriorityFeePerGas: parseInt(
-          transaction.maxPriorityFeePerGas,
-          16
-        ).toString(),
+        maxFeePerGas: this.maxMaxFeePerGas,
+        maxPriorityFeePerGas: this.minMaxPriorityFee,
         transactionCalldataGasUsed: '',
         relayWorker: this.config.relayWorkerAddress,
         paymaster: this.config.paymasterAddress,
         forwarder: this.config.forwarderAddress,
         paymasterData: transaction.paymasterData,
-        //can't find documentation on what this should be, setting to 1 as this is default in defaultGsnConfig
-        clientId,
+        clientId: '1',
       },
     };
 
@@ -156,6 +161,8 @@ export class gsnLightClient {
       approvalData,
       relayMaxNonce,
       relayLastKnownNonce,
+      domainSeparatorName: config.domainSeparatorName,
+      relayRequestId: '',
     };
     const httpRequest = {
       relayRequest,

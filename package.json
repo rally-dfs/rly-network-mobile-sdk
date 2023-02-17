@@ -33,8 +33,10 @@
     "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
+    "example-expo": "yarn --cwd example_expo",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build",
-    "bootstrap": "yarn example && yarn install && yarn example pods"
+    "bootstrap": "yarn example && yarn install && yarn example pods",
+    "bootstrap-expo": "yarn example-expo && yarn install"
   },
   "keywords": [
     "react-native",
@@ -78,7 +80,17 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "expo": "*",
+    "expo-secure-store": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo": {
+      "optional": true
+    },
+    "expo-secure-store": {
+      "optional": true
+    }
   },
   "jest": {
     "preset": "react-native",
