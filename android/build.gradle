@@ -118,6 +118,8 @@ repositories {
         found = true
       }
     })
+
+    maven { url 'https://jitpack.io' }
   }
 
   if (!found) {
@@ -134,6 +136,15 @@ dependencies {
     //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation "com.github.komputing.kethereum:model:0.85.7"
+  implementation "com.github.komputing.kethereum:extensions_kotlin:0.85.7"
+  implementation "com.github.komputing.kethereum:bip39:0.85.7"
+  implementation 'com.github.komputing.kethereum:bip39_wordlist_en:0.85.7'
+  implementation "com.github.komputing.kethereum:bip32:0.85.7"
+  implementation "com.github.komputing.kethereum:crypto_impl_spongycastle:0.85.7"
+  implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha03'
+
+
 // From node_modules
 }
 

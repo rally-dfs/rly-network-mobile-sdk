@@ -1,4 +1,3 @@
-import '@ethersproject/shims';
 import type { NetworkConfig } from '../network_config/network_config';
 import { Contract, Signer } from 'ethers';
 import type { Provider } from '@ethersproject/abstract-provider';

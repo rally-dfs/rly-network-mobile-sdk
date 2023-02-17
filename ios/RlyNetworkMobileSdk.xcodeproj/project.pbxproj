@@ -7,8 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E555C0D2413F4C50049A1A2 /* RlyNetworkMobileSdk.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RlyNetworkMobileSdk.m */; };
-		F4FF95D7245B92E800C19C63 /*  RlyNetworkMobileSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /*  RlyNetworkMobileSdk.swift */; };
+		01FACC1C299AFEF300DB3B85 /* bip32.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACBF9299AFEF300DB3B85 /* bip32.c */; };
+		01FACC1D299AFEF300DB3B85 /* ecdsa.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACBFA299AFEF300DB3B85 /* ecdsa.c */; };
+		01FACC1E299AFEF300DB3B85 /* aes_modes.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACBFD299AFEF300DB3B85 /* aes_modes.c */; };
+		01FACC1F299AFEF300DB3B85 /* sha3.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC00299AFEF300DB3B85 /* sha3.c */; };
+		01FACC20299AFEF300DB3B85 /* ripemd160.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC03299AFEF300DB3B85 /* ripemd160.c */; };
+		01FACC21299AFEF300DB3B85 /* bignum.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC05299AFEF300DB3B85 /* bignum.c */; };
+		01FACC22299AFEF300DB3B85 /* pbkdf2.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC06299AFEF300DB3B85 /* pbkdf2.c */; };
+		01FACC23299AFEF300DB3B85 /* secp256k1.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC07299AFEF300DB3B85 /* secp256k1.c */; };
+		01FACC24299AFEF300DB3B85 /* base58.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC0A299AFEF300DB3B85 /* base58.c */; };
+		01FACC25299AFEF300DB3B85 /* hmac.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC0D299AFEF300DB3B85 /* hmac.c */; };
+		01FACC26299AFEF300DB3B85 /* aescrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC0E299AFEF300DB3B85 /* aescrypt.c */; };
+		01FACC27299AFEF300DB3B85 /* aestab.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC0F299AFEF300DB3B85 /* aestab.c */; };
+		01FACC28299AFEF300DB3B85 /* rand.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC10299AFEF300DB3B85 /* rand.c */; };
+		01FACC29299AFEF300DB3B85 /* bip39.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC13299AFEF300DB3B85 /* bip39.c */; };
+		01FACC2A299AFEF300DB3B85 /* aeskey.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC16299AFEF300DB3B85 /* aeskey.c */; };
+		01FACC2B299AFEF300DB3B85 /* curves.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC17299AFEF300DB3B85 /* curves.c */; };
+		01FACC2C299AFEF300DB3B85 /* sha2.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC1A299AFEF300DB3B85 /* sha2.c */; };
+		01FACC2E299B3FDA00DB3B85 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FACC2D299B3FDA00DB3B85 /* KeychainHelper.swift */; };
+		F4FF95D7245B92E800C19C63 /* RlyNetworkMobileSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* RlyNetworkMobileSdk.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,6 +41,44 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01FACBF7299AFEF300DB3B85 /* aestab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aestab.h; path = crypto/aestab.h; sourceTree = "<group>"; };
+		01FACBF8299AFEF300DB3B85 /* sha3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sha3.h; path = crypto/sha3.h; sourceTree = "<group>"; };
+		01FACBF9299AFEF300DB3B85 /* bip32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bip32.c; path = crypto/bip32.c; sourceTree = "<group>"; };
+		01FACBFA299AFEF300DB3B85 /* ecdsa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ecdsa.c; path = crypto/ecdsa.c; sourceTree = "<group>"; };
+		01FACBFB299AFEF300DB3B85 /* aesopt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aesopt.h; path = crypto/aesopt.h; sourceTree = "<group>"; };
+		01FACBFC299AFEF300DB3B85 /* bip39_english.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bip39_english.h; path = crypto/bip39_english.h; sourceTree = "<group>"; };
+		01FACBFD299AFEF300DB3B85 /* aes_modes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aes_modes.c; path = crypto/aes_modes.c; sourceTree = "<group>"; };
+		01FACBFE299AFEF300DB3B85 /* base58.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base58.h; path = crypto/base58.h; sourceTree = "<group>"; };
+		01FACBFF299AFEF300DB3B85 /* options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = options.h; path = crypto/options.h; sourceTree = "<group>"; };
+		01FACC00299AFEF300DB3B85 /* sha3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sha3.c; path = crypto/sha3.c; sourceTree = "<group>"; };
+		01FACC01299AFEF300DB3B85 /* rand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rand.h; path = crypto/rand.h; sourceTree = "<group>"; };
+		01FACC02299AFEF300DB3B85 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aes.h; path = crypto/aes.h; sourceTree = "<group>"; };
+		01FACC03299AFEF300DB3B85 /* ripemd160.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ripemd160.c; path = crypto/ripemd160.c; sourceTree = "<group>"; };
+		01FACC04299AFEF300DB3B85 /* bip39.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bip39.h; path = crypto/bip39.h; sourceTree = "<group>"; };
+		01FACC05299AFEF300DB3B85 /* bignum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bignum.c; path = crypto/bignum.c; sourceTree = "<group>"; };
+		01FACC06299AFEF300DB3B85 /* pbkdf2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pbkdf2.c; path = crypto/pbkdf2.c; sourceTree = "<group>"; };
+		01FACC07299AFEF300DB3B85 /* secp256k1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = secp256k1.c; path = crypto/secp256k1.c; sourceTree = "<group>"; };
+		01FACC08299AFEF300DB3B85 /* sha2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sha2.h; path = crypto/sha2.h; sourceTree = "<group>"; };
+		01FACC09299AFEF300DB3B85 /* ripemd160.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ripemd160.h; path = crypto/ripemd160.h; sourceTree = "<group>"; };
+		01FACC0A299AFEF300DB3B85 /* base58.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = base58.c; path = crypto/base58.c; sourceTree = "<group>"; };
+		01FACC0B299AFEF300DB3B85 /* hmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hmac.h; path = crypto/hmac.h; sourceTree = "<group>"; };
+		01FACC0C299AFEF300DB3B85 /* curves.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = curves.h; path = crypto/curves.h; sourceTree = "<group>"; };
+		01FACC0D299AFEF300DB3B85 /* hmac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hmac.c; path = crypto/hmac.c; sourceTree = "<group>"; };
+		01FACC0E299AFEF300DB3B85 /* aescrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aescrypt.c; path = crypto/aescrypt.c; sourceTree = "<group>"; };
+		01FACC0F299AFEF300DB3B85 /* aestab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aestab.c; path = crypto/aestab.c; sourceTree = "<group>"; };
+		01FACC10299AFEF300DB3B85 /* rand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rand.c; path = crypto/rand.c; sourceTree = "<group>"; };
+		01FACC11299AFEF300DB3B85 /* bip32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bip32.h; path = crypto/bip32.h; sourceTree = "<group>"; };
+		01FACC12299AFEF300DB3B85 /* secp256k1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = secp256k1.h; path = crypto/secp256k1.h; sourceTree = "<group>"; };
+		01FACC13299AFEF300DB3B85 /* bip39.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bip39.c; path = crypto/bip39.c; sourceTree = "<group>"; };
+		01FACC14299AFEF300DB3B85 /* ecdsa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ecdsa.h; path = crypto/ecdsa.h; sourceTree = "<group>"; };
+		01FACC15299AFEF300DB3B85 /* bignum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bignum.h; path = crypto/bignum.h; sourceTree = "<group>"; };
+		01FACC16299AFEF300DB3B85 /* aeskey.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aeskey.c; path = crypto/aeskey.c; sourceTree = "<group>"; };
+		01FACC17299AFEF300DB3B85 /* curves.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = curves.c; path = crypto/curves.c; sourceTree = "<group>"; };
+		01FACC18299AFEF300DB3B85 /* secp256k1.table */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = secp256k1.table; path = crypto/secp256k1.table; sourceTree = "<group>"; };
+		01FACC19299AFEF300DB3B85 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = macros.h; path = crypto/macros.h; sourceTree = "<group>"; };
+		01FACC1A299AFEF300DB3B85 /* sha2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sha2.c; path = crypto/sha2.c; sourceTree = "<group>"; };
+		01FACC1B299AFEF300DB3B85 /* pbkdf2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pbkdf2.h; path = crypto/pbkdf2.h; sourceTree = "<group>"; };
+		01FACC2D299B3FDA00DB3B85 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		134814201AA4EA6300B7C361 /* libRlyNetworkMobileSdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRlyNetworkMobileSdk.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E7B5891CC2AC0600A0062D /* RlyNetworkMobileSdk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RlyNetworkMobileSdk.m; sourceTree = "<group>"; };
 		F4FF95D5245B92E700C19C63 /* RlyNetworkMobileSdk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RlyNetworkMobileSdk-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -41,6 +96,50 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01FACB8A299AE89600DB3B85 /* crypto */ = {
+			isa = PBXGroup;
+			children = (
+				01FACBFD299AFEF300DB3B85 /* aes_modes.c */,
+				01FACC02299AFEF300DB3B85 /* aes.h */,
+				01FACC0E299AFEF300DB3B85 /* aescrypt.c */,
+				01FACC16299AFEF300DB3B85 /* aeskey.c */,
+				01FACBFB299AFEF300DB3B85 /* aesopt.h */,
+				01FACC0F299AFEF300DB3B85 /* aestab.c */,
+				01FACBF7299AFEF300DB3B85 /* aestab.h */,
+				01FACC0A299AFEF300DB3B85 /* base58.c */,
+				01FACBFE299AFEF300DB3B85 /* base58.h */,
+				01FACC05299AFEF300DB3B85 /* bignum.c */,
+				01FACC15299AFEF300DB3B85 /* bignum.h */,
+				01FACBF9299AFEF300DB3B85 /* bip32.c */,
+				01FACC11299AFEF300DB3B85 /* bip32.h */,
+				01FACBFC299AFEF300DB3B85 /* bip39_english.h */,
+				01FACC13299AFEF300DB3B85 /* bip39.c */,
+				01FACC04299AFEF300DB3B85 /* bip39.h */,
+				01FACC17299AFEF300DB3B85 /* curves.c */,
+				01FACC0C299AFEF300DB3B85 /* curves.h */,
+				01FACBFA299AFEF300DB3B85 /* ecdsa.c */,
+				01FACC14299AFEF300DB3B85 /* ecdsa.h */,
+				01FACC0D299AFEF300DB3B85 /* hmac.c */,
+				01FACC0B299AFEF300DB3B85 /* hmac.h */,
+				01FACC19299AFEF300DB3B85 /* macros.h */,
+				01FACBFF299AFEF300DB3B85 /* options.h */,
+				01FACC06299AFEF300DB3B85 /* pbkdf2.c */,
+				01FACC1B299AFEF300DB3B85 /* pbkdf2.h */,
+				01FACC10299AFEF300DB3B85 /* rand.c */,
+				01FACC01299AFEF300DB3B85 /* rand.h */,
+				01FACC03299AFEF300DB3B85 /* ripemd160.c */,
+				01FACC09299AFEF300DB3B85 /* ripemd160.h */,
+				01FACC07299AFEF300DB3B85 /* secp256k1.c */,
+				01FACC12299AFEF300DB3B85 /* secp256k1.h */,
+				01FACC18299AFEF300DB3B85 /* secp256k1.table */,
+				01FACC1A299AFEF300DB3B85 /* sha2.c */,
+				01FACC08299AFEF300DB3B85 /* sha2.h */,
+				01FACC00299AFEF300DB3B85 /* sha3.c */,
+				01FACBF8299AFEF300DB3B85 /* sha3.h */,
+			);
+			name = crypto;
+			sourceTree = "<group>";
+		};
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -52,7 +151,9 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				01FACB8A299AE89600DB3B85 /* crypto */,
 				F4FF95D6245B92E800C19C63 /* RlyNetworkMobileSdk.swift */,
+				01FACC2D299B3FDA00DB3B85 /* KeychainHelper.swift */,
 				B3E7B5891CC2AC0600A0062D /* RlyNetworkMobileSdk.m */,
 				F4FF95D5245B92E700C19C63 /* RlyNetworkMobileSdk-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
@@ -116,8 +217,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01FACC20299AFEF300DB3B85 /* ripemd160.c in Sources */,
+				01FACC24299AFEF300DB3B85 /* base58.c in Sources */,
+				01FACC28299AFEF300DB3B85 /* rand.c in Sources */,
+				01FACC27299AFEF300DB3B85 /* aestab.c in Sources */,
+				01FACC2E299B3FDA00DB3B85 /* KeychainHelper.swift in Sources */,
+				01FACC1F299AFEF300DB3B85 /* sha3.c in Sources */,
+				01FACC22299AFEF300DB3B85 /* pbkdf2.c in Sources */,
+				01FACC21299AFEF300DB3B85 /* bignum.c in Sources */,
+				01FACC2B299AFEF300DB3B85 /* curves.c in Sources */,
+				01FACC25299AFEF300DB3B85 /* hmac.c in Sources */,
+				01FACC1E299AFEF300DB3B85 /* aes_modes.c in Sources */,
+				01FACC29299AFEF300DB3B85 /* bip39.c in Sources */,
+				01FACC23299AFEF300DB3B85 /* secp256k1.c in Sources */,
+				01FACC2A299AFEF300DB3B85 /* aeskey.c in Sources */,
+				01FACC1D299AFEF300DB3B85 /* ecdsa.c in Sources */,
+				01FACC1C299AFEF300DB3B85 /* bip32.c in Sources */,
+				01FACC26299AFEF300DB3B85 /* aescrypt.c in Sources */,
 				F4FF95D7245B92E800C19C63 /* RlyNetworkMobileSdk.swift in Sources */,
-				B3E7B58A1CC2AC0600A0062D /* RlyNetworkMobileSdk.m in Sources */,
+				01FACC2C299AFEF300DB3B85 /* sha2.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

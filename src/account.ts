@@ -1,12 +1,5 @@
-// IMPORTANT
-// Import order here needs to be very explicit.
-// In order for true source of random on react native we must import the rn library
-// prior to the ether shims
-import 'react-native-get-random-values';
-import '@ethersproject/shims';
-
 import { Wallet } from 'ethers';
-import { getGenericPassword, setGenericPassword } from 'react-native-keychain';
+import { NativeCodeWrapper } from '../src/native_code_wrapper';
 
 let _cachedWallet: Wallet | undefined;
 
@@ -17,11 +10,10 @@ export async function createAccount(overwrite?: boolean) {
     throw 'Account already exists';
   }
 
-  const newWallet = Wallet.createRandom();
+  const mnemonic = await NativeCodeWrapper.generateMnemonic();
+  const pkey = await NativeCodeWrapper.getPrivateKeyFromMnemonic(mnemonic);
+  const newWallet = new Wallet(pkey);
 
-  await setGenericPassword('rly-sdk-private-key', newWallet.mnemonic.phrase, {
-    service: 'rly-mnemonic',
-  });
   _cachedWallet = newWallet;
 
   return newWallet.address;
@@ -31,14 +23,17 @@ export async function getWallet() {
   if (_cachedWallet) {
     return _cachedWallet;
   }
-  const credentials = await getGenericPassword({ service: 'rly-mnemonic' });
 
-  if (!credentials) {
-    return;
+  let mnemonic = await NativeCodeWrapper.getMnemonic();
+
+  if (!mnemonic) {
+    mnemonic = await NativeCodeWrapper.generateMnemonic();
+    await NativeCodeWrapper.saveMnemonic(mnemonic);
   }
 
-  const mnemonic = credentials.password;
-  const wallet = Wallet.fromMnemonic(mnemonic);
+  const pkey = await NativeCodeWrapper.getPrivateKeyFromMnemonic(mnemonic);
+  const wallet = new Wallet(pkey);
+
   _cachedWallet = wallet;
   return wallet;
 }
@@ -50,11 +45,9 @@ export async function getAccount() {
 }
 
 export async function getAccountPhrase() {
-  const wallet = await getWallet();
-
-  if (!wallet) {
+  try {
+    return await NativeCodeWrapper.getMnemonic();
+  } catch (error) {
     return;
   }
-
-  return wallet.mnemonic.phrase;
 }
