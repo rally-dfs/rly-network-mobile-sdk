@@ -98,10 +98,6 @@ export class gsnLightClient {
       this.web3Provider
     );
 
-    //TODO: client ID out of bounds
-
-    //const clientId = await getClientId();
-
     const relayRequest: RelayRequest = {
       request: {
         from: transaction.from,
@@ -113,11 +109,6 @@ export class gsnLightClient {
         validUntilTime,
       },
       relayData: {
-        /*maxFeePerGas: parseInt(transaction.maxFeePerGas, 16).toString(),
-        maxPriorityFeePerGas: parseInt(
-          transaction.maxPriorityFeePerGas,
-          16
-        ).toString(),*/
         maxFeePerGas: this.maxMaxFeePerGas,
         maxPriorityFeePerGas: this.minMaxPriorityFee,
         transactionCalldataGasUsed: '',

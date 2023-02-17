@@ -81,8 +81,7 @@ async function registerAccount() {
 
   const claimTx = await getClaimTx(account, MumbaiNetworkConfig);
 
-  const tx = await gsnClient.relayTransaction(claimTx);
-  console.log(tx);
+  await gsnClient.relayTransaction(claimTx);
 }
 
 export const RlyMumbaiNetwork: Network = {
