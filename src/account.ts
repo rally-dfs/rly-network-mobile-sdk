@@ -11,6 +11,7 @@ export async function createAccount(overwrite?: boolean) {
   }
 
   const mnemonic = await KeyManager.generateMnemonic();
+  await KeyManager.saveMnemonic(mnemonic);
   const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
   const newWallet = new Wallet(pkey);
 
@@ -24,11 +25,10 @@ export async function getWallet() {
     return _cachedWallet;
   }
 
-  let mnemonic = await KeyManager.getMnemonic();
+  const mnemonic = await KeyManager.getMnemonic();
 
   if (!mnemonic) {
-    mnemonic = await KeyManager.generateMnemonic();
-    await KeyManager.saveMnemonic(mnemonic);
+    return;
   }
 
   const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
