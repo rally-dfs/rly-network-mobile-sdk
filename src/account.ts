@@ -44,6 +44,10 @@ export async function getAccount() {
   return wallet?.address;
 }
 
+export async function permanentlyDeleteAccount(): Promise<void> {
+  await KeyManager.deleteMnemonic();
+}
+
 export async function getAccountPhrase() {
   try {
     return await KeyManager.getMnemonic();
