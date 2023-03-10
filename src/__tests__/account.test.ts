@@ -1,5 +1,5 @@
 import { utils, providers, Wallet } from 'ethers';
-import { signMessage, getWallet, signTransaction } from '../account';
+import { signMessage, getWallet, signTransaction, signHash } from '../account';
 import { tokenFaucet } from '../contract';
 import { MumbaiNetworkConfig } from '../network_config/network_config';
 
@@ -48,6 +48,9 @@ test('sign transaction', async () => {
     destinationAddress,
     10
   );
+
+  if (!tx) throw new Error('tx is null');
+
   const signedTx = await signTransaction(tx);
   const rawTx = utils.parseTransaction(signedTx);
   const { r, s, v } = rawTx;
@@ -63,5 +66,15 @@ test('sign transaction', async () => {
   const msgHash = utils.keccak256(raw);
   const msgBytes = utils.arrayify(msgHash);
   const sender = utils.recoverAddress(msgBytes, signature);
+  expect(wallet?.address).toEqual(sender);
+});
+
+test('sign hash', async () => {
+  const message = 'test message';
+  const messsageBytes = utils.toUtf8Bytes(message);
+  const hash = utils.keccak256(messsageBytes);
+  const signature = await signHash(hash);
+  const sender = utils.recoverAddress(hash, signature);
+  const wallet = await getWallet();
   expect(wallet?.address).toEqual(sender);
 });

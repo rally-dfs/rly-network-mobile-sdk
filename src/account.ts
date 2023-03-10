@@ -1,4 +1,4 @@
-import { Wallet } from 'ethers';
+import { Wallet, providers, utils } from 'ethers';
 import KeyManager from './keyManager';
 
 let _cachedWallet: Wallet | undefined;
@@ -62,12 +62,23 @@ export async function signMessage(message: string): Promise<string> {
   return wallet.signMessage(message);
 }
 
-export async function signTransaction(tx: any): Promise<string> {
+export async function signTransaction(
+  tx: providers.TransactionRequest
+): Promise<string> {
   const wallet = await getWallet();
-
   if (!wallet) {
     throw 'No account';
   }
 
   return wallet.signTransaction(tx);
+}
+
+export async function signHash(hash: string): Promise<string> {
+  const wallet = await getWallet();
+  if (!wallet) {
+    throw 'No account';
+  }
+  const signingKey = new utils.SigningKey(wallet.privateKey);
+
+  return utils.joinSignature(signingKey.signDigest(hash));
 }
