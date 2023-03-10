@@ -7,5 +7,6 @@ export {
   createAccount,
   signMessage,
   signTransaction,
+  signHash,
 } from './account';
 export * from './network';
