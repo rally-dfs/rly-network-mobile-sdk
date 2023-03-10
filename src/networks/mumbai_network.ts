@@ -9,9 +9,16 @@ import type { Network } from '../network';
 import { MumbaiNetworkConfig } from '../network_config/network_config';
 import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
-import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
+import {
+  getClaimTx,
+  getTransferTx,
+  handleGsnResponse,
+} from '../gsnClient/gsnTxHelpers';
 
-async function transfer(destinationAddress: string, amount: number) {
+async function transfer(
+  destinationAddress: string,
+  amount: number
+): Promise<void> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -34,7 +41,8 @@ async function transfer(destinationAddress: string, amount: number) {
     MumbaiNetworkConfig
   );
 
-  await gsnClient.relayTransaction(transferTx);
+  const tx = await gsnClient.relayTransaction(transferTx);
+  return handleGsnResponse(tx);
 }
 
 /*
@@ -64,7 +72,7 @@ async function getBalance() {
   return Number(ethers.utils.formatEther(bal));
 }
 
-async function registerAccount() {
+async function registerAccount(): Promise<void> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -81,7 +89,8 @@ async function registerAccount() {
 
   const claimTx = await getClaimTx(account, MumbaiNetworkConfig);
 
-  await gsnClient.relayTransaction(claimTx);
+  const tx = await gsnClient.relayTransaction(claimTx);
+  return handleGsnResponse(tx);
 }
 
 export const RlyMumbaiNetwork: Network = {

@@ -69,7 +69,6 @@ export class gsnLightClient {
     this.config.relayWorkerAddress = data.relayWorkerAddress;
 
     //get accepted fees from server
-    //TODO: update gas calcualtions
     this.minMaxPriorityFee = data.minMaxPriorityFeePerGas;
     this.maxMaxFeePerGas = data.maxMaxFeePerGas;
     return;
@@ -109,7 +108,7 @@ export class gsnLightClient {
         validUntilTime,
       },
       relayData: {
-        maxFeePerGas: this.maxMaxFeePerGas,
+        maxFeePerGas: this.minMaxPriorityFee,
         maxPriorityFeePerGas: this.minMaxPriorityFee,
         transactionCalldataGasUsed: '',
         relayWorker: this.config.relayWorkerAddress,

@@ -17,6 +17,8 @@ import { tokenFaucet } from '../contract';
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
 import { NativeCodeWrapper } from '../../src/native_code_wrapper';
+import type { AxiosResponse } from 'axios';
+import { RelayError } from '../errors';
 
 const calculateCalldataBytesZeroNonzero = (
   calldata: PrefixedHexString
@@ -174,6 +176,8 @@ export const getClaimTx = async (
 
   const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
+  console.log('maxFeePerGas', maxFeePerGas?.toNumber());
+
   if (!tx) {
     throw 'tx not populated';
   }
@@ -210,7 +214,7 @@ export const getTransferTx = async (
   const gas = await faucet.estimateGas.transfer?.(destinationAddress, amount, {
     from: account.address,
   });
-  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
+  const { gasPrice } = await provider.getFeeData();
 
   if (!tx) {
     throw 'tx not populated';
@@ -222,8 +226,8 @@ export const getTransferTx = async (
     value: '0',
     to: tx.to,
     gas: gas?._hex,
-    maxFeePerGas: maxFeePerGas?._hex,
-    maxPriorityFeePerGas: maxPriorityFeePerGas?._hex,
+    maxFeePerGas: gasPrice?._hex,
+    maxPriorityFeePerGas: gasPrice?._hex,
   } as GsnTransactionDetails;
 
   return gsnTx;
@@ -237,4 +241,17 @@ export const getClientId = async (): Promise<string> => {
   const hexValue = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(bundleId));
   //convert hex to int
   return BigNumber.from(hexValue).toString();
+};
+
+export const handleGsnResponse = (txResponse: {
+  res: AxiosResponse<any, any>;
+  relayRequestId: string;
+}) => {
+  const { res } = txResponse;
+  if (res.data['error'] !== undefined) {
+    throw {
+      message: RelayError,
+      details: res.data['error'],
+    };
+  }
 };

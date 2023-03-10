@@ -38,7 +38,11 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const registerAccount = async () => {
     setPerformingAction('Registering Account');
-    await RlyNetwork.registerAccount();
+    try {
+      await RlyNetwork.registerAccount();
+    } catch (error) {
+      console.log(error);
+    }
 
     await fetchBalance();
     setPerformingAction(undefined);
