@@ -176,8 +176,6 @@ export const getClaimTx = async (
 
   const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
-  console.log('maxFeePerGas', maxFeePerGas?.toNumber());
-
   if (!tx) {
     throw 'tx not populated';
   }
