@@ -214,7 +214,7 @@ export const getTransferTx = async (
   const gas = await faucet.estimateGas.transfer?.(destinationAddress, amount, {
     from: account.address,
   });
-  const { gasPrice } = await provider.getFeeData();
+  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
   if (!tx) {
     throw 'tx not populated';
@@ -226,8 +226,8 @@ export const getTransferTx = async (
     value: '0',
     to: tx.to,
     gas: gas?._hex,
-    maxFeePerGas: gasPrice?._hex,
-    maxPriorityFeePerGas: gasPrice?._hex,
+    maxFeePerGas: maxFeePerGas?._hex,
+    maxPriorityFeePerGas: maxPriorityFeePerGas?._hex,
   } as GsnTransactionDetails;
 
   return gsnTx;
