@@ -51,3 +51,23 @@ export async function getAccountPhrase() {
     return;
   }
 }
+
+export async function signMessage(message: string): Promise<string> {
+  const wallet = await getWallet();
+
+  if (!wallet) {
+    throw 'No account';
+  }
+
+  return wallet.signMessage(message);
+}
+
+export async function signTransaction(tx: any): Promise<string> {
+  const wallet = await getWallet();
+
+  if (!wallet) {
+    throw 'No account';
+  }
+
+  return wallet.signTransaction(tx);
+}
