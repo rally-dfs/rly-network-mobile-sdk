@@ -1,6 +1,7 @@
 import type { GsnTransactionDetails, AccountKeypair } from './utils';
 
 import type { RelayRequest } from './EIP712/RelayRequest';
+import { handleGsnResponse } from './gsnTxHelpers';
 
 import axios from 'axios';
 
@@ -60,7 +61,7 @@ export class gsnLightClient {
     //this is where we relay the transaction
 
     const res = await axios.post(`${this.config.relayUrl}/relay`, httpRequest);
-    return { res, relayRequestId };
+    return handleGsnResponse({ res, relayRequestId });
   };
 
   _updateConfig = async () => {

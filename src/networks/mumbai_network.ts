@@ -9,11 +9,7 @@ import type { Network } from '../network';
 import { MumbaiNetworkConfig } from '../network_config/network_config';
 import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
-import {
-  getClaimTx,
-  getTransferTx,
-  handleGsnResponse,
-} from '../gsnClient/gsnTxHelpers';
+import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
 
 async function transfer(
   destinationAddress: string,
@@ -41,8 +37,7 @@ async function transfer(
     MumbaiNetworkConfig
   );
 
-  const tx = await gsnClient.relayTransaction(transferTx);
-  return handleGsnResponse(tx);
+  await gsnClient.relayTransaction(transferTx);
 }
 
 /*
@@ -89,8 +84,7 @@ async function registerAccount(): Promise<void> {
 
   const claimTx = await getClaimTx(account, MumbaiNetworkConfig);
 
-  const tx = await gsnClient.relayTransaction(claimTx);
-  return handleGsnResponse(tx);
+  await gsnClient.relayTransaction(claimTx);
 }
 
 export const RlyMumbaiNetwork: Network = {
