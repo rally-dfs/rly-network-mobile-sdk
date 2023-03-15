@@ -8,5 +8,6 @@ export {
   signMessage,
   signTransaction,
   signHash,
+  permanentlyDeleteAccount,
 } from './account';
 export * from './network';

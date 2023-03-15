@@ -1,6 +1,7 @@
 import type { GsnTransactionDetails, AccountKeypair } from './utils';
 
 import type { RelayRequest } from './EIP712/RelayRequest';
+import { handleGsnResponse } from './gsnTxHelpers';
 
 import axios from 'axios';
 
@@ -60,7 +61,7 @@ export class gsnLightClient {
     //this is where we relay the transaction
 
     const res = await axios.post(`${this.config.relayUrl}/relay`, httpRequest);
-    return { res, relayRequestId };
+    return handleGsnResponse({ res, relayRequestId });
   };
 
   _updateConfig = async () => {
@@ -69,7 +70,6 @@ export class gsnLightClient {
     this.config.relayWorkerAddress = data.relayWorkerAddress;
 
     //get accepted fees from server
-    //TODO: update gas calcualtions
     this.minMaxPriorityFee = data.minMaxPriorityFeePerGas;
     this.maxMaxFeePerGas = data.maxMaxFeePerGas;
     return;
@@ -109,7 +109,7 @@ export class gsnLightClient {
         validUntilTime,
       },
       relayData: {
-        maxFeePerGas: this.maxMaxFeePerGas,
+        maxFeePerGas: this.minMaxPriorityFee,
         maxPriorityFeePerGas: this.minMaxPriorityFee,
         transactionCalldataGasUsed: '',
         relayWorker: this.config.relayWorkerAddress,

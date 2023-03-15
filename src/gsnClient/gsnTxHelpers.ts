@@ -17,6 +17,8 @@ import { tokenFaucet } from '../contract';
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
 import { NativeCodeWrapper } from '../../src/native_code_wrapper';
+import type { AxiosResponse } from 'axios';
+import { RelayError } from '../errors';
 
 const calculateCalldataBytesZeroNonzero = (
   calldata: PrefixedHexString
@@ -237,4 +239,17 @@ export const getClientId = async (): Promise<string> => {
   const hexValue = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(bundleId));
   //convert hex to int
   return BigNumber.from(hexValue).toString();
+};
+
+export const handleGsnResponse = (txResponse: {
+  res: AxiosResponse<any, any>;
+  relayRequestId: string;
+}) => {
+  const { res } = txResponse;
+  if (res.data['error'] !== undefined) {
+    throw {
+      message: RelayError,
+      details: res.data['error'],
+    };
+  }
 };

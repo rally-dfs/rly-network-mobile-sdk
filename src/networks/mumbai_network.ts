@@ -11,7 +11,10 @@ import { tokenFaucet } from '../contracts/tokenFaucet';
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
 
-async function transfer(destinationAddress: string, amount: number) {
+async function transfer(
+  destinationAddress: string,
+  amount: number
+): Promise<void> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -64,7 +67,7 @@ async function getBalance() {
   return Number(ethers.utils.formatEther(bal));
 }
 
-async function registerAccount() {
+async function registerAccount(): Promise<void> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
