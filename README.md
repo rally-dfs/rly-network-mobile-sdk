@@ -84,9 +84,9 @@ Want to see a working example of an app using the SDK? We provide a basic mobile
 
 [react native start guide](https://reactnative.dev/docs/environment-setup)
 
-**Install dependencies**
+To run the example do the following **from the top level of this repo**.
 
-To run the example do the following *from the top level of this repo*.
+**Install dependencies**
 
 `yarn install`
 
