@@ -80,13 +80,13 @@ import { LocalNetwork as Network } from 'rly-network-mobile-sdk';
 
 Want to see a working example of an app using the SDK? We provide a basic mobile app that can be found in `/example`. This app shows how to create & store a rly account, register the new account, and transfer RLY to a new address.
 
-To run the example do the following from the top level of this repo.
-
 **Make Sure you have all required React Native deps installed**
 
 [react native start guide](https://reactnative.dev/docs/environment-setup)
 
 **Install dependencies**
+
+To run the example do the following *from the top level of this repo*.
 
 `yarn install`
 
