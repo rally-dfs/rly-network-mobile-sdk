@@ -1,7 +1,5 @@
-import { utils, providers, Wallet } from 'ethers';
+import { utils } from 'ethers';
 import { signMessage, getWallet, signTransaction, signHash } from '../account';
-import { tokenFaucet } from '../contract';
-import { MumbaiNetworkConfig } from '../network_config/network_config';
 
 // mock native code, just testing signing function
 
