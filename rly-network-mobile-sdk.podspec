@@ -1,4 +1,5 @@
 require "json"
+use_frameworks! :linkage => :static.
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
@@ -15,6 +16,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/rally-dfs/rly-network-mobile-sdk.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,c,m,mm,swift}"
+  s.header_mappings_dir = "."
 
   s.dependency "React-Core"
 
