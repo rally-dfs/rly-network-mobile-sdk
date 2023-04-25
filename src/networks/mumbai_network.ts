@@ -7,9 +7,12 @@ import {
 import { getWallet } from '../account';
 import type { Network } from '../network';
 import { MumbaiNetworkConfig } from '../network_config/network_config';
-import { tokenFaucet } from '../contracts/tokenFaucet';
+import { posRLYTestERC20 } from '../contract';
 import { gsnLightClient } from '../gsnClient/gsnClient';
-import { getClaimTx, getTransferTx } from '../gsnClient/gsnTxHelpers';
+import {
+  getClaimTx,
+  getExecuteMetatransactionTx,
+} from '../gsnClient/gsnTxHelpers';
 
 async function transfer(
   destinationAddress: string,
@@ -30,7 +33,7 @@ async function transfer(
   const gsnClient = new gsnLightClient(account, MumbaiNetworkConfig);
   await gsnClient.init();
 
-  const transferTx = await getTransferTx(
+  const transferTx = await getExecuteMetatransactionTx(
     account,
     destinationAddress,
     ethers.utils.parseEther(amount.toString()),
@@ -62,7 +65,9 @@ async function getBalance() {
   const provider = new ethers.providers.JsonRpcProvider(
     MumbaiNetworkConfig.gsn.rpcUrl
   );
-  const token = tokenFaucet(MumbaiNetworkConfig, provider);
+
+  const token = posRLYTestERC20(MumbaiNetworkConfig, provider);
+
   const bal = await token.balanceOf(account.address);
   return Number(ethers.utils.formatEther(bal));
 }
