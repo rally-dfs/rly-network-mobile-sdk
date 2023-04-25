@@ -2,10 +2,11 @@ import type { NetworkConfig } from './network_config';
 
 export const MumbaiNetworkConfig: NetworkConfig = {
   contracts: {
-    tokenFaucet: '0x946B1A4eA6457b285254Facb54B896Ab0fAE3a7C',
+    rlyERC20: '0x1C7312Cb60b40cF586e796FEdD60Cf243286c9E9',
+    tokenFaucet: '0xe7C3BD692C77Ec0C0bde523455B9D142c49720fF',
   },
   gsn: {
-    paymasterAddress: '0x086c11bd5A61ac480b326916656a33c474d1E4d8',
+    paymasterAddress: '0x298b3CA442474e2cf73874171986F90F0ACF07e2',
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0x3232f21A6E08312654270c78A773f00dd61d60f5',
     relayWorkerAddress: '0x7b556ef275185122257090bd59f74fe4c3c3ca96',
