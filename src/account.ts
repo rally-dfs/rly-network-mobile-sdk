@@ -1,7 +1,28 @@
-import { Wallet } from 'ethers';
+import { Wallet, utils, BigNumber } from 'ethers';
 import KeyManager from './keyManager';
 
 let _cachedWallet: Wallet | undefined;
+
+export type TransactionRequest = {
+  to?: string;
+  from?: string;
+  nonce?: string | number | bigint | BigNumber | ArrayLike<number>;
+
+  gasLimit?: string | number | bigint | BigNumber | ArrayLike<number>;
+  gasPrice?: string | number | bigint | BigNumber | ArrayLike<number>;
+
+  data?: string | ArrayLike<number>;
+  value?: string | number | bigint | BigNumber | ArrayLike<number>;
+  chainId?: number;
+
+  maxPriorityFeePerGas?:
+    | string
+    | number
+    | bigint
+    | BigNumber
+    | ArrayLike<number>;
+  maxFeePerGas?: string | number | bigint | BigNumber | ArrayLike<number>;
+};
 
 export async function createAccount(overwrite?: boolean) {
   const existingWallet = await getWallet();
@@ -54,4 +75,33 @@ export async function getAccountPhrase() {
   } catch (error) {
     return;
   }
+}
+
+export async function signMessage(message: string): Promise<string> {
+  const wallet = await getWallet();
+
+  if (!wallet) {
+    throw 'No account';
+  }
+
+  return wallet.signMessage(message);
+}
+
+export async function signTransaction(tx: TransactionRequest): Promise<string> {
+  const wallet = await getWallet();
+  if (!wallet) {
+    throw 'No account';
+  }
+
+  return wallet.signTransaction(tx);
+}
+
+export async function signHash(hash: string): Promise<string> {
+  const wallet = await getWallet();
+  if (!wallet) {
+    throw 'No account';
+  }
+  const signingKey = new utils.SigningKey(wallet.privateKey);
+
+  return utils.joinSignature(signingKey.signDigest(hash));
 }

@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers, BigNumber, Wallet } from 'ethers';
 import { Buffer } from 'buffer';
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type { RelayRequest } from './EIP712/RelayRequest';
@@ -12,7 +12,8 @@ import type {
   GSNConfig,
   NetworkConfig,
 } from '../network_config/network_config';
-import { tokenFaucet } from '../contract';
+import { tokenFaucet, posRLYTestERC20 } from '../contract';
+import { getTypedMetatransaction } from './EIP712/MetaTransaction';
 
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
@@ -171,9 +172,108 @@ export const getClaimTx = async (
 
   const faucet = tokenFaucet(config, provider);
 
-  const tx = await faucet.populateTransaction.claim?.();
-  const gas = await faucet.estimateGas.claim?.();
+  const tx = await faucet.populateTransaction.claim?.({
+    from: account.address,
+  });
 
+  const gas = await faucet.estimateGas.claim?.({ from: account.address });
+
+  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
+
+  if (!tx) {
+    throw 'tx not populated';
+  }
+
+  const gsnTx = {
+    from: account.address,
+    data: tx.data,
+    value: '0',
+    to: tx.to,
+    gas: gas?._hex,
+    maxFeePerGas: maxFeePerGas?._hex,
+    maxPriorityFeePerGas: maxPriorityFeePerGas?._hex,
+  } as GsnTransactionDetails;
+
+  return gsnTx;
+};
+
+export const getMetatransactionEIP712Signature = async (
+  account: Wallet,
+  contractName: string,
+  contractAddress: PrefixedHexString,
+  functionSignature: string,
+  config: NetworkConfig
+) => {
+  // name and chainId to be used in EIP712
+
+  const chainId = config.gsn.chainId;
+
+  // typed data for signing
+  const eip712Data = getTypedMetatransaction({
+    name: contractName,
+    version: '1',
+    salt: ethers.utils.hexZeroPad(ethers.utils.hexlify(Number(chainId)), 32),
+    verifyingContract: contractAddress,
+    nonce: 0,
+    from: account.address,
+    functionSignature,
+  });
+
+  //signature for metatransaction
+  const signature = await account._signTypedData(
+    eip712Data.domain,
+    eip712Data.types,
+    eip712Data.message
+  );
+
+  //get r,s,v from signature
+
+  return ethers.utils.splitSignature(signature);
+};
+export const getExecuteMetatransactionTx = async (
+  account: Wallet,
+  destinationAddress: Address,
+  amount: BigNumber,
+  config: NetworkConfig
+) => {
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+
+  const token = posRLYTestERC20(config, provider);
+  const name = await token.name();
+
+  // get function signature
+  const data = await token.interface.encodeFunctionData('transfer', [
+    destinationAddress,
+    amount,
+  ]);
+
+  const { r, s, v } = await getMetatransactionEIP712Signature(
+    account,
+    name,
+    token.address,
+    data,
+    config
+  );
+
+  const tx = await token.populateTransaction.executeMetaTransaction?.(
+    account.address,
+    data,
+    r,
+    s,
+    v,
+    { from: account.address }
+  );
+
+  const gas = await token.estimateGas.executeMetaTransaction?.(
+    account.address,
+    data,
+    r,
+    s,
+    v,
+    {
+      from: account.address,
+    }
+  );
   const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
   if (!tx) {
@@ -202,14 +302,14 @@ export const getTransferTx = async (
   const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   //get instance of faucet contract at deployed address with the gsn provider and account as signer
-  const faucet = tokenFaucet(config, provider);
+  const token = posRLYTestERC20(config, provider);
 
-  const tx = await faucet.populateTransaction.transfer?.(
+  const tx = await token.populateTransaction.transfer?.(
     destinationAddress,
     amount
   );
 
-  const gas = await faucet.estimateGas.transfer?.(destinationAddress, amount, {
+  const gas = await token.estimateGas.transfer?.(destinationAddress, amount, {
     from: account.address,
   });
   const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();

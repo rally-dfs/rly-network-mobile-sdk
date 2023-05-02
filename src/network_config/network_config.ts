@@ -21,6 +21,7 @@ export type GSNConfig = {
 export interface NetworkConfig {
   contracts: {
     tokenFaucet: PrefixedHexString;
+    rlyERC20: PrefixedHexString;
   };
   gsn: GSNConfig;
 }

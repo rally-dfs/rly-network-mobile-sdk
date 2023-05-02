@@ -5,6 +5,9 @@ export {
   getAccount,
   getAccountPhrase,
   createAccount,
+  signMessage,
+  signTransaction,
+  signHash,
   permanentlyDeleteAccount,
 } from './account';
 export * from './network';
