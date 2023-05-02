@@ -5,7 +5,7 @@ The mobile web3 SDK is a set of libraries, tools, and open source smart contract
 The SDK enables developers to provide users a familiar native mobile experience within their blockchain application.
 
 
-[View our developer docs](https://app.gitbook.com/invite/7BnqekYHGdQSsb1piJPa/QcO9XxpAg6b9eBpJ8ZWA).
+[View our developer docs](https://docs.devproperly.com/properly-overview/introduction).
 
 ## Installation
 
