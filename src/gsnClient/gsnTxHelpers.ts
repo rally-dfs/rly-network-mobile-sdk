@@ -202,7 +202,8 @@ export const getMetatransactionEIP712Signature = async (
   contractName: string,
   contractAddress: PrefixedHexString,
   functionSignature: string,
-  config: NetworkConfig
+  config: NetworkConfig,
+  nonce: number
 ) => {
   // name and chainId to be used in EIP712
 
@@ -214,7 +215,7 @@ export const getMetatransactionEIP712Signature = async (
     version: '1',
     salt: ethers.utils.hexZeroPad(ethers.utils.hexlify(Number(chainId)), 32),
     verifyingContract: contractAddress,
-    nonce: 0,
+    nonce,
     from: account.address,
     functionSignature,
   });
@@ -240,6 +241,7 @@ export const getExecuteMetatransactionTx = async (
 
   const token = posRLYTestERC20(config, provider);
   const name = await token.name();
+  const nonce = await token.getNonce(account.address);
 
   // get function signature
   const data = await token.interface.encodeFunctionData('transfer', [
@@ -252,7 +254,8 @@ export const getExecuteMetatransactionTx = async (
     name,
     token.address,
     data,
-    config
+    config,
+    nonce.toNumber()
   );
 
   const tx = await token.populateTransaction.executeMetaTransaction?.(
@@ -274,6 +277,7 @@ export const getExecuteMetatransactionTx = async (
       from: account.address,
     }
   );
+
   const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
   if (!tx) {
