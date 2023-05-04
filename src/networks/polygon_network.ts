@@ -6,7 +6,7 @@ import {
 } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
-import { MumbaiNetworkConfig } from '../network_config/network_config';
+import { PolygonNetworkConfig } from '../network_config/network_config';
 import { posRLYTestERC20 } from '../contract';
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import {
@@ -30,14 +30,14 @@ async function transfer(
   if (sourceFinalBalance < 0) {
     throw InsufficientBalanceError;
   }
-  const gsnClient = new gsnLightClient(account, MumbaiNetworkConfig);
+  const gsnClient = new gsnLightClient(account, PolygonNetworkConfig);
   await gsnClient.init();
 
   const transferTx = await getExecuteMetatransactionTx(
     account,
     destinationAddress,
     ethers.utils.parseEther(amount.toString()),
-    MumbaiNetworkConfig
+    PolygonNetworkConfig
   );
 
   await gsnClient.relayTransaction(transferTx);
@@ -50,10 +50,10 @@ async function getBalance() {
   }
 
   const provider = new ethers.providers.JsonRpcProvider(
-    MumbaiNetworkConfig.gsn.rpcUrl
+    PolygonNetworkConfig.gsn.rpcUrl
   );
 
-  const token = posRLYTestERC20(MumbaiNetworkConfig, provider);
+  const token = posRLYTestERC20(PolygonNetworkConfig, provider);
 
   const bal = await token.balanceOf(account.address);
   return Number(ethers.utils.formatEther(bal));
@@ -71,15 +71,15 @@ async function registerAccount(): Promise<void> {
     throw PriorDustingError;
   }
 
-  const gsnClient = new gsnLightClient(account, MumbaiNetworkConfig);
+  const gsnClient = new gsnLightClient(account, PolygonNetworkConfig);
   await gsnClient.init();
 
-  const claimTx = await getClaimTx(account, MumbaiNetworkConfig);
+  const claimTx = await getClaimTx(account, PolygonNetworkConfig);
 
   await gsnClient.relayTransaction(claimTx);
 }
 
-export const RlyMumbaiNetwork: Network = {
+export const RlyPolygonNetwork: Network = {
   transfer: transfer,
   getBalance: getBalance,
   registerAccount: registerAccount,
