@@ -1,5 +1,5 @@
 {
-  "name": "rly-network-mobile-sdk",
+  "name": "@rly-network/mobile-sdk",
   "version": "0.1.7",
   "description": "test",
   "main": "lib/commonjs/index",
