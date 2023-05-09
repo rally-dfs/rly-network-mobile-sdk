@@ -13,8 +13,10 @@ import type {
   NetworkConfig,
 } from '../network_config/network_config';
 import { tokenFaucet, erc20 } from '../contract';
+import { hasMethod } from './utils';
 import { getTypedMetatransaction } from './EIP712/MetaTransaction';
 
+import ERC20 from '../contracts/erc20Data.json';
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
 import { NativeCodeWrapper } from '../../src/native_code_wrapper';
@@ -239,6 +241,18 @@ export const getExecuteMetatransactionTx = async (
   address: string
 ) => {
   const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+
+  //check that contract has executeMetaTransaction method
+  const hasExecuteMetaTransaction = await hasMethod(
+    address,
+    'executeMetaTransaction',
+    provider,
+    ERC20.abi
+  );
+
+  if (!hasExecuteMetaTransaction) {
+    throw 'executeMetaTransaction not found';
+  }
 
   const token = erc20(provider, address);
   const name = await token.name();
