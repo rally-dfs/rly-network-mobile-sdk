@@ -1,10 +1,16 @@
+import { getEvmNetwork } from './networks/evm_network';
+import {
+  MumbaiNetworkConfig,
+  LocalNetworkConfig,
+  PolygonNetworkConfig,
+} from './network_config/network_config';
+
 export interface Network {
   getBalance: () => Promise<number>;
   transfer: (destinationAddress: string, amount: number) => Promise<void>;
   registerAccount: () => Promise<void>;
 }
 
-export * from './networks/dummy_network';
-export * from './networks/local_network';
-export * from './networks/mumbai_network';
-export * from './networks/polygon_network';
+export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
+export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
+export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
