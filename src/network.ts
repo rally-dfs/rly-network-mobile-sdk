@@ -7,11 +7,8 @@ import {
 
 export interface Network {
   getBalance: () => Promise<number>;
-  transfer: (
-    destinationAddress: string,
-    amount: number
-  ) => Promise<string | void>;
-  registerAccount: () => Promise<string | void>;
+  transfer: (destinationAddress: string, amount: number) => Promise<string>;
+  registerAccount: () => Promise<string>;
 }
 
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);

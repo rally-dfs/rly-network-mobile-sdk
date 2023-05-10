@@ -26,6 +26,7 @@ async function transfer(destinationAddress: string, amount: number) {
 
   balances[wallet.publicKey] = sourceFinalBalance;
   balances[destinationAddress] = receiverFinalBalance;
+  return 'success';
 }
 
 async function getBalance() {
@@ -48,6 +49,7 @@ async function registerAccount() {
   }
 
   balances[account.publicKey] = 10;
+  return 'success';
 }
 
 export const RlyDummyNetwork: Network = {
