@@ -19,7 +19,7 @@ async function transfer(
   amount: number,
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString
-): Promise<void> {
+): Promise<string> {
   const account = await getWallet();
 
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
@@ -46,7 +46,7 @@ async function transfer(
     tokenAddress
   );
 
-  await gsnClient.relayTransaction(transferTx);
+  return gsnClient.relayTransaction(transferTx);
 }
 
 async function getBalance(
@@ -69,7 +69,7 @@ async function getBalance(
   return Number(ethers.utils.formatEther(bal));
 }
 
-async function registerAccount(network: NetworkConfig): Promise<void> {
+async function registerAccount(network: NetworkConfig): Promise<string> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -86,7 +86,7 @@ async function registerAccount(network: NetworkConfig): Promise<void> {
 
   const claimTx = await getClaimTx(account, network);
 
-  await gsnClient.relayTransaction(claimTx);
+  return gsnClient.relayTransaction(claimTx);
 }
 
 export function getEvmNetwork(network: NetworkConfig) {
