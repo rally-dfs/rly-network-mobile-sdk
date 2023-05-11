@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useEffect, useState } from 'react';
-import { getAccountPhrase, RlyMumbaiNetwork } from 'rly-network-mobile-sdk';
+import { getAccountPhrase, RlyMumbaiNetwork } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 
