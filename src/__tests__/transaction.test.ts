@@ -1,5 +1,6 @@
 import { Wallet } from 'ethers';
-import { RlyMumbaiNetwork, RlyPolygonNetwork } from '../network';
+import { getWallet } from '../account';
+import { RlyMumbaiNetwork, RlyDummyNetwork } from '../network';
 
 let mockMnemonic: string;
 let mockPk: string;
@@ -34,6 +35,7 @@ test('claim mumbai', async () => {
 });
 
 test('claim local', async () => {
-  const txHash = await RlyMumbaiNetwork.registerAccount();
-  expect(txHash).toMatch(/^0x/);
+  const account = await getWallet();
+  const txHash = await RlyDummyNetwork.registerAccount();
+  expect(txHash).toEqual(`success_${10}_${account?.publicKey}`);
 });
