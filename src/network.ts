@@ -14,3 +14,4 @@ export interface Network {
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
 export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
 export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
+export * from './networks/dummy_network';
