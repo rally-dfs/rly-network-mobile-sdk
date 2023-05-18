@@ -46,9 +46,20 @@ async function transfer(
 
   let transferTx;
 
-  if (
-    await hasMethod(tokenAddress, 'executeMetaTransaction', provider, ERC20.abi)
-  ) {
+  const executeMetaTransactionSupported = await hasMethod(
+    tokenAddress,
+    'executeMetaTransaction',
+    provider,
+    ERC20.abi
+  );
+  const permitSupported = await hasMethod(
+    tokenAddress,
+    'permit',
+    provider,
+    ERC20.abi
+  );
+
+  if (executeMetaTransactionSupported) {
     transferTx = await getExecuteMetatransactionTx(
       account,
       destinationAddress,
@@ -57,7 +68,7 @@ async function transfer(
       tokenAddress,
       provider
     );
-  } else if (await hasMethod(tokenAddress, 'permit', provider, ERC20.abi)) {
+  } else if (permitSupported) {
     transferTx = await getPermitTx(
       account,
       destinationAddress,
