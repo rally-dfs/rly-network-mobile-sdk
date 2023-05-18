@@ -82,8 +82,6 @@ export class gsnLightClient {
   _buildRelayRequest = async (
     transaction: GsnTransactionDetails
   ): Promise<RelayRequest> => {
-    transaction.paymasterData = '0x';
-
     //remove call data cost from gas estimate as tx will be called from contract
     transaction.gas = estimateGasWithoutCallData(
       transaction,
@@ -119,7 +117,7 @@ export class gsnLightClient {
         relayWorker: this.config.relayWorkerAddress,
         paymaster: this.config.paymasterAddress,
         forwarder: this.config.forwarderAddress,
-        paymasterData: transaction.paymasterData,
+        paymasterData: transaction.paymasterData?.toString() || '0x',
         clientId: '1',
       },
     };

@@ -18,7 +18,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     gtxDataNonZero: 16,
     gtxDataZero: 4,
     requestValidSeconds: 172800,
-    maxPaymasterDataLength: 0,
+    maxPaymasterDataLength: 300,
     maxApprovalDataLength: 0,
     maxRelayNonceGap: 3,
   },
