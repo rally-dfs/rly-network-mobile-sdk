@@ -128,8 +128,12 @@ async function registerAccount(network: NetworkConfig): Promise<string> {
 
 export function getEvmNetwork(network: NetworkConfig) {
   return {
-    transfer: function (destinationAddress: string, amount: number) {
-      return transfer(destinationAddress, amount, network);
+    transfer: function (
+      destinationAddress: string,
+      amount: number,
+      tokenAddress?: PrefixedHexString
+    ) {
+      return transfer(destinationAddress, amount, network, tokenAddress);
     },
     getBalance: function () {
       return getBalance(network);

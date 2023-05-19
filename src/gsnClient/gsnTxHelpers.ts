@@ -346,8 +346,9 @@ export const getPermitTx = async (
 ) => {
   const token = erc20(provider, contractAddress);
   const name = await token.name();
-  const nonce = await token.getNonce(account.address);
-  const deadline = getPermitDeadline();
+  const nonce = await token.nonces(account.address);
+
+  const deadline = await getPermitDeadline(provider);
 
   const { r, s, v } = await getPermitEIP712Signature(
     account,
@@ -455,10 +456,11 @@ export const getClientId = async (): Promise<string> => {
 };
 
 // get timestamp that will always be included in next 3 blocks
-export const getPermitDeadline = (): number => {
-  const currentTime = new Date();
-  const futureTime = new Date(currentTime.getTime() + 45000);
-  return Math.floor(futureTime.getTime() / 1000);
+export const getPermitDeadline = async (
+  provider: ethers.providers.JsonRpcProvider
+): Promise<number> => {
+  const { timestamp } = await provider.getBlock('latest');
+  return timestamp + 45;
 };
 
 export const handleGsnResponse = async (

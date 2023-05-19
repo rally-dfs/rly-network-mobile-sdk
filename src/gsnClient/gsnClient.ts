@@ -49,14 +49,14 @@ export class gsnLightClient {
       this.config
     );
 
-    const relayRequestId = getRelayRequestID(
+    /*const relayRequestId = getRelayRequestID(
       httpRequest.relayRequest,
       httpRequest.metadata.signature
     );
 
     //update request metadata with relayrequestid
 
-    httpRequest.metadata.relayRequestId = relayRequestId;
+    httpRequest.metadata.relayRequestId = relayRequestId;*/
 
     //this is where we relay the transaction
 
@@ -164,7 +164,7 @@ export class gsnLightClient {
       relayMaxNonce,
       relayLastKnownNonce,
       domainSeparatorName: config.domainSeparatorName,
-      relayRequestId: '',
+      //relayRequestId: '',
     };
     const httpRequest = {
       relayRequest,

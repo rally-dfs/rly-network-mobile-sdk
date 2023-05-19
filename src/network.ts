@@ -1,4 +1,6 @@
 import { getEvmNetwork } from './networks/evm_network';
+import type { PrefixedHexString } from './gsnClient/utils';
+
 import {
   MumbaiNetworkConfig,
   LocalNetworkConfig,
@@ -7,7 +9,11 @@ import {
 
 export interface Network {
   getBalance: () => Promise<number>;
-  transfer: (destinationAddress: string, amount: number) => Promise<string>;
+  transfer: (
+    destinationAddress: string,
+    amount: number,
+    tokenAddress?: PrefixedHexString
+  ) => Promise<string>;
   registerAccount: () => Promise<string>;
 }
 
