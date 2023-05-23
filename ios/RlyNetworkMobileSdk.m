@@ -25,6 +25,7 @@ RCT_EXTERN_METHOD(generateMnemonic:
 
 RCT_EXTERN_METHOD(saveMnemonic:
     (NSString) mnemonic
+    keychainAccessible: (NSInteger) keychainAccessible
     resolver: (RCTPromiseResolveBlock) resolve
     rejecter: (RCTPromiseRejectBlock) reject
 )

@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import { KeychainAccessibilityConstant, WHEN_UNLOCKED } from './keyManagerConstants';
 
 const LINKING_ERROR =
   `The package 'rly-network-mobile-sdk' doesn't seem to be linked. Make sure: \n\n` +
@@ -9,13 +10,13 @@ const LINKING_ERROR =
 const RlyNativeModule = NativeModules.RlyNetworkMobileSdk
   ? NativeModules.RlyNetworkMobileSdk
   : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
+      },
+    }
+  );
 
 export const getMnemonic = async (): Promise<string | null> => {
   return RlyNativeModule.getMnemonic();
@@ -25,8 +26,8 @@ export const generateMnemonic = async (): Promise<string> => {
   return RlyNativeModule.generateMnemonic();
 };
 
-export const saveMnemonic = async (mnemonic: string): Promise<void> => {
-  return RlyNativeModule.saveMnemonic(mnemonic);
+export const saveMnemonic = async (mnemonic: string, keychainAccessible: KeychainAccessibilityConstant = WHEN_UNLOCKED): Promise<void> => {
+  return RlyNativeModule.saveMnemonic(mnemonic, keychainAccessible);
 };
 
 export const deleteMnemonic = async (): Promise<void> => {
