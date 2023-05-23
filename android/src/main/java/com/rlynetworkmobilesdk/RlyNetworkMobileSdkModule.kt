@@ -47,7 +47,7 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun saveMnemonic(mnemonic:String, promise:Promise){
+  fun saveMnemonic(mnemonic:String, keychainAccessible: Integer, promise:Promise){
     if (!MnemonicWords(mnemonic).validate(WORDLIST_ENGLISH)) {
       promise.reject("mnemonic_verification_failure", "mnemonic failed to pass check");
       return;
