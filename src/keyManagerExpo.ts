@@ -1,4 +1,5 @@
 import { utils, Wallet } from 'ethers';
+import { KeychainAccessibilityConstant, WHEN_UNLOCKED } from './keyManagerConstants';
 
 type ExpoObject = {
   modules: undefined | { [key: string]: any };
@@ -12,9 +13,17 @@ declare global {
 const LINKING_ERROR =
   "The package 'expo-secure-store' doesn't seem to be available please install it as a dependency if using expo.";
 
+
+type SecureStoreOptions = {
+  keychainService?: string;
+  requireAuthentication?: boolean;
+  authenticationPrompt?: string;
+  keychainAccessible?: KeychainAccessibilityConstant;
+};
+
 let SecureStore: {
   getItemAsync: (mnemonic: string) => Promise<string | null>;
-  setItemAsync: (key: string, value: string) => Promise<void>;
+  setItemAsync: (key: string, value: string, options: SecureStoreOptions) => Promise<void>;
   deleteItemAsync: (key: string) => Promise<void>;
 };
 
@@ -38,8 +47,8 @@ export const generateMnemonic = async (): Promise<string> => {
   return utils.entropyToMnemonic(utils.randomBytes(24));
 };
 
-export const saveMnemonic = async (mnemonic: string): Promise<void> => {
-  return SecureStore.setItemAsync(MNEMONIC_ACCOUNT_KEY, mnemonic);
+export const saveMnemonic = async (mnemonic: string, keychainAccessible: KeychainAccessibilityConstant = WHEN_UNLOCKED): Promise<void> => {
+  return SecureStore.setItemAsync(MNEMONIC_ACCOUNT_KEY, mnemonic, { keychainAccessible });
 };
 
 export const deleteMnemonic = async (): Promise<void> => {

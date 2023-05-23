@@ -55,10 +55,11 @@ class RlyNetworkMobileSdk: NSObject {
     
     @objc public func saveMnemonic(
       _ mnemonic: String,
+      keychainAccessible: Int,
       resolver resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
     ) -> Void {
-        KeychainHelper.standard.save(mnemonic.data(using: .utf8)!, service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
+        KeychainHelper.standard.save(mnemonic.data(using: .utf8)!, service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY, keychainAccessible: keychainAccessible)
 
         resolve(true)
     }
