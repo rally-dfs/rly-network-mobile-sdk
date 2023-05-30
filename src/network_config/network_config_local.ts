@@ -3,8 +3,7 @@ import type { NetworkConfig } from './network_config';
 export const LocalNetworkConfig: NetworkConfig = {
   contracts: {
     tokenFaucet: '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c',
-    //update with local rlyERC20 address
-    rlyERC20: '0x',
+    rlyERC20: '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c',
   },
   gsn: {
     paymasterAddress: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',

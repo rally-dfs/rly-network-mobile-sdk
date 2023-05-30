@@ -71,7 +71,11 @@ export class gsnLightClient {
 
     //get accepted fees from server
     this.minMaxPriorityFee = data.minMaxPriorityFeePerGas;
-    this.maxMaxFeePerGas = data.maxMaxFeePerGas.toString();
+    // if chainId is 285252, use minMaxPriorityFeePerGas, otherwise use minMaxFeePerGas as minMaxFeePerGas on mumbai server set to 16 tx will fail
+    this.maxMaxFeePerGas =
+      this.config.chainId === '80001'
+        ? data.minMaxPriorityFeePerGas
+        : data.maxMaxFeePerGas.toString();
     return;
   };
 
