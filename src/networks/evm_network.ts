@@ -135,8 +135,8 @@ export function getEvmNetwork(network: NetworkConfig) {
     ) {
       return transfer(destinationAddress, amount, network, tokenAddress);
     },
-    getBalance: function () {
-      return getBalance(network);
+    getBalance: function (tokenAddress?: PrefixedHexString) {
+      return getBalance(network, tokenAddress);
     },
     registerAccount: function () {
       return registerAccount(network);

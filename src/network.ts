@@ -8,7 +8,7 @@ import {
 } from './network_config/network_config';
 
 export interface Network {
-  getBalance: () => Promise<number>;
+  getBalance: (tokenAddress?: PrefixedHexString) => Promise<number>;
   transfer: (
     destinationAddress: string,
     amount: number,
