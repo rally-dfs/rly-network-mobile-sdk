@@ -67,6 +67,7 @@ export async function getAccount() {
 
 export async function permanentlyDeleteAccount(): Promise<void> {
   await KeyManager.deleteMnemonic();
+  _cachedWallet = undefined;
 }
 
 export async function getAccountPhrase() {
