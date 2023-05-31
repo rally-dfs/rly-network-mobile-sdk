@@ -1,8 +1,8 @@
 import { ethers, Wallet, Contract } from 'ethers';
-import { getWallet } from '../account';
-import * as TokenFaucet from '../contracts/tokenFaucetData.json';
-import * as ERC20 from '../contracts/erc20Data.json';
-import { RlyLocalNetwork } from '../network';
+import { getWallet } from '../../account';
+import * as TokenFaucet from '../../contracts/tokenFaucetData.json';
+import * as ERC20 from '../../contracts/erc20Data.json';
+import { RlyLocalNetwork } from '../../network';
 
 let mockMnemonic: string;
 let mockPk: string;
