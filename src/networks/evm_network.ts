@@ -63,7 +63,7 @@ async function transfer(
     transferTx = await getExecuteMetatransactionTx(
       account,
       destinationAddress,
-      ethers.utils.parseEther(amount.toString()),
+      amount,
       network,
       tokenAddress,
       provider
@@ -72,7 +72,7 @@ async function transfer(
     transferTx = await getPermitTx(
       account,
       destinationAddress,
-      ethers.utils.parseEther(amount.toString()),
+      amount,
       network,
       tokenAddress,
       provider

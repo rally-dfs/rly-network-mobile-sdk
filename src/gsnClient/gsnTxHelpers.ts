@@ -235,7 +235,7 @@ export const getMetatransactionEIP712Signature = async (
 export const getExecuteMetatransactionTx = async (
   account: Wallet,
   destinationAddress: Address,
-  amount: BigNumber,
+  amount: number,
   config: NetworkConfig,
   contractAddress: string,
   provider: ethers.providers.JsonRpcProvider
@@ -243,11 +243,13 @@ export const getExecuteMetatransactionTx = async (
   const token = erc20(provider, contractAddress);
   const name = await token.name();
   const nonce = await token.getNonce(account.address);
+  const decimals = await token.decimals();
+  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   // get function signature
   const data = await token.interface.encodeFunctionData('transfer', [
     destinationAddress,
-    amount,
+    decimalAmount,
   ]);
 
   const { r, s, v } = await getMetatransactionEIP712Signature(
@@ -339,7 +341,7 @@ export const getPermitEIP712Signature = async (
 export const getPermitTx = async (
   account: Wallet,
   destinationAddress: Address,
-  amount: BigNumber,
+  amount: number,
   config: NetworkConfig,
   contractAddress: PrefixedHexString,
   provider: ethers.providers.JsonRpcProvider
@@ -347,6 +349,8 @@ export const getPermitTx = async (
   const token = erc20(provider, contractAddress);
   const name = await token.name();
   const nonce = await token.nonces(account.address);
+  const decimals = await token.decimals();
+  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   const deadline = await getPermitDeadline(provider);
 
@@ -356,14 +360,14 @@ export const getPermitTx = async (
     token.address,
     config,
     nonce.toNumber(),
-    amount,
+    decimalAmount,
     deadline
   );
 
   const tx = await token.populateTransaction.permit?.(
     account.address,
     config.gsn.paymasterAddress,
-    amount,
+    decimalAmount,
     deadline,
     v,
     r,
@@ -374,7 +378,7 @@ export const getPermitTx = async (
   const gas = await token.estimateGas.permit?.(
     account.address,
     config.gsn.paymasterAddress,
-    amount,
+    decimalAmount,
     deadline,
     v,
     r,
@@ -385,7 +389,7 @@ export const getPermitTx = async (
   const fromTx = await token.populateTransaction.transferFrom?.(
     account.address,
     destinationAddress,
-    amount
+    decimalAmount
   );
 
   const paymasterData =
@@ -402,44 +406,6 @@ export const getPermitTx = async (
     maxFeePerGas: maxFeePerGas?._hex,
     maxPriorityFeePerGas: maxPriorityFeePerGas?._hex,
     paymasterData,
-  } as GsnTransactionDetails;
-
-  return gsnTx;
-};
-
-export const getTransferTx = async (
-  account: AccountKeypair,
-  destinationAddress: Address,
-  amount: BigNumber,
-  config: NetworkConfig,
-  address: string,
-  provider: ethers.providers.JsonRpcProvider
-) => {
-  //get instance of faucet contract at deployed address with the gsn provider and account as signer
-  const token = erc20(provider, address);
-
-  const tx = await token.populateTransaction.transfer?.(
-    destinationAddress,
-    amount
-  );
-
-  const gas = await token.estimateGas.transfer?.(destinationAddress, amount, {
-    from: account.address,
-  });
-  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
-
-  if (!tx) {
-    throw 'tx not populated';
-  }
-
-  const gsnTx = {
-    from: account.address,
-    data: tx.data,
-    value: '0',
-    to: tx.to,
-    gas: gas?._hex,
-    maxFeePerGas: maxFeePerGas?._hex,
-    maxPriorityFeePerGas: maxPriorityFeePerGas?._hex,
   } as GsnTransactionDetails;
 
   return gsnTx;
