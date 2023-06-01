@@ -242,7 +242,6 @@ export const getExecuteMetatransactionTx = async (
   provider: ethers.providers.JsonRpcProvider
 ) => {
   const token = erc20(provider, contractAddress);
-
   const name = await token.name();
   const nonce = await token.getNonce(account.address);
   const decimals = await token.decimals();
@@ -310,12 +309,10 @@ export const getPermitEIP712Signature = async (
   nonce: number,
   amount: BigNumber,
   deadline: number
-
 ) => {
   // chainId to be used in EIP712
 
   const chainId = config.gsn.chainId;
-
 
   // typed data for signing
   const eip712Data = getTypedPermitTransaction({
