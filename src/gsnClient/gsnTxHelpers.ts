@@ -13,8 +13,8 @@ import type {
   NetworkConfig,
 } from '../network_config/network_config';
 import { tokenFaucet, erc20 } from '../contract';
-import { hasMethod } from './utils';
 import { getTypedMetatransaction } from './EIP712/MetaTransaction';
+import { getTypedPermitTransaction } from './EIP712/PermitTransaction';
 
 import ERC20 from '../contracts/erc20Data.json';
 import relayHubAbi from './ABI/IRelayHub.json';
@@ -168,10 +168,9 @@ export const getRelayRequestID = (
 
 export const getClaimTx = async (
   account: AccountKeypair,
-  config: NetworkConfig
+  config: NetworkConfig,
+  provider: ethers.providers.JsonRpcProvider
 ) => {
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
-
   const faucet = tokenFaucet(config, provider);
 
   const tx = await faucet.populateTransaction.claim?.({
@@ -233,35 +232,26 @@ export const getMetatransactionEIP712Signature = async (
 
   return ethers.utils.splitSignature(signature);
 };
+
 export const getExecuteMetatransactionTx = async (
   account: Wallet,
   destinationAddress: Address,
-  amount: BigNumber,
+  amount: number,
   config: NetworkConfig,
-  address: string
+  contractAddress: string,
+  provider: ethers.providers.JsonRpcProvider
 ) => {
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const token = erc20(provider, contractAddress);
 
-  //check that contract has executeMetaTransaction method
-  const hasExecuteMetaTransaction = await hasMethod(
-    address,
-    'executeMetaTransaction',
-    provider,
-    ERC20.abi
-  );
-
-  if (!hasExecuteMetaTransaction) {
-    throw 'executeMetaTransaction not found';
-  }
-
-  const token = erc20(provider, address);
   const name = await token.name();
   const nonce = await token.getNonce(account.address);
+  const decimals = await token.decimals();
+  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   // get function signature
   const data = await token.interface.encodeFunctionData('transfer', [
     destinationAddress,
-    amount,
+    decimalAmount,
   ]);
 
   const { r, s, v } = await getMetatransactionEIP712Signature(
@@ -312,40 +302,114 @@ export const getExecuteMetatransactionTx = async (
   return gsnTx;
 };
 
-export const getTransferTx = async (
-  account: AccountKeypair,
-  destinationAddress: Address,
-  amount: BigNumber,
+export const getPermitEIP712Signature = async (
+  account: Wallet,
+  contractName: string,
+  contractAddress: PrefixedHexString,
   config: NetworkConfig,
-  address: string
+  nonce: number,
+  amount: BigNumber,
+  deadline: number
+
 ) => {
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  // chainId to be used in EIP712
 
-  //get instance of faucet contract at deployed address with the gsn provider and account as signer
-  const token = erc20(provider, address);
+  const chainId = config.gsn.chainId;
 
-  const tx = await token.populateTransaction.transfer?.(
-    destinationAddress,
-    amount
+
+  // typed data for signing
+  const eip712Data = getTypedPermitTransaction({
+    name: contractName,
+    version: `1`,
+    chainId: Number(chainId),
+    verifyingContract: contractAddress,
+    owner: account.address,
+    spender: config.gsn.paymasterAddress,
+    value: amount.toString(),
+    nonce: nonce,
+    deadline,
+  });
+
+  //signature for metatransaction
+  const signature = await account._signTypedData(
+    eip712Data.domain,
+    eip712Data.types,
+    eip712Data.message
   );
 
-  const gas = await token.estimateGas.transfer?.(destinationAddress, amount, {
-    from: account.address,
-  });
-  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
+  //get r,s,v from signature
 
-  if (!tx) {
-    throw 'tx not populated';
-  }
+  return ethers.utils.splitSignature(signature);
+};
+
+export const getPermitTx = async (
+  account: Wallet,
+  destinationAddress: Address,
+  amount: number,
+  config: NetworkConfig,
+  contractAddress: PrefixedHexString,
+  provider: ethers.providers.JsonRpcProvider
+) => {
+  const token = erc20(provider, contractAddress);
+  const name = await token.name();
+  const nonce = await token.nonces(account.address);
+  const decimals = await token.decimals();
+  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+
+  const deadline = await getPermitDeadline(provider);
+
+  const { r, s, v } = await getPermitEIP712Signature(
+    account,
+    name,
+    token.address,
+    config,
+    nonce.toNumber(),
+    decimalAmount,
+    deadline
+  );
+
+  const tx = await token.populateTransaction.permit?.(
+    account.address,
+    config.gsn.paymasterAddress,
+    decimalAmount,
+    deadline,
+    v,
+    r,
+    s,
+    { from: account.address }
+  );
+
+  const gas = await token.estimateGas.permit?.(
+    account.address,
+    config.gsn.paymasterAddress,
+    decimalAmount,
+    deadline,
+    v,
+    r,
+    s,
+    { from: account.address }
+  );
+
+  const fromTx = await token.populateTransaction.transferFrom?.(
+    account.address,
+    destinationAddress,
+    decimalAmount
+  );
+
+  const paymasterData =
+    '0x' + token.address.replace(/^0x/, '') + fromTx?.data?.replace(/^0x/, '');
+
+  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
 
   const gsnTx = {
     from: account.address,
-    data: tx.data,
+    data: tx?.data,
     value: '0',
-    to: tx.to,
+    to: tx?.to,
     gas: gas?._hex,
     maxFeePerGas: maxFeePerGas?._hex,
     maxPriorityFeePerGas: maxPriorityFeePerGas?._hex,
+    paymasterData,
   } as GsnTransactionDetails;
 
   return gsnTx;
@@ -359,6 +423,14 @@ export const getClientId = async (): Promise<string> => {
   const hexValue = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(bundleId));
   //convert hex to int
   return BigNumber.from(hexValue).toString();
+};
+
+// get timestamp that will always be included in next 3 blocks
+export const getPermitDeadline = async (
+  provider: ethers.providers.JsonRpcProvider
+): Promise<number> => {
+  const { timestamp } = await provider.getBlock('latest');
+  return timestamp + 45;
 };
 
 export const handleGsnResponse = async (

@@ -3,15 +3,21 @@ import {
   InsufficientBalanceError,
   MissingWalletError,
   PriorDustingError,
+  TransferMethodNotSupportedError,
 } from '../errors';
 import { getWallet } from '../account';
 import type { NetworkConfig } from '../network_config/network_config';
 import { erc20 } from '../contract';
+import ERC20 from '../contracts/erc20Data.json';
+
 import { gsnLightClient } from '../gsnClient/gsnClient';
 import {
   getClaimTx,
   getExecuteMetatransactionTx,
+  getPermitTx,
 } from '../gsnClient/gsnTxHelpers';
+import { hasMethod } from '../gsnClient/utils';
+
 import type { PrefixedHexString } from '../gsnClient/utils';
 
 async function transfer(
@@ -39,14 +45,45 @@ async function transfer(
   const gsnClient = new gsnLightClient(account, network);
   await gsnClient.init();
 
-  const transferTx = await getExecuteMetatransactionTx(
-    account,
-    destinationAddress,
-    ethers.utils.parseEther(amount.toString()),
-    network,
-    tokenAddress
+
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  let transferTx;
+
+  const executeMetaTransactionSupported = await hasMethod(
+    tokenAddress,
+    'executeMetaTransaction',
+    provider,
+    ERC20.abi
+  );
+  const permitSupported = await hasMethod(
+    tokenAddress,
+    'permit',
+    provider,
+    ERC20.abi
   );
 
+  if (executeMetaTransactionSupported) {
+    transferTx = await getExecuteMetatransactionTx(
+      account,
+      destinationAddress,
+      amount,
+      network,
+      tokenAddress,
+      provider
+    );
+  } else if (permitSupported) {
+    transferTx = await getPermitTx(
+      account,
+      destinationAddress,
+      amount,
+      network,
+      tokenAddress,
+      provider
+    );
+  } else {
+    throw TransferMethodNotSupportedError;
+  }
 
   return gsnClient.relayTransaction(transferTx);
 
@@ -72,7 +109,6 @@ async function getBalance(
   return Number(ethers.utils.formatEther(bal));
 }
 
-
 async function registerAccount(network: NetworkConfig): Promise<string> {
 
   const account = await getWallet();
@@ -89,7 +125,9 @@ async function registerAccount(network: NetworkConfig): Promise<string> {
   const gsnClient = new gsnLightClient(account, network);
   await gsnClient.init();
 
-  const claimTx = await getClaimTx(account, network);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const claimTx = await getClaimTx(account, network, provider);
 
   return gsnClient.relayTransaction(claimTx);
 
@@ -97,11 +135,16 @@ async function registerAccount(network: NetworkConfig): Promise<string> {
 
 export function getEvmNetwork(network: NetworkConfig) {
   return {
-    transfer: function (destinationAddress: string, amount: number) {
-      return transfer(destinationAddress, amount, network);
+    transfer: function (
+      destinationAddress: string,
+      amount: number,
+      tokenAddress?: PrefixedHexString
+    ) {
+      return transfer(destinationAddress, amount, network, tokenAddress);
     },
-    getBalance: function () {
-      return getBalance(network);
+    getBalance: function (tokenAddress?: PrefixedHexString) {
+      return getBalance(network, tokenAddress);
+
     },
     registerAccount: function () {
       return registerAccount(network);
