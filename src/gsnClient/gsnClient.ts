@@ -61,7 +61,7 @@ export class gsnLightClient {
     //this is where we relay the transaction
 
     const res = await axios.post(`${this.config.relayUrl}/relay`, httpRequest);
-    return handleGsnResponse({ res, relayRequestId });
+    return handleGsnResponse(res, this.web3Provider);
   };
 
   _updateConfig = async () => {
