@@ -9,14 +9,17 @@ import { getWallet } from '../account';
 import type { NetworkConfig } from '../network_config/network_config';
 import { erc20 } from '../contract';
 import ERC20 from '../contracts/erc20Data.json';
-import { gsnLightClient } from '../gsnClient/gsnClient';
+import { relayTransaction } from '../gsnClient/gsnClient';
 import {
   getClaimTx,
   getExecuteMetatransactionTx,
   getPermitTx,
 } from '../gsnClient/gsnTxHelpers';
 import { hasMethod } from '../gsnClient/utils';
-import type { PrefixedHexString } from '../gsnClient/utils';
+import type {
+  PrefixedHexString,
+  GsnTransactionDetails,
+} from '../gsnClient/utils';
 
 async function transfer(
   destinationAddress: string,
@@ -39,8 +42,6 @@ async function transfer(
   if (sourceFinalBalance < 0) {
     throw InsufficientBalanceError;
   }
-  const gsnClient = new gsnLightClient(account, network);
-  await gsnClient.init();
 
   const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
@@ -81,7 +82,7 @@ async function transfer(
     throw TransferMethodNotSupportedError;
   }
 
-  return gsnClient.relayTransaction(transferTx);
+  return relay(transferTx, network);
 }
 
 async function getBalance(
@@ -116,14 +117,23 @@ async function registerAccount(network: NetworkConfig): Promise<string> {
     throw PriorDustingError;
   }
 
-  const gsnClient = new gsnLightClient(account, network);
-  await gsnClient.init();
-
   const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   const claimTx = await getClaimTx(account, network, provider);
 
-  return gsnClient.relayTransaction(claimTx);
+  return relay(claimTx, network);
+}
+
+export async function relay(
+  tx: GsnTransactionDetails,
+  network: NetworkConfig
+): Promise<string> {
+  const account = await getWallet();
+  if (!account) {
+    throw MissingWalletError;
+  }
+
+  return relayTransaction(account, network, tx);
 }
 
 export function getEvmNetwork(network: NetworkConfig) {
@@ -140,6 +150,9 @@ export function getEvmNetwork(network: NetworkConfig) {
     },
     registerAccount: function () {
       return registerAccount(network);
+    },
+    relay: function (tx: GsnTransactionDetails) {
+      return relay(tx, network);
     },
   };
 }

@@ -5,174 +5,156 @@ import { handleGsnResponse } from './gsnTxHelpers';
 
 import axios from 'axios';
 
-import type {
-  GSNConfig,
-  NetworkConfig,
-} from 'src/network_config/network_config';
+import type { NetworkConfig } from 'src/network_config/network_config';
 
 import {
   estimateGasWithoutCallData,
   estimateCalldataCostForRequest,
   getSenderNonce,
   signRequest,
-  getRelayRequestID,
+  //getRelayRequestID,
   //getClientId,
 } from './gsnTxHelpers';
 
 import { ethers, providers } from 'ethers';
 
-export class gsnLightClient {
-  private readonly account: AccountKeypair;
-  config: GSNConfig;
-  web3Provider: providers.JsonRpcProvider;
-  minMaxPriorityFee: string;
-  maxMaxFeePerGas: string;
+const updateConfig = async (
+  config: NetworkConfig,
+  transaction: GsnTransactionDetails
+) => {
+  const { data } = await axios.get(`${config.gsn.relayUrl}/getaddr`);
+  //get current relay worker address from relay server config
+  config.gsn.relayWorkerAddress = data.relayWorkerAddress;
 
-  constructor(account: AccountKeypair, config: NetworkConfig) {
-    this.account = account;
-    this.config = config.gsn;
-    this.minMaxPriorityFee = '0';
-    this.maxMaxFeePerGas = '0';
-    this.web3Provider = new ethers.providers.JsonRpcProvider(
-      this.config.rpcUrl
-    );
-  }
+  //get accepted fees from server
+  transaction.maxPriorityFeePerGas = data.minMaxPriorityFeePerGas;
+  // if chainId is 285252, use minMaxPriorityFeePerGas, otherwise use minMaxFeePerGas as minMaxFeePerGas on mumbai server set to 16 tx will fail
+  transaction.maxFeePerGas =
+    config.gsn.chainId === '80001'
+      ? data.minMaxPriorityFeePerGas
+      : data.maxMaxFeePerGas.toString();
+  return { config, transaction };
+};
 
-  init = async () => {
-    await this._updateConfig();
+const buildRelayRequest = async (
+  transaction: GsnTransactionDetails,
+  config: NetworkConfig,
+  account: AccountKeypair,
+  web3Provider: providers.JsonRpcProvider
+) => {
+  //remove call data cost from gas estimate as tx will be called from contract
+  transaction.gas = estimateGasWithoutCallData(
+    transaction,
+    config.gsn.gtxDataNonZero,
+    config.gsn.gtxDataZero
+  );
+
+  const secondsNow = Math.round(Date.now() / 1000);
+  const validUntilTime = (
+    secondsNow + config.gsn.requestValidSeconds
+  ).toString();
+
+  const senderNonce = await getSenderNonce(
+    account.address,
+    config.gsn.forwarderAddress,
+    web3Provider
+  );
+
+  const relayRequest: RelayRequest = {
+    request: {
+      from: transaction.from,
+      to: transaction.to,
+      value: transaction.value || '0',
+      gas: parseInt(transaction.gas, 16).toString(),
+      nonce: senderNonce,
+      data: transaction.data,
+      validUntilTime,
+    },
+    relayData: {
+      maxFeePerGas: transaction.maxFeePerGas,
+      maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+      transactionCalldataGasUsed: '',
+      relayWorker: config.gsn.relayWorkerAddress,
+      paymaster: config.gsn.paymasterAddress,
+      forwarder: config.gsn.forwarderAddress,
+      paymasterData: transaction.paymasterData?.toString() || '0x',
+      clientId: '1',
+    },
   };
 
-  relayTransaction = async (transaction: GsnTransactionDetails) => {
-    const relayRequest = await this._buildRelayRequest(transaction);
-    const httpRequest = await this._buildRelayHttpRequest(
-      relayRequest,
-      this.config
-    );
+  const transactionCalldataGasUsed = await estimateCalldataCostForRequest(
+    relayRequest,
+    config.gsn
+  );
 
-    /*const relayRequestId = getRelayRequestID(
-      httpRequest.relayRequest,
-      httpRequest.metadata.signature
-    );
+  relayRequest.relayData.transactionCalldataGasUsed = parseInt(
+    transactionCalldataGasUsed,
+    16
+  ).toString();
 
-    //update request metadata with relayrequestid
+  return relayRequest;
+};
 
-    httpRequest.metadata.relayRequestId = relayRequestId;*/
+const buildRelayHttpRequest = async (
+  relayRequest: RelayRequest,
+  config: NetworkConfig,
+  account: AccountKeypair,
+  web3Provider: providers.JsonRpcProvider
+) => {
+  const signature = await signRequest(
+    relayRequest,
+    config.gsn.domainSeparatorName,
+    config.gsn.chainId,
+    account
+  );
 
-    //this is where we relay the transaction
+  const approvalData = '0x';
 
-    const res = await axios.post(`${this.config.relayUrl}/relay`, httpRequest);
-    return handleGsnResponse(res, this.web3Provider);
+  const wallet = new ethers.VoidSigner(
+    relayRequest.relayData.relayWorker,
+    web3Provider
+  );
+  const relayLastKnownNonce = await wallet.getTransactionCount();
+  const relayMaxNonce = relayLastKnownNonce + config.gsn.maxRelayNonceGap;
+
+  const metadata = {
+    maxAcceptanceBudget: config.gsn.maxAcceptanceBudget,
+    relayHubAddress: config.gsn.relayHubAddress,
+    signature,
+    approvalData,
+    relayMaxNonce,
+    relayLastKnownNonce,
+    domainSeparatorName: config.gsn.domainSeparatorName,
+    //relayRequestId: '',
+  };
+  const httpRequest = {
+    relayRequest,
+    metadata,
   };
 
-  _updateConfig = async () => {
-    const { data } = await axios.get(`${this.config.relayUrl}/getaddr`);
-    //get current relay worker address from relay server config
-    this.config.relayWorkerAddress = data.relayWorkerAddress;
+  return httpRequest;
+};
 
-    //get accepted fees from server
-    this.minMaxPriorityFee = data.minMaxPriorityFeePerGas;
-    // if chainId is 285252, use minMaxPriorityFeePerGas, otherwise use minMaxFeePerGas as minMaxFeePerGas on mumbai server set to 16 tx will fail
-    this.maxMaxFeePerGas =
-      this.config.chainId === '80001'
-        ? data.minMaxPriorityFeePerGas
-        : data.maxMaxFeePerGas.toString();
-    return;
-  };
+export const relayTransaction = async (
+  account: AccountKeypair,
+  config: NetworkConfig,
+  transaction: GsnTransactionDetails
+) => {
+  const web3Provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const updatedConfig = await updateConfig(config, transaction);
+  const relayRequest = await buildRelayRequest(
+    updatedConfig.transaction,
+    updatedConfig.config,
+    account,
+    web3Provider
+  );
+  const httpRequest = await buildRelayHttpRequest(
+    relayRequest,
+    updatedConfig.config,
+    account,
+    web3Provider
+  );
 
-  _buildRelayRequest = async (
-    transaction: GsnTransactionDetails
-  ): Promise<RelayRequest> => {
-    //remove call data cost from gas estimate as tx will be called from contract
-    transaction.gas = estimateGasWithoutCallData(
-      transaction,
-      this.config.gtxDataNonZero,
-      this.config.gtxDataZero
-    );
-
-    const secondsNow = Math.round(Date.now() / 1000);
-    const validUntilTime = (
-      secondsNow + this.config.requestValidSeconds
-    ).toString();
-
-    const senderNonce = await getSenderNonce(
-      this.account.address,
-      this.config.forwarderAddress,
-      this.web3Provider
-    );
-
-    const relayRequest: RelayRequest = {
-      request: {
-        from: transaction.from,
-        to: transaction.to,
-        value: transaction.value || '0',
-        gas: parseInt(transaction.gas, 16).toString(),
-        nonce: senderNonce,
-        data: transaction.data,
-        validUntilTime,
-      },
-      relayData: {
-        maxFeePerGas: this.maxMaxFeePerGas,
-        maxPriorityFeePerGas: this.minMaxPriorityFee,
-        transactionCalldataGasUsed: '',
-        relayWorker: this.config.relayWorkerAddress,
-        paymaster: this.config.paymasterAddress,
-        forwarder: this.config.forwarderAddress,
-        paymasterData: transaction.paymasterData?.toString() || '0x',
-        clientId: '1',
-      },
-    };
-
-    const transactionCalldataGasUsed = await estimateCalldataCostForRequest(
-      relayRequest,
-      this.config
-    );
-
-    relayRequest.relayData.transactionCalldataGasUsed = parseInt(
-      transactionCalldataGasUsed,
-      16
-    ).toString();
-
-    return relayRequest;
-  };
-
-  _buildRelayHttpRequest = async (
-    relayRequest: RelayRequest,
-    config: GSNConfig
-  ) => {
-    const signature = await signRequest(
-      relayRequest,
-      config.domainSeparatorName,
-      config.chainId,
-      this.account
-    );
-
-    //TODO: when should this be used?
-    const approvalData = '0x';
-
-    const wallet = new ethers.VoidSigner(
-      relayRequest.relayData.relayWorker,
-      this.web3Provider
-    );
-    const relayLastKnownNonce = await wallet.getTransactionCount();
-    const relayMaxNonce = relayLastKnownNonce + config.maxRelayNonceGap;
-
-    const metadata = {
-      maxAcceptanceBudget: config.maxAcceptanceBudget,
-      relayHubAddress: config.relayHubAddress,
-      signature,
-      approvalData,
-      relayMaxNonce,
-      relayLastKnownNonce,
-      domainSeparatorName: config.domainSeparatorName,
-      //relayRequestId: '',
-    };
-    const httpRequest = {
-      relayRequest,
-      metadata,
-    };
-
-    return httpRequest;
-  };
-}
-
-export const getGSNProvider = () => {};
+  const res = await axios.post(`${config.gsn.relayUrl}/relay`, httpRequest);
+  return handleGsnResponse(res, web3Provider);
+};
