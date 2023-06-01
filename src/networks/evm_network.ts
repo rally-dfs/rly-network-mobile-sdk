@@ -27,6 +27,7 @@ async function transfer(
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString
 ): Promise<string> {
+
   const account = await getWallet();
 
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
@@ -81,7 +82,7 @@ async function transfer(
   } else {
     throw TransferMethodNotSupportedError;
   }
-
+    
   return relay(transferTx, network);
 }
 
@@ -106,6 +107,7 @@ async function getBalance(
 }
 
 async function registerAccount(network: NetworkConfig): Promise<string> {
+
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -134,6 +136,7 @@ export async function relay(
   }
 
   return relayTransaction(account, network, tx);
+
 }
 
 export function getEvmNetwork(network: NetworkConfig) {

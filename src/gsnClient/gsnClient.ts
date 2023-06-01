@@ -130,6 +130,7 @@ const buildRelayHttpRequest = async (
   const httpRequest = {
     relayRequest,
     metadata,
+
   };
 
   return httpRequest;

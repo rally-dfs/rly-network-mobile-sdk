@@ -16,6 +16,7 @@ import { tokenFaucet, erc20 } from '../contract';
 import { getTypedMetatransaction } from './EIP712/MetaTransaction';
 import { getTypedPermitTransaction } from './EIP712/PermitTransaction';
 
+import ERC20 from '../contracts/erc20Data.json';
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
 import { NativeCodeWrapper } from '../../src/native_code_wrapper';
@@ -309,7 +310,7 @@ export const getPermitEIP712Signature = async (
   amount: BigNumber,
   deadline: number
 ) => {
-  // name and chainId to be used in EIP712
+  // chainId to be used in EIP712
 
   const chainId = config.gsn.chainId;
 
