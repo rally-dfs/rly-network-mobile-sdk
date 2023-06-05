@@ -6,7 +6,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     tokenFaucet: '0xe7C3BD692C77Ec0C0bde523455B9D142c49720fF',
   },
   gsn: {
-    paymasterAddress: '0x298b3CA442474e2cf73874171986F90F0ACF07e2',
+    paymasterAddress: '0x499D418D4493BbE0D9A8AF3D2A0768191fE69B87',
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0x3232f21A6E08312654270c78A773f00dd61d60f5',
     relayWorkerAddress: '0x7b556ef275185122257090bd59f74fe4c3c3ca96',
