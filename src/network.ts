@@ -4,7 +4,6 @@ import type {
   GsnTransactionDetails,
 } from './gsnClient/utils';
 
-
 import {
   MumbaiNetworkConfig,
   LocalNetworkConfig,
@@ -19,7 +18,7 @@ export interface Network {
     tokenAddress?: PrefixedHexString
   ) => Promise<string>;
   registerAccount: () => Promise<string>;
-  relay: (tx: GsnTransactionDetails) => Promise<string>;
+  relay?: (tx: GsnTransactionDetails) => Promise<string>;
 }
 
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
