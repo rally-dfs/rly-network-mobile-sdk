@@ -12,7 +12,7 @@ import {
   estimateCalldataCostForRequest,
   getSenderNonce,
   signRequest,
-  //getRelayRequestID,
+  getRelayRequestID,
   //getClientId,
 } from './gsnTxHelpers';
 
@@ -125,12 +125,11 @@ const buildRelayHttpRequest = async (
     relayMaxNonce,
     relayLastKnownNonce,
     domainSeparatorName: config.gsn.domainSeparatorName,
-    //relayRequestId: '',
+    relayRequestId: '',
   };
   const httpRequest = {
     relayRequest,
     metadata,
-
   };
 
   return httpRequest;
@@ -155,6 +154,15 @@ export const relayTransaction = async (
     account,
     web3Provider
   );
+
+  const relayRequestId = getRelayRequestID(
+    httpRequest.relayRequest,
+    httpRequest.metadata.signature
+  );
+
+  //update request metadata with relayrequestid
+
+  httpRequest.metadata.relayRequestId = relayRequestId;
 
   const res = await axios.post(`${config.gsn.relayUrl}/relay`, httpRequest);
   return handleGsnResponse(res, web3Provider);
