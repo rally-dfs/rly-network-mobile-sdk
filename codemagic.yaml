@@ -1,0 +1,30 @@
+workflows:
+  pre-build:
+    name: Pre build
+    max_build_duration: 60
+    environment:
+      node: 16.14.2
+      npm: latest
+    cache:
+      cache_paths:
+        - $CM_BUILD_DIR/node_modules
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+      cancel_previous_builds: false
+    scripts:
+      - name: Yarn Install
+        script: yarn install
+      - name: Run Linter
+        script: yarn lint
+        ignore_failure: true
+      - name: Run Typescript Compiler
+        script: yarn typescript
+      - name: Yarn Test
+        script: yarn test
+    artifacts:
+      - build/**/outputs/bundle/**/*.aab
