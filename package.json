@@ -98,6 +98,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/__tests__/__utils__/"
     ]
   },
   "commitlint": {

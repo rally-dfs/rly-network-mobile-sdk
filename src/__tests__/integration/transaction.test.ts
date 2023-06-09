@@ -1,6 +1,7 @@
 import { Wallet } from 'ethers';
 import { getWallet } from '../../account';
 import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
+import { testSkipInCI } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
 let mockPk: string;
@@ -29,14 +30,18 @@ jest.mock('react-native', () => {
   };
 });
 
-test('claim mumbai', async () => {
-  const oldBal = await RlyMumbaiNetwork.getBalance();
-  const txHash = await RlyMumbaiNetwork.registerAccount();
-  const newBal = await RlyMumbaiNetwork.getBalance();
-  expect(oldBal).toEqual(0);
-  expect(txHash).toMatch(/^0x/);
-  expect(newBal).toEqual(10);
-});
+testSkipInCI(
+  'claim mumbai',
+  async () => {
+    const oldBal = await RlyMumbaiNetwork.getBalance();
+    const txHash = await RlyMumbaiNetwork.registerAccount();
+    const newBal = await RlyMumbaiNetwork.getBalance();
+    expect(oldBal).toEqual(0);
+    expect(txHash).toMatch(/^0x/);
+    expect(newBal).toEqual(10);
+  },
+  30000
+);
 
 test('claim local', async () => {
   const account = await getWallet();
