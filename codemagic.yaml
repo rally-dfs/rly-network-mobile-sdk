@@ -1,10 +1,28 @@
+definitions:
+  default_environments: &default_environments
+    node: 16.14.2
+    npm: latest
+  scripts:
+    # would be great to be able to alias all these into one single reference but couldn't figure out a way to do that
+    - &yarn_install
+      name: Yarn install
+      script: yarn install
+    - &run_linter
+      name: Run linter
+      script: yarn lint
+    - &compile_typescript
+      name: Run typescript compiler
+      script: yarn typescript
+    - &yarn_test
+      name: Yarn test
+      script: yarn test
+
 workflows:
   pre-build:
     name: Pre build
     max_build_duration: 60
     environment:
-      node: 16.14.2
-      npm: latest
+      <<: *default_environments
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
@@ -17,14 +35,29 @@ workflows:
           source: true
       cancel_previous_builds: false
     scripts:
-      - name: Yarn Install
-        script: yarn install
-      - name: Run Linter
-        script: yarn lint
-        ignore_failure: true
-      - name: Run Typescript Compiler
-        script: yarn typescript
-      - name: Yarn Test
-        script: yarn test
-    artifacts:
-      - build/**/outputs/bundle/**/*.aab
+      - *yarn_install
+      - *run_linter
+      - *compile_typescript
+      - *yarn_test
+  publish-npm:
+    name: Publish tag to NPM
+    max_build_duration: 60
+    environment:
+      <<: *default_environments
+      groups:
+        - publish-npm-group
+    cache:
+      cache_paths:
+        - $CM_BUILD_DIR/node_modules
+    scripts:
+      - *yarn_install
+      - *run_linter
+      - *compile_typescript
+      - *yarn_test
+      - name: Authorize npm
+        script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
+      - name: Publish to npm
+        script: echo "TODO Run npm publish"; cat ~/.npmrc
+      - name: Add git tag
+        script: git tag `cat package.json | jq -r '.version'`-`date +%Y%m%d`
+      # TODO: push tag to github
