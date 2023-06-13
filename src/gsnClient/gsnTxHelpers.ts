@@ -232,6 +232,49 @@ export const getMetatransactionEIP712Signature = async (
   return ethers.utils.splitSignature(signature);
 };
 
+export const hasExecuteMetaTransaction = async (
+  account: Wallet,
+  destinationAddress: Address,
+  amount: number,
+  config: NetworkConfig,
+  contractAddress: Address,
+  provider: ethers.providers.JsonRpcProvider
+) => {
+  const token = erc20(provider, contractAddress);
+  const name = await token.name();
+  const nonce = await token.getNonce(account.address);
+  const decimals = await token.decimals();
+  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+  const data = await token.interface.encodeFunctionData('transfer', [
+    destinationAddress,
+    decimalAmount,
+  ]);
+
+  const { r, s, v } = await getMetatransactionEIP712Signature(
+    account,
+    name,
+    token.address,
+    data,
+    config,
+    nonce.toNumber()
+  );
+  try {
+    await token.estimateGas.executeMetaTransaction?.(
+      account.address,
+      data,
+      r,
+      s,
+      v,
+      {
+        from: account.address,
+      }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const getExecuteMetatransactionTx = async (
   account: Wallet,
   destinationAddress: Address,
@@ -298,6 +341,47 @@ export const getExecuteMetatransactionTx = async (
   } as GsnTransactionDetails;
 
   return gsnTx;
+};
+
+export const hasPermit = async (
+  account: Wallet,
+  amount: number,
+  config: NetworkConfig,
+  contractAddress: Address,
+  provider: ethers.providers.JsonRpcProvider
+) => {
+  const token = erc20(provider, contractAddress);
+  const name = await token.name();
+  const nonce = await token.nonces(account.address);
+  const decimals = await token.decimals();
+  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+
+  const deadline = await getPermitDeadline(provider);
+
+  const { r, s, v } = await getPermitEIP712Signature(
+    account,
+    name,
+    token.address,
+    config,
+    nonce.toNumber(),
+    decimalAmount,
+    deadline
+  );
+  try {
+    await token.estimateGas.permit?.(
+      account.address,
+      config.gsn.paymasterAddress,
+      decimalAmount,
+      deadline,
+      v,
+      r,
+      s,
+      { from: account.address }
+    );
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const getPermitEIP712Signature = async (
@@ -434,6 +518,7 @@ export const handleGsnResponse = async (
   provider: ethers.providers.JsonRpcProvider
 ) => {
   if (res.data['error'] !== undefined) {
+    console.log('error', res.data['error']);
     throw {
       message: RelayError,
       details: res.data['error'],

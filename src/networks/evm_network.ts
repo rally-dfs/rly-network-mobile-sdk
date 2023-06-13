@@ -8,26 +8,28 @@ import {
 import { getWallet } from '../account';
 import type { NetworkConfig } from '../network_config/network_config';
 import { erc20 } from '../contract';
-import ERC20 from '../contracts/erc20Data.json';
 import { relayTransaction } from '../gsnClient/gsnClient';
 import {
   getClaimTx,
   getExecuteMetatransactionTx,
   getPermitTx,
+  hasExecuteMetaTransaction,
+  hasPermit,
 } from '../gsnClient/gsnTxHelpers';
-import { hasMethod } from '../gsnClient/utils';
 import type {
   PrefixedHexString,
   GsnTransactionDetails,
 } from '../gsnClient/utils';
 
+import { MetaTxMethod } from '../gsnClient/utils';
+
 async function transfer(
   destinationAddress: string,
   amount: number,
   network: NetworkConfig,
-  tokenAddress?: PrefixedHexString
+  tokenAddress?: PrefixedHexString,
+  metaTxMethod?: MetaTxMethod
 ): Promise<string> {
-
   const account = await getWallet();
 
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
@@ -48,41 +50,71 @@ async function transfer(
 
   let transferTx;
 
-  const executeMetaTransactionSupported = await hasMethod(
-    tokenAddress,
-    'executeMetaTransaction',
-    provider,
-    ERC20.abi
-  );
-  const permitSupported = await hasMethod(
-    tokenAddress,
-    'permit',
-    provider,
-    ERC20.abi
-  );
-
-  if (executeMetaTransactionSupported) {
-    transferTx = await getExecuteMetatransactionTx(
-      account,
-      destinationAddress,
-      amount,
-      network,
-      tokenAddress,
-      provider
-    );
-  } else if (permitSupported) {
-    transferTx = await getPermitTx(
-      account,
-      destinationAddress,
-      amount,
-      network,
-      tokenAddress,
-      provider
-    );
+  if (
+    metaTxMethod &&
+    (metaTxMethod === MetaTxMethod.Permit ||
+      metaTxMethod === MetaTxMethod.ExecuteMetaTransaction)
+  ) {
+    if (metaTxMethod === MetaTxMethod.Permit) {
+      transferTx = await getPermitTx(
+        account,
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        provider
+      );
+    } else {
+      transferTx = await getExecuteMetatransactionTx(
+        account,
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        provider
+      );
+    }
   } else {
-    throw TransferMethodNotSupportedError;
+    const executeMetaTransactionSupported = await hasExecuteMetaTransaction(
+      account,
+      destinationAddress,
+      amount,
+      network,
+      tokenAddress,
+      provider
+    );
+
+    const permitSupported = await hasPermit(
+      account,
+      amount,
+      network,
+      tokenAddress,
+      provider
+    );
+
+    if (executeMetaTransactionSupported) {
+      transferTx = await getExecuteMetatransactionTx(
+        account,
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        provider
+      );
+    } else if (permitSupported) {
+      transferTx = await getPermitTx(
+        account,
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        provider
+      );
+    } else {
+      throw TransferMethodNotSupportedError;
+    }
   }
-    
+
   return relay(transferTx, network);
 }
 
@@ -107,7 +139,6 @@ async function getBalance(
 }
 
 async function registerAccount(network: NetworkConfig): Promise<string> {
-
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -136,7 +167,6 @@ export async function relay(
   }
 
   return relayTransaction(account, network, tx);
-
 }
 
 export function getEvmNetwork(network: NetworkConfig) {
