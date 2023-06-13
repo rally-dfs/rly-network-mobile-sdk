@@ -42,6 +42,13 @@ const newAccount = await createAccount();
 //return public address for user's account
 const account = await getAccount();
 
+// get the balance for a specified token
+// token contract address
+const erc20TokenAddress = '0x...';
+
+//get balance 
+const balance = await RlyMumbaiNetwork.getBalance(erc20TokenAddress); 
+
 //return mnemonic phrase used to generate user's account
 //WARNING use with caution, the mnemonic phrase gives access to the user's account
 
@@ -50,18 +57,60 @@ const mnemonic = await getAccountPhrase();
 
 ### Network
 
+Transfer tokens gaslessly
 ```js
+import { RlyMumbaiNetwork } from '@rly-network/mobile-sdk';
 
+// token contract address
+const erc20TokenAddress = '0x...';
+
+// recipient address
+const to = "0x..."
+
+//transfer 5 tokens 
+await RlyMumbaiNetwork.transfer(to, 5, erc20TokenAddress);
+```
+
+Using the relay function to call contracts that are not natively supported by the SDK
+```js
 import { RlyMumbaiNetwork } from 'rly-network-mobile-sdk';
+Import ethers from 'ethers';
+....
 
-// sends 10 RLY to user's account, at which point they can transact
-await RlyMumbaiNetwork.registerAccount();
+//get web3 provider
 
-// transfers 2 RLY from user's account to account = 0x
-await RlyMumbaiNetwork.transfer('0x', 2);
+const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 
-// returns the user's current RLY balance
-await RlyMumbaiNetwork.getBalance();
+//get instance of your contract 
+
+const myContract =  new ethers.Contract(contractAddress, contractAbi, signer);
+
+//populate raw transaction object
+const tx = await myContract.populateTransaction.myMethod.(
+    param1,
+    param2
+  );
+
+// get gas estimate for transaction
+  const gas = await myContract.estimateGas.myMethod.(param1, param2);
+
+// get current network fee data
+  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
+
+//create relay tx object
+
+  const gsnTx = {
+    from: account.address,
+    data: tx.data,
+    to: tx.to,
+    gas: gas._hex,
+    maxFeePerGas: maxFeePerGas._hex,
+    maxPriorityFeePerGas: maxPriorityFeePerGas._hex,
+  } as GsnTransactionDetails;
+
+// relay transaction 
+
+await RlyMumbaiNetwork.relay(gsnTx);
 ```
 
 Looking to develop UI or app specific features without needing end to end testing? We 2 other network implementations ideal for development provide a fake network that does not make any external network requests.
