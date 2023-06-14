@@ -1,7 +1,7 @@
 import { Wallet } from 'ethers';
 import { getWallet } from '../../account';
 import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
-import { testSkipInCI } from '../__utils__/test_utils';
+import { testOnlyRunInCIFullSuite } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
 let mockPk: string;
@@ -30,7 +30,7 @@ jest.mock('react-native', () => {
   };
 });
 
-testSkipInCI(
+testOnlyRunInCIFullSuite(
   'claim mumbai',
   async () => {
     const oldBal = await RlyMumbaiNetwork.getBalance();

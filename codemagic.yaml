@@ -16,6 +16,9 @@ definitions:
     - &yarn_test
       name: Yarn test
       script: yarn test
+    - &yarn_test_full_suite
+      name: Yarn test full suite
+      script: CI_FULL_SUITE=1 yarn test
 
 workflows:
   pre-build:
@@ -53,7 +56,7 @@ workflows:
       - *yarn_install
       - *run_linter
       - *compile_typescript
-      - *yarn_test
+      - *yarn_test_full_suite # make sure to run full suite test for publish workflow
       - name: Authorize npm
         script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       - name: Publish to npm
