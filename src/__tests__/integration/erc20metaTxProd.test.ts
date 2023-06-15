@@ -6,7 +6,7 @@ import * as ERC20 from '../../contracts/erc20Data.json';
 import { MetaTxMethod } from '../../gsnClient/utils';
 
 let ethersProvider: ethers.providers.JsonRpcProvider;
-const tokenAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
+const tokenAddress = '0x76b8D57e5ac6afAc5D415a054453d1DD2c3C0094';
 
 beforeAll(async () => {
   ethersProvider = new ethers.providers.JsonRpcProvider(
@@ -44,7 +44,7 @@ test('wallet', async () => {
   expect(wallet?.address).toEqual(address);
 });
 
-test('balance of polygon prod token should equal 0', async () => {
+test('balance of polygon prod token should equal 10', async () => {
   const account = await getWallet();
   const signer = account?.connect(ethersProvider);
   const token = new Contract(tokenAddress, ERC20.abi, signer);
@@ -54,8 +54,8 @@ test('balance of polygon prod token should equal 0', async () => {
     throw 'account not found';
   }
   const bal = await token.balanceOf(account.address);
-  expect(decimals).toEqual(6);
-  expect(bal).toEqual(ethers.utils.parseUnits('5.844743', decimals));
+  expect(decimals).toEqual(18);
+  expect(bal).toEqual(ethers.utils.parseUnits('10', decimals));
 });
 
 test('transfer polygon prod token behind proxy using permit on our gsn client and paymaster with method argument', async () => {
@@ -79,8 +79,10 @@ test('transfer polygon prod token behind proxy using permit on our gsn client an
     MetaTxMethod.ExecuteMetaTransaction
   );
 
+  console.log('txHash', txHash);
+
   const newBal = await token.balanceOf(account.address);
-  expect(oldBal).toEqual(ethers.utils.parseUnits('5.844743', decimals));
+  expect(oldBal).toEqual(ethers.utils.parseUnits('10', decimals));
   expect(txHash).toMatch(/^0x/);
-  expect(newBal).toEqual(ethers.utils.parseUnits('4.844743', decimals));
+  expect(newBal).toEqual(ethers.utils.parseUnits('9', decimals));
 });

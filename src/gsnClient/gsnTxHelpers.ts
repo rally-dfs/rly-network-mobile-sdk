@@ -243,7 +243,14 @@ export const hasExecuteMetaTransaction = async (
   try {
     const token = erc20(provider, contractAddress);
     const name = await token.name();
-    const nonce = await token.nonces(account.address);
+    let nonce;
+    try {
+      // attempt to get nonce using nonces method
+      nonce = await token.nonces(account.address);
+    } catch {
+      // if nonces fails attmept to get nonce using getNonce method
+      nonce = await token.getNonce(account.address);
+    }
     const decimals = await token.decimals();
     const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
     const data = await token.interface.encodeFunctionData('transfer', [
@@ -285,7 +292,16 @@ export const getExecuteMetatransactionTx = async (
 ) => {
   const token = erc20(provider, contractAddress);
   const name = await token.name();
-  const nonce = await token.nonces(account.address);
+  let nonce;
+
+  try {
+    // attempt to get nonce using nonces method
+    nonce = await token.nonces(account.address);
+  } catch {
+    // if nonces fails attmept to get nonce using getNonce method
+    nonce = await token.getNonce(account.address);
+  }
+
   const decimals = await token.decimals();
   const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
