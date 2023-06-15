@@ -134,7 +134,7 @@ async function getBalance(
   const token = erc20(provider, tokenAddress);
   const decimals = await token.decimals();
   const bal = await token.balanceOf(account.address);
-  return Number(ethers.utils.parseUnits(bal.toString(), decimals));
+  return Number(ethers.utils.formatUnits(bal.toString(), decimals));
 }
 
 async function registerAccount(network: NetworkConfig): Promise<string> {
