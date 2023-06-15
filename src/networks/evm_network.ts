@@ -114,7 +114,6 @@ async function transfer(
       throw TransferMethodNotSupportedError;
     }
   }
-
   return relay(transferTx, network);
 }
 
@@ -174,9 +173,16 @@ export function getEvmNetwork(network: NetworkConfig) {
     transfer: function (
       destinationAddress: string,
       amount: number,
-      tokenAddress?: PrefixedHexString
+      tokenAddress?: PrefixedHexString,
+      metaTxMethod?: MetaTxMethod
     ) {
-      return transfer(destinationAddress, amount, network, tokenAddress);
+      return transfer(
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        metaTxMethod
+      );
     },
     getBalance: function (tokenAddress?: PrefixedHexString) {
       return getBalance(network, tokenAddress);

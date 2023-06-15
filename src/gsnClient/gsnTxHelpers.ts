@@ -240,25 +240,25 @@ export const hasExecuteMetaTransaction = async (
   contractAddress: Address,
   provider: ethers.providers.JsonRpcProvider
 ) => {
-  const token = erc20(provider, contractAddress);
-  const name = await token.name();
-  const nonce = await token.getNonce(account.address);
-  const decimals = await token.decimals();
-  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
-  const data = await token.interface.encodeFunctionData('transfer', [
-    destinationAddress,
-    decimalAmount,
-  ]);
-
-  const { r, s, v } = await getMetatransactionEIP712Signature(
-    account,
-    name,
-    token.address,
-    data,
-    config,
-    nonce.toNumber()
-  );
   try {
+    const token = erc20(provider, contractAddress);
+    const name = await token.name();
+    const nonce = await token.getNonce(account.address);
+    const decimals = await token.decimals();
+    const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+    const data = await token.interface.encodeFunctionData('transfer', [
+      destinationAddress,
+      decimalAmount,
+    ]);
+
+    const { r, s, v } = await getMetatransactionEIP712Signature(
+      account,
+      name,
+      token.address,
+      data,
+      config,
+      nonce.toNumber()
+    );
     await token.estimateGas.executeMetaTransaction?.(
       account.address,
       data,
@@ -350,24 +350,25 @@ export const hasPermit = async (
   contractAddress: Address,
   provider: ethers.providers.JsonRpcProvider
 ) => {
-  const token = erc20(provider, contractAddress);
-  const name = await token.name();
-  const nonce = await token.nonces(account.address);
-  const decimals = await token.decimals();
-  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
-
-  const deadline = await getPermitDeadline(provider);
-
-  const { r, s, v } = await getPermitEIP712Signature(
-    account,
-    name,
-    token.address,
-    config,
-    nonce.toNumber(),
-    decimalAmount,
-    deadline
-  );
   try {
+    const token = erc20(provider, contractAddress);
+    const name = await token.name();
+
+    const nonce = await token.nonces(account.address);
+    const decimals = await token.decimals();
+    const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+
+    const deadline = await getPermitDeadline(provider);
+
+    const { r, s, v } = await getPermitEIP712Signature(
+      account,
+      name,
+      token.address,
+      config,
+      nonce.toNumber(),
+      decimalAmount,
+      deadline
+    );
     await token.estimateGas.permit?.(
       account.address,
       config.gsn.paymasterAddress,
@@ -378,6 +379,7 @@ export const hasPermit = async (
       s,
       { from: account.address }
     );
+
     return true;
   } catch {
     return false;
@@ -518,7 +520,6 @@ export const handleGsnResponse = async (
   provider: ethers.providers.JsonRpcProvider
 ) => {
   if (res.data['error'] !== undefined) {
-    console.log('error', res.data['error']);
     throw {
       message: RelayError,
       details: res.data['error'],
