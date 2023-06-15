@@ -79,8 +79,6 @@ test('transfer polygon prod token behind proxy using permit on our gsn client an
     MetaTxMethod.ExecuteMetaTransaction
   );
 
-  console.log('txHash', txHash);
-
   const newBal = await token.balanceOf(account.address);
   expect(oldBal).toEqual(ethers.utils.parseUnits('10', decimals));
   expect(txHash).toMatch(/^0x/);
