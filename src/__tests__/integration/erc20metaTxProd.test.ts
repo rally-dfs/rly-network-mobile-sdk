@@ -6,7 +6,7 @@ import * as ERC20 from '../../contracts/erc20Data.json';
 import { MetaTxMethod } from '../../gsnClient/utils';
 
 let ethersProvider: ethers.providers.JsonRpcProvider;
-const tokenAddress = '0xd872b7ffca41a67eda85b04a9185c6b270006b58';
+const tokenAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
 
 beforeAll(async () => {
   ethersProvider = new ethers.providers.JsonRpcProvider(
@@ -44,7 +44,7 @@ test('wallet', async () => {
   expect(wallet?.address).toEqual(address);
 });
 
-test('balance of polygon prod token should equal 99', async () => {
+test('balance of polygon prod token should equal 0', async () => {
   const account = await getWallet();
   const signer = account?.connect(ethersProvider);
   const token = new Contract(tokenAddress, ERC20.abi, signer);
@@ -54,8 +54,8 @@ test('balance of polygon prod token should equal 99', async () => {
     throw 'account not found';
   }
   const bal = await token.balanceOf(account.address);
-  expect(decimals).toEqual(9);
-  expect(bal).toEqual(ethers.utils.parseUnits('99', decimals));
+  expect(decimals).toEqual(6);
+  expect(bal).toEqual(ethers.utils.parseUnits('5.844743', decimals));
 });
 
 test('transfer polygon prod token behind proxy using permit on our gsn client and paymaster with method argument', async () => {
@@ -70,17 +70,17 @@ test('transfer polygon prod token behind proxy using permit on our gsn client an
   }
   const oldBal = await token.balanceOf(account.address);
 
-  // jeremy address
-  const to = '0xAcbb8BA053f7CC4F691b455A296D28dd5c867a99';
+  // ant address
+  const to = '0xc073ade46aba2f72bf27e7befd37af9301cd8920';
   const txHash = await RlyNetwork.transfer(
     to,
     1,
     tokenAddress,
-    MetaTxMethod.Permit
+    MetaTxMethod.ExecuteMetaTransaction
   );
 
   const newBal = await token.balanceOf(account.address);
-  expect(oldBal).toEqual(ethers.utils.parseUnits('99', decimals));
+  expect(oldBal).toEqual(ethers.utils.parseUnits('5.844743', decimals));
   expect(txHash).toMatch(/^0x/);
-  expect(newBal).toEqual(ethers.utils.parseUnits('98', decimals));
+  expect(newBal).toEqual(ethers.utils.parseUnits('4.844743', decimals));
 });
