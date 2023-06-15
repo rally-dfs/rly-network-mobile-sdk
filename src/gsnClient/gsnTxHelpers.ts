@@ -1,4 +1,4 @@
-import { ethers, BigNumber, Wallet } from 'ethers';
+import { ethers, BigNumber, Wallet, Contract } from 'ethers';
 import { Buffer } from 'buffer';
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type { RelayRequest } from './EIP712/RelayRequest';
@@ -243,14 +243,7 @@ export const hasExecuteMetaTransaction = async (
   try {
     const token = erc20(provider, contractAddress);
     const name = await token.name();
-    let nonce;
-    try {
-      // attempt to get nonce using nonces method
-      nonce = await token.nonces(account.address);
-    } catch {
-      // if nonces fails attmept to get nonce using getNonce method
-      nonce = await token.getNonce(account.address);
-    }
+    const nonce = await getSenderContractNonce(token, account.address);
     const decimals = await token.decimals();
     const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
     const data = await token.interface.encodeFunctionData('transfer', [
@@ -292,16 +285,7 @@ export const getExecuteMetatransactionTx = async (
 ) => {
   const token = erc20(provider, contractAddress);
   const name = await token.name();
-  let nonce;
-
-  try {
-    // attempt to get nonce using nonces method
-    nonce = await token.nonces(account.address);
-  } catch {
-    // if nonces fails attmept to get nonce using getNonce method
-    nonce = await token.getNonce(account.address);
-  }
-
+  const nonce = await getSenderContractNonce(token, account.address);
   const decimals = await token.decimals();
   const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
@@ -552,5 +536,16 @@ export const handleGsnResponse = async (
     const txHash = ethers.utils.keccak256(res.data.signedTx);
     await provider.waitForTransaction(txHash);
     return txHash;
+  }
+};
+
+const getSenderContractNonce = async (
+  token: Contract,
+  address: Address
+): Promise<BigNumber> => {
+  try {
+    return await token.nonces(address);
+  } catch {
+    return await token.getNonce(address);
   }
 };
