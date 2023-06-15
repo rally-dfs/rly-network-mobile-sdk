@@ -1,3 +1,5 @@
+import { ethers } from 'ethers';
+
 export interface Permit {
   name: string;
   version: string;
@@ -8,6 +10,7 @@ export interface Permit {
   value: number | string;
   nonce: number | string;
   deadline: number | string;
+  salt: string;
 }
 
 export const getTypedPermitTransaction = ({
@@ -20,6 +23,7 @@ export const getTypedPermitTransaction = ({
   value,
   nonce,
   deadline,
+  salt,
 }: Permit) => {
   return {
     types: {
@@ -37,6 +41,7 @@ export const getTypedPermitTransaction = ({
       version,
       chainId,
       verifyingContract,
+      ...(salt != ethers.constants.HashZero && { salt }),
     },
     message: {
       owner,

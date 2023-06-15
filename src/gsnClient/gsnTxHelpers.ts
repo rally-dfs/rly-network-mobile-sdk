@@ -359,6 +359,7 @@ export const hasPermit = async (
     const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
     const deadline = await getPermitDeadline(provider);
+    const { salt } = await token.eip712Domain();
 
     const { r, s, v } = await getPermitEIP712Signature(
       account,
@@ -367,7 +368,8 @@ export const hasPermit = async (
       config,
       nonce.toNumber(),
       decimalAmount,
-      deadline
+      deadline,
+      salt
     );
     await token.estimateGas.permit?.(
       account.address,
@@ -393,7 +395,8 @@ export const getPermitEIP712Signature = async (
   config: NetworkConfig,
   nonce: number,
   amount: BigNumber,
-  deadline: number
+  deadline: number,
+  salt: string
 ) => {
   // chainId to be used in EIP712
 
@@ -410,6 +413,7 @@ export const getPermitEIP712Signature = async (
     value: amount.toString(),
     nonce: nonce,
     deadline,
+    salt,
   });
 
   //signature for metatransaction
@@ -435,10 +439,13 @@ export const getPermitTx = async (
   const token = erc20(provider, contractAddress);
   const name = await token.name();
   const nonce = await token.nonces(account.address);
+
   const decimals = await token.decimals();
   const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   const deadline = await getPermitDeadline(provider);
+
+  const { salt } = await token.eip712Domain();
 
   const { r, s, v } = await getPermitEIP712Signature(
     account,
@@ -447,7 +454,8 @@ export const getPermitTx = async (
     config,
     nonce.toNumber(),
     decimalAmount,
-    deadline
+    deadline,
+    salt
   );
 
   const tx = await token.populateTransaction.permit?.(

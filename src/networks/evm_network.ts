@@ -132,9 +132,9 @@ async function getBalance(
   const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   const token = erc20(provider, tokenAddress);
-
+  const decimals = await token.decimals();
   const bal = await token.balanceOf(account.address);
-  return Number(ethers.utils.formatEther(bal));
+  return Number(ethers.utils.parseUnits(bal.toString(), decimals));
 }
 
 async function registerAccount(network: NetworkConfig): Promise<string> {
