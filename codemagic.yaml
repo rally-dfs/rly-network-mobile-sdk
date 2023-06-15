@@ -42,6 +42,9 @@ workflows:
       - *run_linter
       - *compile_typescript
       - *yarn_test # this happens on every push, so don't need to run full suite here
+    publishing:
+      slack:
+        channel: '#ci-builds'
   publish-npm:
     name: Publish tag to NPM
     max_build_duration: 300
@@ -81,3 +84,6 @@ workflows:
           else
             yarn release patch --ci
           fi
+    publishing:
+      slack:
+        channel: '#ci-builds'
