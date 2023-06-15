@@ -53,6 +53,8 @@ workflows:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
     scripts:
+      - name: Abort if not on main
+        script: if [ `git rev-parse --abbrev-ref HEAD` != main ]; then exit 1; fi
       - *yarn_install
       - *run_linter
       - *compile_typescript
