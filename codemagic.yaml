@@ -47,7 +47,7 @@ workflows:
         channel: '#ci-builds'
   publish-npm:
     name: Publish tag to NPM
-    max_build_duration: 300
+    max_build_duration: 120
     environment:
       <<: *default_environments
       groups:
