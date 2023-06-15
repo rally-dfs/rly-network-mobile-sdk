@@ -44,7 +44,7 @@ workflows:
       - *yarn_test # this happens on every push, so don't need to run full suite here
   publish-npm:
     name: Publish tag to NPM
-    max_build_duration: 60
+    max_build_duration: 300
     environment:
       <<: *default_environments
       groups:
@@ -64,7 +64,7 @@ workflows:
       - name: Authorize npm
         script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       # FYI github also needs to be authorized for yarn release, but that's just done with $GITHUB_TOKEN env var
-      - name: Release # TODO: remove the -dry-run once this is tested more
+      - name: Release
         # Defaults to `patch` type release. To override, set $RELEASE_INCREMENT_OVERRIDE (e.g. "minor" "major" etc)
         # and $RELEASE_OVERRIDE_VERSION (to current version) in codemagic env vars
         script: |
@@ -76,8 +76,8 @@ workflows:
               echo If this is left over from a previous release, just go delete these from the codemagic env vars
               exit 1
             else
-              yarn release $RELEASE_INCREMENT_OVERRIDE --ci --dry-run
+              yarn release $RELEASE_INCREMENT_OVERRIDE --ci
             fi
           else
-            yarn release patch --ci --dry-run
+            yarn release patch --ci
           fi
