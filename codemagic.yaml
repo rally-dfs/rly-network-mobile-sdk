@@ -17,6 +17,12 @@ definitions:
       cache_paths:
         - $HOME/Library/Caches/CocoaPods
     <<: *trigger_on_all_push
+  shared_android_settings: &shared_android_settings
+    max_build_duration: 60
+    cache:
+      cache_paths:
+        - $HOME/.gradle/caches
+    <<: *trigger_on_all_push
   scripts:
     # would be great to be able to alias all these into one single reference but couldn't figure out a way to do that
     - &yarn_install
@@ -48,6 +54,14 @@ definitions:
         cd ios
         xcodebuild build -configuration ReleasePreviousiOSVersion
         if [[ ! -d build/RlyNetworkMobileSdk.build/ReleasePreviousiOSVersion-iphoneos/RlyNetworkMobileSdk.build ]]; then
+        exit 1
+        fi
+    - &build_sdk_android
+      name: Build android and check build folder
+      script: |
+        cd android
+        ./gradlew build
+        if [[ ! -d build ]]; then
         exit 1
         fi
 
@@ -85,6 +99,15 @@ workflows:
     scripts:
       - *build_sdk_latest_ios
       - *build_sdk_previous_ios
+  android-build:
+    name: Build android and check for artifact
+    <<: *shared_android_settings
+    scripts:
+      - *yarn_install # probably need this? not sure
+      - name: Set Android SDK location # probably need this too? not sure
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - *build_sdk_android
 
   publish-npm:
     name: Publish tag to NPM
