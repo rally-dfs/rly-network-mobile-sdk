@@ -34,6 +34,22 @@ definitions:
     - &yarn_test_full_suite
       name: Yarn test full suite
       script: CI_FULL_SUITE=1 yarn test
+    - &build_sdk_latest_ios
+      name: Build latest iOS version and check build folder
+      script: |
+        cd ios
+        xcodebuild build -configuration Release
+        if [[ ! -d build/RlyNetworkMobileSdk.build/Release-iphoneos/RlyNetworkMobileSdk.build ]]; then
+        exit 1
+        fi
+    - &build_sdk_previous_ios
+      name: Build previous iOS version and check build folder
+      script: |
+        cd ios
+        xcodebuild build -configuration ReleasePreviousiOSVersion
+        if [[ ! -d build/RlyNetworkMobileSdk.build/ReleasePreviousiOSVersion-iphoneos/RlyNetworkMobileSdk.build ]]; then
+        exit 1
+        fi
 
 workflows:
   pre-build:
@@ -59,13 +75,8 @@ workflows:
     environment:
       xcode: latest
     scripts:
-      - name: Build iOS
-        script: cd ios && xcodebuild build
-      - name: Check build folder
-        script: |
-          if [[ ! -d ios/build/RlyNetworkMobileSdk.build/Release-iphoneos/RlyNetworkMobileSdk.build ]]; then
-          exit 1
-          fi
+      - *build_sdk_latest_ios
+      - *build_sdk_previous_ios
 
   publish-npm:
     name: Publish tag to NPM
