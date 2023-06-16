@@ -2,6 +2,21 @@ definitions:
   default_environments: &default_environments
     node: 16.14.2
     npm: latest
+  trigger_on_all_push: &trigger_on_all_push
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+      cancel_previous_builds: false
+  shared_ios_settings: &shared_ios_settings
+    max_build_duration: 60
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+    <<: *trigger_on_all_push
   scripts:
     # would be great to be able to alias all these into one single reference but couldn't figure out a way to do that
     - &yarn_install
@@ -29,14 +44,7 @@ workflows:
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: '*'
-          include: true
-          source: true
-      cancel_previous_builds: false
+    <<: *trigger_on_all_push
     scripts:
       - *yarn_install
       - *run_linter
@@ -45,6 +53,20 @@ workflows:
     publishing:
       slack:
         channel: '#ci-builds'
+  ios-build:
+    name: Build iOS and check for artifact
+    <<: *shared_ios_settings
+    environment:
+      xcode: latest
+    scripts:
+      - name: Build iOS
+        script: cd ios && xcodebuild build
+      - name: Check build folder
+        script: |
+          if [[ ! -d ios/build/RlyNetworkMobileSdk.build/Release-iphoneos/RlyNetworkMobileSdk.build ]]; then
+          exit 1
+          fi
+
   publish-npm:
     name: Publish tag to NPM
     max_build_duration: 120
