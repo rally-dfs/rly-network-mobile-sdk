@@ -9,13 +9,12 @@ import { getWallet } from '../account';
 import type { NetworkConfig } from '../network_config/network_config';
 import { erc20 } from '../contract';
 import { relayTransaction } from '../gsnClient/gsnClient';
+import { getClaimTx } from '../gsnClient/gsnTxHelpers';
+import { getPermitTx, hasPermit } from '../gsnClient/EIP712/PermitTransaction';
 import {
-  getClaimTx,
   getExecuteMetatransactionTx,
-  getPermitTx,
   hasExecuteMetaTransaction,
-  hasPermit,
-} from '../gsnClient/gsnTxHelpers';
+} from 'src/gsnClient/EIP712/MetaTransaction';
 import type {
   PrefixedHexString,
   GsnTransactionDetails,
