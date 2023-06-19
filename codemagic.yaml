@@ -22,7 +22,6 @@ definitions:
     cache:
       cache_paths:
         - $HOME/.gradle/caches
-    <<: *trigger_on_all_push
   scripts:
     # would be great to be able to alias all these into one single reference but couldn't figure out a way to do that
     - &yarn_install
@@ -83,6 +82,7 @@ workflows:
     publishing:
       slack:
         channel: '#ci-builds'
+
   ios-build-latest-xcode:
     name: Latest Xcode - Build iOS and check for artifact
     <<: *shared_ios_settings
