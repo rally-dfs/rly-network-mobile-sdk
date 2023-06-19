@@ -20,6 +20,7 @@ This app makes use of 3rd party react native libraries that contain native code.
 ```sh
 npm install --save react-native-get-random-values
 npm install --save react-native-keychain
+npx pod-install
 ```
 
 *Expo App* 
