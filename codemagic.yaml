@@ -46,6 +46,7 @@ definitions:
       name: Build latest iOS version and check build folder
       script: |
         cd ios
+        rm -r build
         xcodebuild build -configuration Release
         if [[ ! -d build/RlyNetworkMobileSdk.build/Release-iphoneos/RlyNetworkMobileSdk.build ]]; then
         exit 1
@@ -54,6 +55,7 @@ definitions:
       name: Build previous iOS version and check build folder
       script: |
         cd ios
+        rm -r build
         xcodebuild build -configuration ReleasePreviousiOSVersion
         if [[ ! -d build/RlyNetworkMobileSdk.build/ReleasePreviousiOSVersion-iphoneos/RlyNetworkMobileSdk.build ]]; then
         exit 1
@@ -64,6 +66,33 @@ definitions:
         cd android
         ./gradlew build
         if [[ ! -d build ]]; then
+        exit 1
+        fi
+    - &setup_ios_profiles
+      name: Set up iOS provisioning profile
+      script: xcode-project use-profiles
+    - &build_example_latest_ios
+      # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
+      # need to investigate more
+      name: Build example iOS app (latest iOS)
+      script: |
+        cd example/ios
+        rm -r build
+        xcodebuild -workspace RlyNetworkMobileSdkExample.xcworkspace -configuration Release \
+          -scheme RlyNetworkMobileSdkExample -destination "generic/platform=iOS Simulator"
+        if [[ ! -d build/generated/ios ]]; then
+        exit 1
+        fi
+    - &build_example_previous_ios
+      # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
+      # need to investigate more
+      name: Build example iOS app (previous iOS)
+      script: |
+        cd example/ios
+        rm -r build
+        xcodebuild -workspace RlyNetworkMobileSdkExample.xcworkspace -configuration ReleasePreviousiOSVersion \
+          -scheme RlyNetworkMobileSdkExample -destination "generic/platform=iOS Simulator"
+        if [[ ! -d build/generated/ios ]]; then
         exit 1
         fi
 
@@ -121,23 +150,12 @@ workflows:
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
       vars:
         BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
-        XCODE_WORKSPACE: 'RlyNetworkMobileSdkExample.xcworkspace'
-        XCODE_SCHEME: 'RlyNetworkMobileSdkExample'
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example
-      - name: Set up provisioning profile
-        script: xcode-project use-profiles
-      # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
-      # need to investigate more
-      - name: Build example iOS app
-        script: |
-          cd example/ios
-          xcodebuild -workspace $XCODE_WORKSPACE -configuration Release \
-            -scheme $XCODE_SCHEME -destination "generic/platform=iOS Simulator"
-          if [[ ! -d build/generated/ios ]]; then
-          exit 1
-          fi
+      - *setup_ios_profiles
+      - *build_example_latest_ios
+      - *build_example_previous_ios
 
   publish-npm:
     name: Publish tag to NPM
