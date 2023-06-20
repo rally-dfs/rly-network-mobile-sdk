@@ -1,4 +1,7 @@
 {
   "name": "RlyNetworkMobileSdkExample",
-  "displayName": "RlyNetworkMobileSdkExample"
+  "displayName": "RlyNetworkMobileSdkExample",
+  "ios": {
+    "bundleIdentifier": "network.rly.example.RlyNetworkMobileSdkExample"
+  }
 }

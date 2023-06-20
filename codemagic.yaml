@@ -27,6 +27,9 @@ definitions:
     - &yarn_install
       name: Yarn install
       script: yarn install
+    - &yarn_bootstrap_example
+      name: Yarn bootstrap (bare RN example app)
+      script: yarn bootstrap
     - &run_linter
       name: Run linter
       script: yarn lint
@@ -108,6 +111,33 @@ workflows:
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
       - *build_sdk_android
+
+  example-app-ios:
+    name: Build example iOS app (bare RN)
+    <<: *shared_ios_settings
+    environment:
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
+      vars:
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
+        XCODE_WORKSPACE: 'RlyNetworkMobileSdkExample.xcworkspace'
+        XCODE_SCHEME: 'RlyNetworkMobileSdkExample'
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example
+      - name: Set up provisioning profile
+        script: xcode-project use-profiles
+      # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
+      # need to investigate more
+      - name: Build example iOS app
+        script: |
+          cd example/ios
+          xcodebuild -workspace $XCODE_WORKSPACE -configuration Release \
+            -scheme $XCODE_SCHEME -destination "generic/platform=iOS Simulator"
+          if [[ ! -d build/generated/ios ]]; then
+          exit 1
+          fi
 
   publish-npm:
     name: Publish tag to NPM
