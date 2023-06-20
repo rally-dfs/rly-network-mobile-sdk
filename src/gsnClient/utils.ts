@@ -1,11 +1,14 @@
-import { ethers } from 'ethers';
-
 export type PrefixedHexString = string;
 export type Address = string;
 export type IntString = string;
 
 export enum rlyEnv {
   local = 'local',
+}
+
+export enum MetaTxMethod {
+  Permit = 'permit',
+  ExecuteMetaTransaction = 'executeMetaTransaction',
 }
 
 export interface AccountKeypair {
@@ -42,14 +45,3 @@ export interface GsnTransactionDetails {
    */
   readonly useGSN?: boolean;
 }
-
-export const hasMethod = async (
-  contractAddress: string,
-  method: string,
-  provider: ethers.providers.Provider,
-  abi: any[]
-): Promise<boolean> => {
-  const bytecode = await provider.getCode(contractAddress);
-  const methodId = new ethers.utils.Interface(abi).getSighash(method);
-  return bytecode.indexOf(methodId.replace('0x', '')) !== -1;
-};
