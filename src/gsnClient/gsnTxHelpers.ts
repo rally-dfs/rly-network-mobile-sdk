@@ -210,10 +210,10 @@ export const handleGsnResponse = async (
   res: AxiosResponse<any, any>,
   provider: ethers.providers.JsonRpcProvider
 ) => {
-  if (res.data['error'] !== undefined) {
+  if (res.data.error !== undefined) {
     throw {
       message: RelayError,
-      details: res.data['error'],
+      details: res.data.error,
     };
   } else {
     const txHash = ethers.utils.keccak256(res.data.signedTx);
@@ -223,6 +223,7 @@ export const handleGsnResponse = async (
 };
 
 export const getSenderContractNonce = async (
+
   token: Contract,
   address: Address
 ): Promise<BigNumber> => {

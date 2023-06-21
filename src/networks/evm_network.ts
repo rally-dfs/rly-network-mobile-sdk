@@ -15,6 +15,7 @@ import {
   getExecuteMetatransactionTx,
   hasExecuteMetaTransaction,
 } from 'src/gsnClient/EIP712/MetaTransaction';
+
 import type {
   PrefixedHexString,
   GsnTransactionDetails,

@@ -7,6 +7,7 @@ import type {
 import { erc20 } from '../../contract';
 import type { NetworkConfig } from '../../network_config/network_config';
 
+
 export interface Permit {
   name: string;
   version: string;

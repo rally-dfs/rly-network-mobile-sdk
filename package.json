@@ -1,6 +1,6 @@
 {
   "name": "@rly-network/mobile-sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "test",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -34,7 +34,7 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "example-expo": "yarn --cwd example_expo",
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build",
+    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build example_expo/android/build example_expo/android/app/build example_expo/ios/build",
     "bootstrap": "yarn example && yarn install && yarn example pods",
     "bootstrap-expo": "yarn example-expo && yarn install"
   },
@@ -98,6 +98,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/__tests__/__utils__/"
     ]
   },
   "commitlint": {
