@@ -128,6 +128,7 @@ testSkipInCI(
     expect(txHash).toMatch(/^0x/);
     expect(newBal).toEqual(ethers.utils.parseEther('8'));
   }
+
 );
 
 testSkipInCI(

@@ -45,6 +45,7 @@ test('wallet', async () => {
   expect(wallet?.address).toEqual(address);
 });
 
+
 // this can be marked with `testOnlyRunInCIFullSuite` instead if it's tweaked to be fully automated
 testSkipInCI(
   'balance of polygon prod token should equal 10',
@@ -95,3 +96,4 @@ testSkipInCI(
   },
   30000
 );
+
