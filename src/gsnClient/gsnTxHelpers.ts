@@ -1,4 +1,4 @@
-import { ethers, BigNumber, Wallet } from 'ethers';
+import { ethers, BigNumber, Wallet, Contract } from 'ethers';
 import { Buffer } from 'buffer';
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type { RelayRequest } from './EIP712/RelayRequest';
@@ -232,6 +232,49 @@ export const getMetatransactionEIP712Signature = async (
   return ethers.utils.splitSignature(signature);
 };
 
+export const hasExecuteMetaTransaction = async (
+  account: Wallet,
+  destinationAddress: Address,
+  amount: number,
+  config: NetworkConfig,
+  contractAddress: Address,
+  provider: ethers.providers.JsonRpcProvider
+) => {
+  try {
+    const token = erc20(provider, contractAddress);
+    const name = await token.name();
+    const nonce = await getSenderContractNonce(token, account.address);
+    const decimals = await token.decimals();
+    const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+    const data = await token.interface.encodeFunctionData('transfer', [
+      destinationAddress,
+      decimalAmount,
+    ]);
+
+    const { r, s, v } = await getMetatransactionEIP712Signature(
+      account,
+      name,
+      token.address,
+      data,
+      config,
+      nonce.toNumber()
+    );
+    await token.estimateGas.executeMetaTransaction?.(
+      account.address,
+      data,
+      r,
+      s,
+      v,
+      {
+        from: account.address,
+      }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const getExecuteMetatransactionTx = async (
   account: Wallet,
   destinationAddress: Address,
@@ -242,7 +285,7 @@ export const getExecuteMetatransactionTx = async (
 ) => {
   const token = erc20(provider, contractAddress);
   const name = await token.name();
-  const nonce = await token.getNonce(account.address);
+  const nonce = await getSenderContractNonce(token, account.address);
   const decimals = await token.decimals();
   const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
@@ -300,6 +343,51 @@ export const getExecuteMetatransactionTx = async (
   return gsnTx;
 };
 
+export const hasPermit = async (
+  account: Wallet,
+  amount: number,
+  config: NetworkConfig,
+  contractAddress: Address,
+  provider: ethers.providers.JsonRpcProvider
+) => {
+  try {
+    const token = erc20(provider, contractAddress);
+    const name = await token.name();
+
+    const nonce = await token.nonces(account.address);
+    const decimals = await token.decimals();
+    const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+
+    const deadline = await getPermitDeadline(provider);
+    const { salt } = await token.eip712Domain();
+
+    const { r, s, v } = await getPermitEIP712Signature(
+      account,
+      name,
+      token.address,
+      config,
+      nonce.toNumber(),
+      decimalAmount,
+      deadline,
+      salt
+    );
+    await token.estimateGas.permit?.(
+      account.address,
+      config.gsn.paymasterAddress,
+      decimalAmount,
+      deadline,
+      v,
+      r,
+      s,
+      { from: account.address }
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const getPermitEIP712Signature = async (
   account: Wallet,
   contractName: string,
@@ -307,7 +395,8 @@ export const getPermitEIP712Signature = async (
   config: NetworkConfig,
   nonce: number,
   amount: BigNumber,
-  deadline: number
+  deadline: number,
+  salt: string
 ) => {
   // chainId to be used in EIP712
 
@@ -324,6 +413,7 @@ export const getPermitEIP712Signature = async (
     value: amount.toString(),
     nonce: nonce,
     deadline,
+    salt,
   });
 
   //signature for metatransaction
@@ -349,10 +439,13 @@ export const getPermitTx = async (
   const token = erc20(provider, contractAddress);
   const name = await token.name();
   const nonce = await token.nonces(account.address);
+
   const decimals = await token.decimals();
   const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   const deadline = await getPermitDeadline(provider);
+
+  const { salt } = await token.eip712Domain();
 
   const { r, s, v } = await getPermitEIP712Signature(
     account,
@@ -361,7 +454,8 @@ export const getPermitTx = async (
     config,
     nonce.toNumber(),
     decimalAmount,
-    deadline
+    deadline,
+    salt
   );
 
   const tx = await token.populateTransaction.permit?.(
@@ -442,5 +536,16 @@ export const handleGsnResponse = async (
     const txHash = ethers.utils.keccak256(res.data.signedTx);
     await provider.waitForTransaction(txHash);
     return txHash;
+  }
+};
+
+const getSenderContractNonce = async (
+  token: Contract,
+  address: Address
+): Promise<BigNumber> => {
+  try {
+    return await token.nonces(address);
+  } catch {
+    return await token.getNonce(address);
   }
 };

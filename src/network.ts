@@ -2,6 +2,7 @@ import { getEvmNetwork } from './networks/evm_network';
 import type {
   PrefixedHexString,
   GsnTransactionDetails,
+  MetaTxMethod,
 } from './gsnClient/utils';
 
 import {
@@ -15,7 +16,8 @@ export interface Network {
   transfer: (
     destinationAddress: string,
     amount: number,
-    tokenAddress?: PrefixedHexString
+    tokenAddress?: PrefixedHexString,
+    metaTxMethod?: MetaTxMethod
   ) => Promise<string>;
   registerAccount: () => Promise<string>;
   relay?: (tx: GsnTransactionDetails) => Promise<string>;

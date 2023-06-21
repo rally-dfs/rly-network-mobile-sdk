@@ -3,6 +3,7 @@ import { getWallet } from '../../account';
 import * as TokenFaucet from '../../contracts/tokenFaucetData.json';
 import * as ERC20 from '../../contracts/erc20Data.json';
 import { RlyLocalNetwork } from '../../network';
+import { MetaTxMethod } from '../../gsnClient/utils';
 import { testSkipInCI } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
@@ -83,6 +84,32 @@ testSkipInCI('claim permit token local', async () => {
 });
 
 testSkipInCI(
+  'transfer polygon token local using executeMetaTransaction on our gsn client and paymaster with method argument',
+  async () => {
+    const RlyNetwork = RlyLocalNetwork;
+    const account = await getWallet();
+    const signer = account?.connect(ethersProvider);
+    const token = new Contract(polygonTokenAddress, ERC20.abi, signer);
+
+    if (!account) {
+      throw 'account not found';
+    }
+    const oldBal = await token.balanceOf(account.address);
+    const to = await defaultAccount.getAddress();
+    const txHash = await RlyNetwork.transfer(
+      to,
+      1,
+      polygonTokenAddress,
+      MetaTxMethod.ExecuteMetaTransaction
+    );
+    const newBal = await token.balanceOf(account.address);
+    expect(oldBal).toEqual(ethers.utils.parseEther('10'));
+    expect(txHash).toMatch(/^0x/);
+    expect(newBal).toEqual(ethers.utils.parseEther('9'));
+  }
+);
+
+testSkipInCI(
   'transfer polygon token local using executeMetaTransaction on our gsn client and paymaster',
   async () => {
     const RlyNetwork = RlyLocalNetwork;
@@ -95,11 +122,37 @@ testSkipInCI(
     }
     const oldBal = await token.balanceOf(account.address);
     const to = await defaultAccount.getAddress();
-    const txHash = await RlyNetwork.transfer(to, 5, polygonTokenAddress);
+    const txHash = await RlyNetwork.transfer(to, 1, polygonTokenAddress);
+    const newBal = await token.balanceOf(account.address);
+    expect(oldBal).toEqual(ethers.utils.parseEther('9'));
+    expect(txHash).toMatch(/^0x/);
+    expect(newBal).toEqual(ethers.utils.parseEther('8'));
+  }
+);
+
+testSkipInCI(
+  'transfer permit token local using permit on our gsn client and paymaster using method arguement',
+  async () => {
+    const RlyNetwork = RlyLocalNetwork;
+    const account = await getWallet();
+    const signer = account?.connect(ethersProvider);
+    const token = new Contract(permitTokenAddress, ERC20.abi, signer);
+
+    if (!account) {
+      throw 'account not found';
+    }
+    const oldBal = await token.balanceOf(account.address);
+    const to = await defaultAccount.getAddress();
+    const txHash = await RlyNetwork.transfer(
+      to,
+      1,
+      permitTokenAddress,
+      MetaTxMethod.Permit
+    );
     const newBal = await token.balanceOf(account.address);
     expect(oldBal).toEqual(ethers.utils.parseEther('10'));
     expect(txHash).toMatch(/^0x/);
-    expect(newBal).toEqual(ethers.utils.parseEther('5'));
+    expect(newBal).toEqual(ethers.utils.parseEther('9'));
   }
 );
 
@@ -116,10 +169,10 @@ testSkipInCI(
     }
     const oldBal = await token.balanceOf(account.address);
     const to = await defaultAccount.getAddress();
-    const txHash = await RlyNetwork.transfer(to, 5, permitTokenAddress);
+    const txHash = await RlyNetwork.transfer(to, 1, permitTokenAddress);
     const newBal = await token.balanceOf(account.address);
-    expect(oldBal).toEqual(ethers.utils.parseEther('10'));
+    expect(oldBal).toEqual(ethers.utils.parseEther('9'));
     expect(txHash).toMatch(/^0x/);
-    expect(newBal).toEqual(ethers.utils.parseEther('5'));
+    expect(newBal).toEqual(ethers.utils.parseEther('8'));
   }
 );
