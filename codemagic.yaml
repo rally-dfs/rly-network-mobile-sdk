@@ -141,10 +141,27 @@ workflows:
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
       - *build_sdk_android
 
-  example-app-ios:
-    name: Build example iOS app (bare RN)
+  example-app-ios-latest-xcode:
+    name: Latest Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
     environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
+      vars:
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example
+      - *setup_ios_profiles
+      - *build_example_latest_ios
+      - *build_example_previous_ios
+  example-app-ios-previous-xcode:
+    name: Previous Xcode - Build example iOS app (bare RN)
+    <<: *shared_ios_settings
+    environment:
+      xcode: 13.4
       ios_signing:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
