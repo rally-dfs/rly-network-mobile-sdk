@@ -95,6 +95,15 @@ definitions:
         if [[ ! -d build/generated/ios ]]; then
         exit 1
         fi
+    - &build_example_android
+      name: Build example android app
+      script: |
+        cd example/android
+        rm -r app/build
+        ./gradlew build
+        if [[ ! -d app/build/generated ]]; then
+        exit 1
+        fi
 
 workflows:
   pre-build:
@@ -173,6 +182,13 @@ workflows:
       - *setup_ios_profiles
       - *build_example_latest_ios
       - *build_example_previous_ios
+  example-app-android:
+    name: Build example android app
+    <<: *shared_android_settings
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example
+      - *build_example_android
 
   publish-npm:
     name: Publish tag to NPM
