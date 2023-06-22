@@ -10,7 +10,11 @@ import {
   View,
 } from 'react-native';
 import { useEffect, useState } from 'react';
-import { getAccountPhrase, RlyMumbaiNetwork } from '@rly-network/mobile-sdk';
+import {
+  getAccountPhrase,
+  RlyMumbaiNetwork,
+  permanentlyDeleteAccount,
+} from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 
@@ -52,6 +56,10 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     setPerformingAction(undefined);
     setTransferBalance('');
     setTranferAddress('');
+  };
+
+  const deleteAccount = async () => {
+    await permanentlyDeleteAccount();
   };
 
   const revealMnemonic = async () => {
@@ -132,6 +140,16 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
               <BodyText>Export Your Account</BodyText>
             </View>
             <Button title="Reveal my Mnemonic" onPress={revealMnemonic} />
+          </RlyCard>
+
+          <RlyCard style={styles.balanceCard}>
+            <View style={styles.alignMiddle}>
+              <BodyText>Delete Your Account</BodyText>
+            </View>
+            <Button
+              title="Delete my on device account"
+              onPress={deleteAccount}
+            />
           </RlyCard>
         </ScrollView>
       </AppContainer>
