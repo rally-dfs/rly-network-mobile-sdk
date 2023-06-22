@@ -1,4 +1,4 @@
-import { ethers, BigNumber, Wallet, Contract } from 'ethers';
+import { ethers, BigNumber, Contract } from 'ethers';
 import { Buffer } from 'buffer';
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type { RelayRequest } from './EIP712/RelayRequest';
@@ -12,8 +12,7 @@ import type {
   GSNConfig,
   NetworkConfig,
 } from '../network_config/network_config';
-import { tokenFaucet, erc20 } from '../contract';
-import { getTypedPermitTransaction } from './EIP712/PermitTransaction';
+import { tokenFaucet } from '../contract';
 
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
@@ -223,7 +222,6 @@ export const handleGsnResponse = async (
 };
 
 export const getSenderContractNonce = async (
-
   token: Contract,
   address: Address
 ): Promise<BigNumber> => {
