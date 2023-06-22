@@ -10,4 +10,5 @@ export {
   signHash,
   permanentlyDeleteAccount,
 } from './account';
+export { MetaTxMethod } from './gsnClient/utils';
 export * from './network';
