@@ -14,7 +14,7 @@ import { getPermitTx, hasPermit } from '../gsnClient/EIP712/PermitTransaction';
 import {
   getExecuteMetatransactionTx,
   hasExecuteMetaTransaction,
-} from 'src/gsnClient/EIP712/MetaTransaction';
+} from '../gsnClient/EIP712/MetaTransaction';
 
 import type {
   PrefixedHexString,
