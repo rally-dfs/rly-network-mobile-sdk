@@ -1,4 +1,5 @@
 import { Wallet, utils, BigNumber } from 'ethers';
+import type { TypedDataDomain, TypedDataField } from 'ethers';
 import KeyManager from './keyManager';
 
 let _cachedWallet: Wallet | undefined;
@@ -105,4 +106,16 @@ export async function signHash(hash: string): Promise<string> {
   const signingKey = new utils.SigningKey(wallet.privateKey);
 
   return utils.joinSignature(signingKey.signDigest(hash));
+}
+
+export async function signTypedData(
+  domain: TypedDataDomain,
+  types: Record<string, TypedDataField[]>,
+  value: Record<string, any>
+): Promise<string> {
+  const wallet = await getWallet();
+  if (!wallet) {
+    throw 'No account';
+  }
+  return await wallet._signTypedData(domain, types, value);
 }
