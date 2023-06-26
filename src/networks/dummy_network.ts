@@ -8,6 +8,8 @@ import type { Network } from '../network';
 
 const balances: Record<string, number> = {};
 
+export let dummyApiKey: string | undefined;
+
 async function transfer(destinationAddress: string, amount: number) {
   const wallet = await getWallet();
   if (!wallet) {
@@ -52,8 +54,13 @@ async function registerAccount() {
   return `success_${10}_${account.publicKey}`;
 }
 
+function setApiKey(apiKeyParam: string) {
+  dummyApiKey = apiKeyParam;
+}
+
 export const RlyDummyNetwork: Network = {
   transfer: transfer,
   getBalance: getBalance,
   registerAccount: registerAccount,
+  setApiKey: setApiKey,
 };

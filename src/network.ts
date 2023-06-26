@@ -21,6 +21,7 @@ export interface Network {
   ) => Promise<string>;
   registerAccount: () => Promise<string>;
   relay?: (tx: GsnTransactionDetails) => Promise<string>;
+  setApiKey: (apiKey: string) => void;
 }
 
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);

@@ -17,8 +17,11 @@ import {
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
+import { PrivateConfig } from './private_config';
 
 const RlyNetwork = RlyMumbaiNetwork;
+
+RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();

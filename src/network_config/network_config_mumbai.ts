@@ -10,7 +10,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0x3232f21A6E08312654270c78A773f00dd61d60f5',
     relayWorkerAddress: '0x7b556ef275185122257090bd59f74fe4c3c3ca96',
-    relayUrl: 'https://gsn-relay-polygon-mumbai.rly.network',
+    relayUrl: 'https://sassy-staging.fly.dev',
     rpcUrl:
       'https://polygon-mumbai.g.alchemy.com/v2/-dYNjZXvre3GC9kYtwDzzX4N8tcgomU4',
     chainId: '80001',
@@ -20,7 +20,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     gtxDataZero: 4,
     requestValidSeconds: 172800,
     maxPaymasterDataLength: 300,
-    maxApprovalDataLength: 0,
+    maxApprovalDataLength: 300,
     maxRelayNonceGap: 3,
   },
 };

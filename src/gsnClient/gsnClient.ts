@@ -164,6 +164,12 @@ export const relayTransaction = async (
 
   httpRequest.metadata.relayRequestId = relayRequestId;
 
-  const res = await axios.post(`${config.gsn.relayUrl}/relay`, httpRequest);
+  const authHeader = {
+    Authorization: `Bearer ${config.relayerApiKey || ''}`,
+  };
+
+  const res = await axios.post(`${config.gsn.relayUrl}/relay`, httpRequest, {
+    headers: authHeader,
+  });
   return handleGsnResponse(res, web3Provider);
 };
