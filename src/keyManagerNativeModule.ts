@@ -36,11 +36,5 @@ export const deleteMnemonic = async (): Promise<void> => {
 export const getPrivateKeyFromMnemonic = async (
   mnemonic: string
 ): Promise<Uint8Array> => {
-  let pkey = await RlyNativeModule.getPrivateKeyFromMnemonic(mnemonic);
-
-  if (pkey.length === 33 && pkey[0] === 0x00) {
-    pkey = pkey.slice(1);
-  }
-
-  return pkey;
+  return RlyNativeModule.getPrivateKeyFromMnemonic(mnemonic);
 };
