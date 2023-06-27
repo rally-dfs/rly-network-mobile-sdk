@@ -26,12 +26,10 @@ definitions:
     - &yarn_install
       name: Yarn install
       script: yarn install
-    - &setup_example_app_config
-      name: Setup example app config
-      script: cp example/private_config.example example/src/private_config.ts
     - &yarn_bootstrap_example
       name: Yarn bootstrap (bare RN example app)
       script: yarn bootstrap
+      script: cp example/private_config.example example/src/private_config.ts && cp example_expo/private_config.example example_expo/src/private_config.ts
     - &run_linter
       name: Run linter
       script: yarn lint

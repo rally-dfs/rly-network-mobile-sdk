@@ -68,3 +68,4 @@ lib/
 
 #Private Config Files
 example/src/private_config.ts
+example_expo/src/private_config.ts
