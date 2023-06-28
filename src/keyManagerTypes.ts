@@ -1,7 +1,7 @@
 export type KeyStorageConfig = {
   saveToCloud: boolean;
   rejectOnCloudSaveFailure: boolean;
-}
+};
 
 export interface KeyManager {
   getMnemonic: () => Promise<string | null>;

@@ -10,13 +10,13 @@ const LINKING_ERROR =
 const RlyNativeModule = NativeModules.RlyNetworkMobileSdk
   ? NativeModules.RlyNetworkMobileSdk
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );
 
 export const getMnemonic = async (): Promise<string | null> => {
   return RlyNativeModule.getMnemonic();
@@ -26,10 +26,20 @@ export const generateMnemonic = async (): Promise<string> => {
   return RlyNativeModule.generateMnemonic();
 };
 
-export const saveMnemonic = async (mnemonic: string, options: KeyStorageConfig = { saveToCloud: true, rejectOnCloudSaveFailure: false }): Promise<void> => {
+export const saveMnemonic = async (
+  mnemonic: string,
+  options: KeyStorageConfig = {
+    saveToCloud: true,
+    rejectOnCloudSaveFailure: false,
+  }
+): Promise<void> => {
   const { saveToCloud, rejectOnCloudSaveFailure } = options;
 
-  return RlyNativeModule.saveMnemonic(mnemonic, saveToCloud, rejectOnCloudSaveFailure);
+  return RlyNativeModule.saveMnemonic(
+    mnemonic,
+    saveToCloud,
+    rejectOnCloudSaveFailure
+  );
 };
 
 export const deleteMnemonic = async (): Promise<void> => {

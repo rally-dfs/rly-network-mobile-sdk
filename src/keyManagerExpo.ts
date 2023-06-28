@@ -13,7 +13,6 @@ declare global {
 const LINKING_ERROR =
   "The package 'expo-secure-store' doesn't seem to be available please install it as a dependency if using expo.";
 
-
 type KeychainAccessibilityConstant = number;
 
 const WHEN_UNLOCKED: KeychainAccessibilityConstant = 5;
@@ -28,7 +27,11 @@ type SecureStoreOptions = {
 
 let SecureStore: {
   getItemAsync: (mnemonic: string) => Promise<string | null>;
-  setItemAsync: (key: string, value: string, options: SecureStoreOptions) => Promise<void>;
+  setItemAsync: (
+    key: string,
+    value: string,
+    options: SecureStoreOptions
+  ) => Promise<void>;
   deleteItemAsync: (key: string) => Promise<void>;
 };
 
@@ -52,9 +55,19 @@ export const generateMnemonic = async (): Promise<string> => {
   return utils.entropyToMnemonic(utils.randomBytes(24));
 };
 
-export const saveMnemonic = async (mnemonic: string, options: KeyStorageConfig = { saveToCloud: true, rejectOnCloudSaveFailure: false }): Promise<void> => {
-  const keychainAccessible = options.saveToCloud ? WHEN_UNLOCKED : WHEN_UNLOCKED_THIS_DEVICE_ONLY;
-  return SecureStore.setItemAsync(MNEMONIC_ACCOUNT_KEY, mnemonic, { keychainAccessible });
+export const saveMnemonic = async (
+  mnemonic: string,
+  options: KeyStorageConfig = {
+    saveToCloud: true,
+    rejectOnCloudSaveFailure: false,
+  }
+): Promise<void> => {
+  const keychainAccessible = options.saveToCloud
+    ? WHEN_UNLOCKED
+    : WHEN_UNLOCKED_THIS_DEVICE_ONLY;
+  return SecureStore.setItemAsync(MNEMONIC_ACCOUNT_KEY, mnemonic, {
+    keychainAccessible,
+  });
 };
 
 export const deleteMnemonic = async (): Promise<void> => {
