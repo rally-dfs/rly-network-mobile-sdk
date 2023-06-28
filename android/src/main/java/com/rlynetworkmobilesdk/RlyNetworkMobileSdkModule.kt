@@ -1,7 +1,5 @@
 package com.rlynetworkmobilesdk
 
-import android.content.Context
-import androidx.security.crypto.MasterKey
 import com.facebook.react.bridge.*
 import org.kethereum.bip39.generateMnemonic
 import org.kethereum.bip39.validate
@@ -9,10 +7,8 @@ import org.kethereum.bip39.dirtyPhraseToMnemonicWords
 import org.kethereum.bip39.toSeed
 import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.kethereum.bip39.model.MnemonicWords
-import org.kethereum.bip32.model.ExtendedKey
 import org.kethereum.bip32.toKey
 import org.kethereum.extensions.*
-import java.lang.Integer.parseInt
 
 class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -78,7 +74,11 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
     val seed = words.toSeed()
     val key = seed.toKey("m/44'/60'/0'/0/0")
 
-    val privateKey = key.keyPair.privateKey.key.toByteArray()
+    var privateKey = key.keyPair.privateKey.key.toByteArray()
+
+    if (privateKey.size == 33 && privateKey[0].toInt() == 0) {
+      privateKey = privateKey.removeLeadingZero()
+    }
 
     val result = WritableNativeArray();
     // and 0xFF fixes twos complement integer representation and

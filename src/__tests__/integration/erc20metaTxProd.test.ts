@@ -7,7 +7,7 @@ import { MetaTxMethod } from '../../gsnClient/utils';
 import { testSkipInCI } from '../__utils__/test_utils';
 
 let ethersProvider: ethers.providers.JsonRpcProvider;
-const tokenAddress = '0x76b8D57e5ac6afAc5D415a054453d1DD2c3C0094';
+const tokenAddress = '0xd872b7fFca41a67eDA85b04A9185c6b270006b58';
 
 beforeAll(async () => {
   ethersProvider = new ethers.providers.JsonRpcProvider(
@@ -58,8 +58,8 @@ testSkipInCI(
       throw 'account not found';
     }
     const bal = await token.balanceOf(account.address);
-    expect(decimals).toEqual(18);
-    expect(bal).toEqual(ethers.utils.parseUnits('10', decimals));
+    expect(decimals).toEqual(9);
+    expect(bal).toEqual(ethers.utils.parseUnits('98', decimals));
   },
   30000
 );
@@ -80,18 +80,18 @@ testSkipInCI(
     const oldBal = await token.balanceOf(account.address);
 
     // ant address
-    const to = '0xc073ade46aba2f72bf27e7befd37af9301cd8920';
+    const to = '0xAcbb8BA053f7CC4F691b455A296D28dd5c867a99';
     const txHash = await RlyNetwork.transfer(
       to,
       1,
       tokenAddress,
-      MetaTxMethod.ExecuteMetaTransaction
+      MetaTxMethod.Permit
     );
 
     const newBal = await token.balanceOf(account.address);
-    expect(oldBal).toEqual(ethers.utils.parseUnits('10', decimals));
+    expect(oldBal).toEqual(ethers.utils.parseUnits('98', decimals));
     expect(txHash).toMatch(/^0x/);
-    expect(newBal).toEqual(ethers.utils.parseUnits('9', decimals));
+    expect(newBal).toEqual(ethers.utils.parseUnits('97', decimals));
   },
   30000
 );
