@@ -1,5 +1,5 @@
 import { utils, Wallet } from 'ethers';
-import { KeychainAccessibilityConstant, WHEN_UNLOCKED } from './keyManagerConstants';
+import type { KeyStorageConfig } from './keyManagerTypes';
 
 type ExpoObject = {
   modules: undefined | { [key: string]: any };
@@ -13,6 +13,11 @@ declare global {
 const LINKING_ERROR =
   "The package 'expo-secure-store' doesn't seem to be available please install it as a dependency if using expo.";
 
+
+type KeychainAccessibilityConstant = number;
+
+const WHEN_UNLOCKED: KeychainAccessibilityConstant = 5;
+const WHEN_UNLOCKED_THIS_DEVICE_ONLY: KeychainAccessibilityConstant = 6;
 
 type SecureStoreOptions = {
   keychainService?: string;
@@ -47,7 +52,8 @@ export const generateMnemonic = async (): Promise<string> => {
   return utils.entropyToMnemonic(utils.randomBytes(24));
 };
 
-export const saveMnemonic = async (mnemonic: string, keychainAccessible: KeychainAccessibilityConstant = WHEN_UNLOCKED): Promise<void> => {
+export const saveMnemonic = async (mnemonic: string, options: KeyStorageConfig = { saveToCloud: true, rejectOnCloudSaveFailure: false }): Promise<void> => {
+  const keychainAccessible = options.saveToCloud ? WHEN_UNLOCKED : WHEN_UNLOCKED_THIS_DEVICE_ONLY;
   return SecureStore.setItemAsync(MNEMONIC_ACCOUNT_KEY, mnemonic, { keychainAccessible });
 };
 

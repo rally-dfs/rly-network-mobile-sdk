@@ -10,14 +10,14 @@ import org.kethereum.bip39.model.MnemonicWords
 import org.kethereum.bip32.toKey
 import org.kethereum.extensions.*
 
+const val MNEMONIC_STORAGE_KEY = "BIP39_MNEMONIC"
+
 class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
-  private val prefHelper: EncryptedSharedPreferencesHelper
-  private val MNEMONIC_PREFERENCE_KEY = "BIP39_MNEMONIC"
-
+  private val mnemonicHelper: MnemonicStorageHelper
 
   init {
-    prefHelper = EncryptedSharedPreferencesHelper(reactContext.applicationContext)
+    mnemonicHelper = MnemonicStorageHelper(reactContext.applicationContext)
   }
 
   override fun getName(): String {
@@ -36,8 +36,7 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getMnemonic(promise:Promise){
-    val mnemonic = prefHelper.read(MNEMONIC_PREFERENCE_KEY)
-    promise.resolve(mnemonic)
+    val mnemonic = mnemonicHelper.read(MNEMONIC_STORAGE_KEY, promise)
   }
 
   @ReactMethod
@@ -47,19 +46,18 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun saveMnemonic(mnemonic:String, keychainAccessible: Integer, promise:Promise){
+  fun saveMnemonic(mnemonic:String, saveToCloud: Boolean, rejectOnCloudSaveFailure: Boolean, promise:Promise){
     if (!MnemonicWords(mnemonic).validate(WORDLIST_ENGLISH)) {
       promise.reject("mnemonic_verification_failure", "mnemonic failed to pass check");
       return;
     }
 
-    prefHelper.save(MNEMONIC_PREFERENCE_KEY, mnemonic)
-    promise.resolve(true)
+    mnemonicHelper.save(MNEMONIC_STORAGE_KEY, mnemonic, saveToCloud, rejectOnCloudSaveFailure, promise)
   }
 
   @ReactMethod
   fun deleteMnemonic(promise:Promise){
-    prefHelper.delete(MNEMONIC_PREFERENCE_KEY)
+    mnemonicHelper.delete(MNEMONIC_STORAGE_KEY)
     promise.resolve(true)
   }
 

@@ -1,3 +1,16 @@
+export type KeyStorageConfig = {
+  saveToCloud: boolean;
+  rejectOnCloudSaveFailure: boolean;
+}
+
+export interface KeyManager {
+  getMnemonic: () => Promise<string | null>;
+  generateMnemonic: () => Promise<string>;
+  saveMnemonic: (mnemonic: string, options?: KeyStorageConfig) => Promise<void>;
+  deleteMnemonic: () => Promise<void>;
+  getPrivateKeyFromMnemonic: (mnemonic: string) => Promise<Uint8Array>;
+}
+
 export type KeychainAccessibilityConstant = number;
 
 export const AFTER_FIRST_UNLOCK: KeychainAccessibilityConstant = 0;

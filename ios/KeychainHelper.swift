@@ -5,14 +5,18 @@ final class KeychainHelper {
     static let standard = KeychainHelper()
     private init() {}
     
-    func save(_ data: Data, service: String, account: String, keychainAccessible: Int) {
-
+    func save(
+      _ data: Data,
+      service: String,
+      account: String,
+      saveToCloud: Bool
+    ) {
         let query = [
             kSecValueData: data,
             kSecAttrService: service,
             kSecAttrAccount: account,
             kSecClass: kSecClassGenericPassword,
-            kSecAttrAccessible: attributeWith(KeychainAccessible(rawValue: keychainAccessible)!)
+            kSecAttrAccessible: saveToCloud ? kSecAttrAccessibleWhenUnlocked : kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ] as CFDictionary
 
         // Add data in query to keychain
@@ -58,34 +62,5 @@ final class KeychainHelper {
         
         // Delete item from keychain
         SecItemDelete(query)
-    }
-
-    enum KeychainAccessible: Int {
-        case afterFirstUnlock = 0
-        case afterFirstUnlockThisDeviceOnly = 1
-        case always = 2
-        case whenPasscodeSetThisDeviceOnly = 3
-        case alwaysThisDeviceOnly = 4
-        case whenUnlocked = 5
-        case whenUnlockedThisDeviceOnly = 6
-    }
-
-    private func attributeWith(_ option: KeychainAccessible) -> CFString {
-        switch option {
-            case .afterFirstUnlock:
-                return kSecAttrAccessibleAfterFirstUnlock
-            case .afterFirstUnlockThisDeviceOnly:
-                return kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-            case .always:
-                return kSecAttrAccessibleAlways
-            case .whenPasscodeSetThisDeviceOnly:
-                return kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
-            case .alwaysThisDeviceOnly:
-                return kSecAttrAccessibleAlwaysThisDeviceOnly
-            case .whenUnlockedThisDeviceOnly:
-                return kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-            default:
-                return kSecAttrAccessibleWhenUnlocked
-        }
     }
 }

@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
-import { KeychainAccessibilityConstant, WHEN_UNLOCKED } from './keyManagerConstants';
+import type { KeyStorageConfig } from './keyManagerTypes';
 
 const LINKING_ERROR =
   `The package 'rly-network-mobile-sdk' doesn't seem to be linked. Make sure: \n\n` +
@@ -26,8 +26,10 @@ export const generateMnemonic = async (): Promise<string> => {
   return RlyNativeModule.generateMnemonic();
 };
 
-export const saveMnemonic = async (mnemonic: string, keychainAccessible: KeychainAccessibilityConstant = WHEN_UNLOCKED): Promise<void> => {
-  return RlyNativeModule.saveMnemonic(mnemonic, keychainAccessible);
+export const saveMnemonic = async (mnemonic: string, options: KeyStorageConfig = { saveToCloud: true, rejectOnCloudSaveFailure: false }): Promise<void> => {
+  const { saveToCloud, rejectOnCloudSaveFailure } = options;
+
+  return RlyNativeModule.saveMnemonic(mnemonic, saveToCloud, rejectOnCloudSaveFailure);
 };
 
 export const deleteMnemonic = async (): Promise<void> => {
