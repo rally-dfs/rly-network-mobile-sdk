@@ -16,7 +16,6 @@ definitions:
     cache:
       cache_paths:
         - $HOME/Library/Caches/CocoaPods
-    <<: *trigger_on_all_push
   shared_android_settings: &shared_android_settings
     max_build_duration: 60
     cache:
@@ -123,20 +122,38 @@ definitions:
         done
 
 workflows:
-  pre-build:
-    name: Pre build
+  every-push-tests:
+    name: Every push basic tests
     max_build_duration: 60
     environment:
       <<: *default_environments
+      xcode: latest
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
+      vars:
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
+        - $HOME/Library/Caches/CocoaPods
+        - $HOME/.gradle/caches
     <<: *trigger_on_all_push
     scripts:
       - *yarn_install
       - *run_linter
       - *compile_typescript
       - *yarn_test # this happens on every push, so don't need to run full suite here
+      # iOS latest xcode
+      - *build_sdk_latest_ios
+      - *build_sdk_previous_ios
+      # example app iOS latest xcode
+      - *yarn_bootstrap_example
+      - *setup_ios_profiles
+      - *build_example_latest_ios
+      - *build_example_previous_ios
+      # example app android
+      - *build_example_android
     publishing:
       slack:
         channel: '#ci-builds'
@@ -202,7 +219,6 @@ workflows:
   example-app-android:
     name: Build example android app
     <<: *shared_android_settings
-    <<: *trigger_on_all_push
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example
@@ -229,7 +245,11 @@ workflows:
         script: yarn clean && yarn prepare
       - name: Authorize npm
         script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-      # FYI github also needs to be authorized for yarn release, but that's just done with $GITHUB_TOKEN env var
+      # In theory `yarn release` should work without this step (with just the $GITHUB_TOKEN env var),
+      # but something in the codemagic is overriding the auth for git push, so this forces it back to using the
+      # github token
+      - name: Authorize git push
+        script: git remote set-url origin https://rly-network-ci-bot:$GITHUB_TOKEN@github.com/rally-dfs/rly-network-mobile-sdk
       - name: Release
         # Defaults to `patch` type release. To override, set $RELEASE_INCREMENT_OVERRIDE (e.g. "minor" "major" etc)
         # and $RELEASE_OVERRIDE_VERSION (to current version) in codemagic env vars
