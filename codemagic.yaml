@@ -2,11 +2,34 @@ definitions:
   default_environments: &default_environments
     node: 16.14.2
     npm: latest
+  trigger_on_all_push: &trigger_on_all_push
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+      cancel_previous_builds: false
+  shared_ios_settings: &shared_ios_settings
+    max_build_duration: 60
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+    <<: *trigger_on_all_push
+  shared_android_settings: &shared_android_settings
+    max_build_duration: 60
+    cache:
+      cache_paths:
+        - $HOME/.gradle/caches
   scripts:
     # would be great to be able to alias all these into one single reference but couldn't figure out a way to do that
     - &yarn_install
       name: Yarn install
       script: yarn install
+    - &yarn_bootstrap_example
+      name: Yarn bootstrap (bare RN example app)
+      script: yarn bootstrap
     - &run_linter
       name: Run linter
       script: yarn lint
@@ -19,6 +42,85 @@ definitions:
     - &yarn_test_full_suite
       name: Yarn test full suite
       script: CI_FULL_SUITE=1 yarn test
+    - &build_sdk_latest_ios
+      name: Build latest iOS version and check build folder
+      script: |
+        cd ios
+        rm -r build
+        xcodebuild build -configuration Release
+        if [[ ! -d build/RlyNetworkMobileSdk.build/Release-iphoneos/RlyNetworkMobileSdk.build ]]; then
+        exit 1
+        fi
+    - &build_sdk_previous_ios
+      name: Build previous iOS version and check build folder
+      script: |
+        cd ios
+        rm -r build
+        xcodebuild build -configuration ReleasePreviousiOSVersion
+        if [[ ! -d build/RlyNetworkMobileSdk.build/ReleasePreviousiOSVersion-iphoneos/RlyNetworkMobileSdk.build ]]; then
+        exit 1
+        fi
+    - &build_sdk_android
+      name: Build android and check build folder
+      script: |
+        cd android
+        ./gradlew build
+        if [[ ! -d build ]]; then
+        exit 1
+        fi
+    - &setup_ios_profiles
+      name: Set up iOS provisioning profile
+      script: xcode-project use-profiles
+    - &build_example_latest_ios
+      # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
+      # need to investigate more
+      name: Build example iOS app (latest iOS)
+      script: |
+        cd example/ios
+        rm -r build
+        xcodebuild -workspace RlyNetworkMobileSdkExample.xcworkspace -configuration Release \
+          -scheme RlyNetworkMobileSdkExample -destination "generic/platform=iOS Simulator"
+        if [[ ! -d build/generated/ios ]]; then
+        exit 1
+        fi
+    - &build_example_previous_ios
+      # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
+      # need to investigate more
+      name: Build example iOS app (previous iOS)
+      script: |
+        cd example/ios
+        rm -r build
+        xcodebuild -workspace RlyNetworkMobileSdkExample.xcworkspace -configuration ReleasePreviousiOSVersion \
+          -scheme RlyNetworkMobileSdkExample -destination "generic/platform=iOS Simulator"
+        if [[ ! -d build/generated/ios ]]; then
+        exit 1
+        fi
+    - &build_example_android
+      name: Build example android app (loops multiple gradle + SDK versions)
+      script: |
+        cd example/android
+        for CURRENT_GRADLE_VERSION in 7.6.1 7.5.1 7.4.2 7.3.3; do
+            echo "#### Setting gradle to version $CURRENT_GRADLE_VERSION ####"
+            ./gradlew wrapper --gradle-version=$CURRENT_GRADLE_VERSION
+            if [[ ! `./gradlew --version | grep "Gradle $CURRENT_GRADLE_VERSION"` ]]; then
+                echo "#### Setting gradle version to $CURRENT_GRADLE_VERSION failed ####"
+                exit 1
+            fi
+            for CURRENT_SDK_VERSION in 33 32 31; do
+                rm -r app/build
+                echo "#### Setting SDK to version $CURRENT_SDK_VERSION ####"
+                sed -i '' -e "s/compileSdkVersion = [0-9]*$/compileSdkVersion = $CURRENT_SDK_VERSION/g" build.gradle
+                if [[ ! `cat build.gradle | grep "compileSdkVersion = $CURRENT_SDK_VERSION"` ]]; then
+                    echo "#### Setting SDK version to $CURRENT_SDK_VERSION failed ####"
+                    exit 1
+                fi
+                ./gradlew build
+                if [[ ! -d app/build/generated ]]; then
+                    echo "#### Error building with gradle $CURRENT_GRADLE_VERSION and SDK version $CURRENT_SDK_VERSION ####"
+                    exit 1
+                fi
+            done
+        done
 
 workflows:
   pre-build:
@@ -29,14 +131,7 @@ workflows:
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: '*'
-          include: true
-          source: true
-      cancel_previous_builds: false
+    <<: *trigger_on_all_push
     scripts:
       - *yarn_install
       - *run_linter
@@ -45,6 +140,74 @@ workflows:
     publishing:
       slack:
         channel: '#ci-builds'
+
+  ios-build-latest-xcode:
+    name: Latest Xcode - Build iOS and check for artifact
+    <<: *shared_ios_settings
+    environment:
+      xcode: latest
+    scripts:
+      - *build_sdk_latest_ios
+      - *build_sdk_previous_ios
+  ios-build-previous-xcode:
+    name: Previous XCode - Build iOS and check for artifact
+    <<: *shared_ios_settings
+    environment:
+      xcode: 13.4
+    scripts:
+      - *build_sdk_latest_ios
+      - *build_sdk_previous_ios
+  android-build:
+    name: Build android and check for artifact
+    <<: *shared_android_settings
+    scripts:
+      - *yarn_install # probably need this? not sure
+      - name: Set Android SDK location # probably need this too? not sure
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - *build_sdk_android
+
+  example-app-ios-latest-xcode:
+    name: Latest Xcode - Build example iOS app (bare RN)
+    <<: *shared_ios_settings
+    environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
+      vars:
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example
+      - *setup_ios_profiles
+      - *build_example_latest_ios
+      - *build_example_previous_ios
+  example-app-ios-previous-xcode:
+    name: Previous Xcode - Build example iOS app (bare RN)
+    <<: *shared_ios_settings
+    environment:
+      xcode: 13.4
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
+      vars:
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example
+      - *setup_ios_profiles
+      - *build_example_latest_ios
+      - *build_example_previous_ios
+  example-app-android:
+    name: Build example android app
+    <<: *shared_android_settings
+    <<: *trigger_on_all_push
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example
+      - *build_example_android
+
   publish-npm:
     name: Publish tag to NPM
     max_build_duration: 120
@@ -57,7 +220,7 @@ workflows:
         - $CM_BUILD_DIR/node_modules
     scripts:
       - name: Abort if not on main
-        script: if [ `git rev-parse --abbrev-ref HEAD` != main ]; then exit 1; fi
+        script: if [[ `git rev-parse --abbrev-ref HEAD` != main ]]; then exit 1; fi
       - *yarn_install
       - *run_linter
       - *compile_typescript
@@ -71,15 +234,13 @@ workflows:
         # Defaults to `patch` type release. To override, set $RELEASE_INCREMENT_OVERRIDE (e.g. "minor" "major" etc)
         # and $RELEASE_OVERRIDE_VERSION (to current version) in codemagic env vars
         script: |
-          if [ $RELEASE_INCREMENT_OVERRIDE ]
-          then
-            if [ `cat package.json | jq -r '.version'` != $RELEASE_OVERRIDE_VERSION ]
-            then
+          if [[ $RELEASE_INCREMENT_OVERRIDE ]]; then
+            if [[ `cat package.json | jq -r '.version'` = $RELEASE_OVERRIDE_VERSION ]]; then
+              yarn release $RELEASE_INCREMENT_OVERRIDE --ci
+            else
               echo Override version $RELEASE_OVERRIDE_VERSION does not match current version `cat package.json | jq -r '.version'`
               echo If this is left over from a previous release, just go delete these from the codemagic env vars
               exit 1
-            else
-              yarn release $RELEASE_INCREMENT_OVERRIDE --ci
             fi
           else
             yarn release patch --ci
