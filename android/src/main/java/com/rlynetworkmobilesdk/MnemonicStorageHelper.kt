@@ -32,7 +32,7 @@ class MnemonicStorageHelper(context: Context) {
     }
   }
 
-  fun save(key: String, mnemonic: String, useBlockstore: Boolean, forceBlockstore: Boolean, promise: Promise) {
+  fun save(key: String, mnemonic: String, useBlockstore: Boolean, forceBlockstore: Boolean, onSuccess: () -> Unit, onFailure: (message: String) -> Unit) {
     if (useBlockstore && isEndToEndEncryptionAvailable) {
       val storeRequest = StoreBytesData.Builder()
         .setBytes(mnemonic.toByteArray(Charsets.UTF_8))
@@ -42,16 +42,16 @@ class MnemonicStorageHelper(context: Context) {
 
       blockstoreClient.storeBytes(storeRequest.build())
         .addOnSuccessListener {
-          promise.resolve(true)
+          onSuccess()
         }.addOnFailureListener { e ->
-          promise.reject("cloud_save_failure", "Failed to save to cloud $e")
+          onFailure("Failed to save to cloud $e")
         }
     } else {
       if (forceBlockstore) {
-        promise.reject("cloud_save_disabled", "Failed to save mnemonic. No end to end encryption option is available and force cloud is on");
+        onFailure("Failed to save mnemonic. No end to end encryption option is available and force cloud is on");
       } else {
         saveToSharedPref(key, mnemonic)
-        promise.resolve(true)
+        onSuccess()
       }
     }
   }
@@ -62,7 +62,7 @@ class MnemonicStorageHelper(context: Context) {
     editor.commit()
   }
 
-  fun read(key: String, promise: Promise) {
+  fun read(key: String, onSuccess: (mnemonic: String) -> Unit, onFailure: (message: String) -> Unit) {
 
     val retrieveRequest = RetrieveBytesRequest.Builder()
       .setKeys(listOf(key))
@@ -73,18 +73,28 @@ class MnemonicStorageHelper(context: Context) {
         val blockstoreDataMap = result.blockstoreDataMap
 
         if (blockstoreDataMap.isEmpty()) {
-          promise.resolve(readFromSharedPref(key))
+          val mnemonic = readFromSharedPref(key)
+          if (mnemonic != null) {
+            onSuccess(mnemonic)
+          } else {
+            onFailure("no mnemonic found in cloud or device storage")
+          }
         } else {
           val value = blockstoreDataMap[key]
           if (value != null) {
-            promise.resolve(value.bytes.toString(Charsets.UTF_8))
+            onSuccess(value.bytes.toString(Charsets.UTF_8))
           } else {
-            promise.resolve(null)
+            onFailure("no mnemonic found in cloud or device storage")
           }
         }
       }
       .addOnFailureListener {
-        promise.resolve(readFromSharedPref(key))
+        val mnemonic = readFromSharedPref(key)
+        if (mnemonic != null) {
+          onSuccess(mnemonic)
+        } else {
+          onFailure("no mnemonic found in cloud or device storage")
+        }
       }
   }
 
