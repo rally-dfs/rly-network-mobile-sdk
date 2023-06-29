@@ -245,7 +245,11 @@ workflows:
         script: yarn clean && yarn prepare
       - name: Authorize npm
         script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-      # FYI github also needs to be authorized for yarn release, but that's just done with $GITHUB_TOKEN env var
+      # In theory `yarn release` should work without this step (with just the $GITHUB_TOKEN env var),
+      # but something in the codemagic is overriding the auth for git push, so this forces it back to using the
+      # github token
+      - name: Authorize git push
+        script: git remote set-url origin https://rly-network-ci-bot:$GITHUB_TOKEN@github.com/rally-dfs/rly-network-mobile-sdk
       - name: Release
         # Defaults to `patch` type release. To override, set $RELEASE_INCREMENT_OVERRIDE (e.g. "minor" "major" etc)
         # and $RELEASE_OVERRIDE_VERSION (to current version) in codemagic env vars
