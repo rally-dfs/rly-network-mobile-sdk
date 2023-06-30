@@ -142,7 +142,6 @@ workflows:
     <<: *trigger_on_all_push
     scripts:
       - *yarn_install
-      - *setup_example_app_config
       - *run_linter
       - *compile_typescript
       - *yarn_test # this happens on every push, so don't need to run full suite here
@@ -240,7 +239,6 @@ workflows:
       - name: Abort if not on main
         script: if [[ `git rev-parse --abbrev-ref HEAD` != main ]]; then exit 1; fi
       - *yarn_install
-      - *setup_example_app_config
       - *run_linter
       - *compile_typescript
       - *yarn_test_full_suite # make sure to run full suite test for publish workflow
