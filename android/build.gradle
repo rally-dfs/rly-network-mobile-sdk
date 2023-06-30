@@ -143,8 +143,7 @@ dependencies {
   implementation "com.github.komputing.kethereum:bip32:0.85.7"
   implementation "com.github.komputing.kethereum:crypto_impl_spongycastle:0.85.7"
   implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha03'
-
-
+  implementation 'com.google.android.gms:play-services-auth-blockstore:16.2.0'
 // From node_modules
 }
 

@@ -5,13 +5,18 @@ final class KeychainHelper {
     static let standard = KeychainHelper()
     private init() {}
     
-    func save(_ data: Data, service: String, account: String) {
-
+    func save(
+      _ data: Data,
+      service: String,
+      account: String,
+      saveToCloud: Bool
+    ) {
         let query = [
             kSecValueData: data,
             kSecAttrService: service,
             kSecAttrAccount: account,
-            kSecClass: kSecClassGenericPassword
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccessible: saveToCloud ? kSecAttrAccessibleWhenUnlocked : kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ] as CFDictionary
 
         // Add data in query to keychain
