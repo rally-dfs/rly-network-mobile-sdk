@@ -193,5 +193,8 @@ export function getEvmNetwork(network: NetworkConfig) {
     relay: function (tx: GsnTransactionDetails) {
       return relay(tx, network);
     },
+    setApiKey: function (apiKey: string) {
+      network.relayerApiKey = apiKey;
+    },
   };
 }

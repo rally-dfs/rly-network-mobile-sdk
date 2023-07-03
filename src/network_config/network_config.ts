@@ -24,6 +24,7 @@ export interface NetworkConfig {
     rlyERC20: PrefixedHexString;
   };
   gsn: GSNConfig;
+  relayerApiKey?: string;
 }
 
 export * from './network_config_local';

@@ -10,7 +10,7 @@ export const PolygonNetworkConfig: NetworkConfig = {
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0xfCEE9036EDc85cD5c12A9De6b267c4672Eb4bA1B',
     relayWorkerAddress: '0x434efbca662f6f846f8dec3fde52fac4c8792e03',
-    relayUrl: 'https://gsn-relay-polygon.rly.network',
+    relayUrl: 'https://api.rallyprotocol.com',
     rpcUrl:
       'https://polygon-mainnet.g.alchemy.com/v2/-dYNjZXvre3GC9kYtwDzzX4N8tcgomU4',
     chainId: '137',
