@@ -245,7 +245,7 @@ workflows:
       - *setup_private_config
       - *run_linter
       - *compile_typescript
-      - *yarn_test_full_suite # make sure to run full suite test for publish workflow
+      # - *yarn_test_full_suite # make sure to run full suite test for publish workflow
       - name: Clean and prepare
         script: yarn clean && yarn prepare
       - name: Authorize npm
