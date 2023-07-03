@@ -28,8 +28,7 @@ definitions:
       script: yarn install
     - &yarn_bootstrap_example
       name: Yarn bootstrap (bare RN example app)
-      script: yarn bootstrap
-      script: cp example/private_config.example example/src/private_config.ts && cp example_expo/private_config.example example_expo/src/private_config.ts
+      script: yarn bootstrap && cp example/private_config.example example/src/private_config.ts && cp example_expo/private_config.example example_expo/src/private_config.ts
     - &run_linter
       name: Run linter
       script: yarn lint
