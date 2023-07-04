@@ -2,15 +2,23 @@ definitions:
   default_environments: &default_environments
     node: 16.14.2
     npm: latest
-  trigger_on_all_push: &trigger_on_all_push
+  trigger_on_main_push: &trigger_on_main_push
     triggering:
       events:
         - push
       branch_patterns:
-        - pattern: '*'
+        - pattern: 'main'
           include: true
-          source: true
-      cancel_previous_builds: false
+      cancel_previous_builds: true
+  trigger_on_pr_to_main: &trigger_on_pr_to_main
+    triggering:
+      events:
+        - pull_request
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: false
+      cancel_previous_builds: true
   shared_ios_settings: &shared_ios_settings
     max_build_duration: 60
     cache:
@@ -125,8 +133,24 @@ definitions:
         done
 
 workflows:
-  every-push-tests:
-    name: Every push basic tests
+  yarn-tests:
+    name: Lightweight yarn lint/tests
+    max_build_duration: 10
+    environment:
+      <<: *default_environments
+    cache:
+      cache_paths:
+        - $CM_BUILD_DIR/node_modules
+    <<: *trigger_on_pr_to_main
+    scripts:
+      - *yarn_install
+      - *setup_private_config
+      - *run_linter
+      - *compile_typescript
+      - *yarn_test
+
+  full-suite-and-mobile-tests:
+    name: Full test suite and mobile builds
     max_build_duration: 60
     environment:
       <<: *default_environments
@@ -141,13 +165,13 @@ workflows:
         - $CM_BUILD_DIR/node_modules
         - $HOME/Library/Caches/CocoaPods
         - $HOME/.gradle/caches
-    <<: *trigger_on_all_push
+    <<: *trigger_on_main_push
     scripts:
       - *yarn_install
       - *setup_private_config
       - *run_linter
       - *compile_typescript
-      - *yarn_test # this happens on every push, so don't need to run full suite here
+      - *yarn_test_full_suite
       # iOS latest xcode
       - *build_sdk_latest_ios
       - *build_sdk_previous_ios
@@ -158,10 +182,8 @@ workflows:
       - *build_example_previous_ios
       # example app android
       - *build_example_android
-    publishing:
-      slack:
-        channel: '#ci-builds'
 
+  # iOS/android libraries
   ios-build-latest-xcode:
     name: Latest Xcode - Build iOS and check for artifact
     <<: *shared_ios_settings
@@ -173,6 +195,7 @@ workflows:
   ios-build-previous-xcode:
     name: Previous XCode - Build iOS and check for artifact
     <<: *shared_ios_settings
+    <<: *trigger_on_main_push
     environment:
       xcode: 13.4
     scripts:
@@ -188,6 +211,7 @@ workflows:
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
       - *build_sdk_android
 
+  # example apps
   example-app-ios-latest-xcode:
     name: Latest Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
@@ -207,6 +231,7 @@ workflows:
   example-app-ios-previous-xcode:
     name: Previous Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
+    <<: *trigger_on_main_push
     environment:
       xcode: 13.4
       ios_signing:
@@ -228,6 +253,7 @@ workflows:
       - *yarn_bootstrap_example
       - *build_example_android
 
+  # npm publish
   publish-npm:
     name: Publish tag to NPM
     max_build_duration: 120
