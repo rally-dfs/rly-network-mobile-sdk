@@ -182,9 +182,6 @@ workflows:
       - *build_example_previous_ios
       # example app android
       - *build_example_android
-    publishing:
-      slack:
-        channel: '#ci-builds'
 
   # iOS/android libraries
   ios-build-latest-xcode:
@@ -198,6 +195,7 @@ workflows:
   ios-build-previous-xcode:
     name: Previous XCode - Build iOS and check for artifact
     <<: *shared_ios_settings
+    <<: *trigger_on_main_push
     environment:
       xcode: 13.4
     scripts:
@@ -233,6 +231,7 @@ workflows:
   example-app-ios-previous-xcode:
     name: Previous Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
+    <<: *trigger_on_main_push
     environment:
       xcode: 13.4
       ios_signing:
