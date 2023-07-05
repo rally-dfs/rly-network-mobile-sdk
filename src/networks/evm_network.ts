@@ -137,7 +137,7 @@ async function getBalance(
   return Number(ethers.utils.formatUnits(bal.toString(), decimals));
 }
 
-async function registerAccount(network: NetworkConfig): Promise<string> {
+async function claimRly(network: NetworkConfig): Promise<string> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -154,6 +154,14 @@ async function registerAccount(network: NetworkConfig): Promise<string> {
   const claimTx = await getClaimTx(account, network, provider);
 
   return relay(claimTx, network);
+}
+
+// This method is deprecated. Update to 'claimRly' instead.
+// Will be removed in future library versions.
+async function registerAccount(network: NetworkConfig): Promise<string> {
+  console.error("This method is deprecated. Update to 'claimRly' instead.");
+
+  return claimRly(network);
 }
 
 export async function relay(
@@ -187,6 +195,11 @@ export function getEvmNetwork(network: NetworkConfig) {
     getBalance: function (tokenAddress?: PrefixedHexString) {
       return getBalance(network, tokenAddress);
     },
+    claimRly: function () {
+      return claimRly(network);
+    },
+    // This method is deprecated. Update to 'claimRly' instead.
+    // Will be removed in future library versions.
     registerAccount: function () {
       return registerAccount(network);
     },
