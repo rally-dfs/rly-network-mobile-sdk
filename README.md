@@ -12,4 +12,4 @@ To see what it takes to get up and running, see our [Installation & Quick Start]
 # Contributing
 The best way to submit feedback and report bugs is to open a [GitHub issue](https://github.com/rally-dfs/rly-network-mobile-sdk/issues/new).
 
-If you want to learn how you can contribute, reach out to us on [Discord](https://discord.gg/rlynetwork) or at partnerships@rly.network.
+If you want to learn how you can contribute, reach out to us on [Discord](https://discord.gg/rlynetwork) or at [Partnerships@rallyprotocol.com](mailto:partnerships@rallyprotocol.com).
