@@ -59,7 +59,7 @@ testOnlyRunInCIFullSuite(
 test('claim local', async () => {
   const account = await getWallet();
   const oldBal = await RlyDummyNetwork.getBalance();
-  const txHash = await RlyDummyNetwork.registerAccount();
+  const txHash = await RlyDummyNetwork.claimRly();
   const newBal = await RlyDummyNetwork.getBalance();
   expect(oldBal).toEqual(0);
   expect(txHash).toEqual(`success_${10}_${account?.publicKey}`);
