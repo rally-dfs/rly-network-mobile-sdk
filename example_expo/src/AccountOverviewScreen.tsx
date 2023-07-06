@@ -38,9 +38,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     fetchBalance();
   }, []);
 
-  const registerAccount = async () => {
+  const claimRlyTokens = async () => {
     setPerformingAction('Registering Account');
-    await RlyNetwork.registerAccount();
+    await RlyNetwork.claimRly();
 
     await fetchBalance();
     setPerformingAction(undefined);
@@ -102,7 +102,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <View style={styles.alignMiddle}>
               <BodyText>Register My Account</BodyText>
             </View>
-            <Button onPress={registerAccount} title="Register" />
+            <Button onPress={claimRlyTokens} title="Claim RLY" />
           </RlyCard>
 
           <RlyCard style={styles.balanceCard}>

@@ -31,7 +31,7 @@ jest.mock('react-native', () => {
 });
 
 testOnlyRunInCIFullSuite(
-  'claim mumbai',
+  'claim mumbai legacy method name',
   async () => {
     const oldBal = await RlyMumbaiNetwork.getBalance();
     const txHash = await RlyMumbaiNetwork.registerAccount();
@@ -43,10 +43,23 @@ testOnlyRunInCIFullSuite(
   30000
 );
 
+testOnlyRunInCIFullSuite(
+  'claim mumbai',
+  async () => {
+    const oldBal = await RlyMumbaiNetwork.getBalance();
+    const txHash = await RlyMumbaiNetwork.claimRly();
+    const newBal = await RlyMumbaiNetwork.getBalance();
+    expect(oldBal).toEqual(0);
+    expect(txHash).toMatch(/^0x/);
+    expect(newBal).toEqual(10);
+  },
+  30000
+);
+
 test('claim local', async () => {
   const account = await getWallet();
   const oldBal = await RlyDummyNetwork.getBalance();
-  const txHash = await RlyDummyNetwork.registerAccount();
+  const txHash = await RlyDummyNetwork.claimRly();
   const newBal = await RlyDummyNetwork.getBalance();
   expect(oldBal).toEqual(0);
   expect(txHash).toEqual(`success_${10}_${account?.publicKey}`);

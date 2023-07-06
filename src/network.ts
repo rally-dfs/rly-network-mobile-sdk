@@ -19,6 +19,8 @@ export interface Network {
     tokenAddress?: PrefixedHexString,
     metaTxMethod?: MetaTxMethod
   ) => Promise<string>;
+  claimRly: () => Promise<string>;
+  //Deprecated please use claimRly instead
   registerAccount: () => Promise<string>;
   relay?: (tx: GsnTransactionDetails) => Promise<string>;
   setApiKey: (apiKey: string) => void;

@@ -39,7 +39,14 @@ async function getBalance() {
   return balances[wallet.publicKey] || 0;
 }
 
+// This method is deprecated. Update to 'claimRly' instead.
+// Will be removed in future library versions.
 async function registerAccount() {
+  console.error("This method is deprecated. Update to 'claimRly' instead.");
+  return claimRly();
+}
+
+async function claimRly() {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
@@ -61,6 +68,7 @@ function setApiKey(apiKeyParam: string) {
 export const RlyDummyNetwork: Network = {
   transfer: transfer,
   getBalance: getBalance,
+  claimRly: claimRly,
   registerAccount: registerAccount,
   setApiKey: setApiKey,
 };
