@@ -102,7 +102,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <View style={styles.alignMiddle}>
               <BodyText>Register My Account</BodyText>
             </View>
-            <Button onPress={claimRlyTokens} title="Register" />
+            <Button onPress={claimRlyTokens} title="Claim RLY" />
           </RlyCard>
 
           <RlyCard style={styles.balanceCard}>
