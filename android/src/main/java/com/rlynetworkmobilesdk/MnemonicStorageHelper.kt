@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import androidx.security.crypto.MasterKey.Builder
-import com.facebook.react.bridge.Promise
 import com.google.android.gms.auth.blockstore.*
 
 class MnemonicStorageHelper(context: Context) {
@@ -62,7 +61,7 @@ class MnemonicStorageHelper(context: Context) {
     editor.commit()
   }
 
-  fun read(key: String, onSuccess: (mnemonic: String) -> Unit, onFailure: (message: String) -> Unit) {
+  fun read(key: String, onSuccess: (mnemonic: String?) -> Unit) {
 
     val retrieveRequest = RetrieveBytesRequest.Builder()
       .setKeys(listOf(key))
@@ -74,27 +73,19 @@ class MnemonicStorageHelper(context: Context) {
 
         if (blockstoreDataMap.isEmpty()) {
           val mnemonic = readFromSharedPref(key)
-          if (mnemonic != null) {
-            onSuccess(mnemonic)
-          } else {
-            onFailure("no mnemonic found in cloud or device storage")
-          }
+          onSuccess(mnemonic)
         } else {
-          val value = blockstoreDataMap[key]
-          if (value != null) {
-            onSuccess(value.bytes.toString(Charsets.UTF_8))
+          val mnemonic = blockstoreDataMap[key]
+          if (mnemonic !== null) {
+            onSuccess(mnemonic.bytes.toString(Charsets.UTF_8))
           } else {
-            onFailure("no mnemonic found in cloud or device storage")
+            onSuccess(null)
           }
         }
       }
       .addOnFailureListener {
         val mnemonic = readFromSharedPref(key)
-        if (mnemonic != null) {
-          onSuccess(mnemonic)
-        } else {
-          onFailure("no mnemonic found in cloud or device storage")
-        }
+        onSuccess(mnemonic)
       }
   }
 
