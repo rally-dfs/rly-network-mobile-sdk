@@ -1,7 +1,7 @@
 import { Wallet } from 'ethers';
 import { getWallet } from '../../account';
 import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
-import { testOnlyRunInCIFullSuite } from '../__utils__/test_utils';
+import { testSkipInCI } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
 let mockPk: string;
@@ -30,7 +30,7 @@ jest.mock('react-native', () => {
   };
 });
 
-testOnlyRunInCIFullSuite(
+testSkipInCI(
   'claim mumbai legacy method name',
   async () => {
     const oldBal = await RlyMumbaiNetwork.getBalance();
@@ -43,7 +43,9 @@ testOnlyRunInCIFullSuite(
   30000
 );
 
-testOnlyRunInCIFullSuite(
+// this can be enabled again (with testOnlyRunInCIFullSuite) if we add an API key for CI
+// (otherwise claimRly fails without an API key)
+testSkipInCI(
   'claim mumbai',
   async () => {
     const oldBal = await RlyMumbaiNetwork.getBalance();
