@@ -36,11 +36,9 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getMnemonic(promise:Promise){
-    mnemonicHelper.read(MNEMONIC_STORAGE_KEY, { mnemonic ->
+    mnemonicHelper.read(MNEMONIC_STORAGE_KEY) { mnemonic: String? ->
       promise.resolve(mnemonic)
-    }, { message ->
-      promise.reject("mnemonic_read_failure", message)
-    })
+    }
   }
 
   @ReactMethod
@@ -58,7 +56,7 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
     mnemonicHelper.save(MNEMONIC_STORAGE_KEY, mnemonic, saveToCloud, rejectOnCloudSaveFailure, { ->
       promise.resolve(true)
-    }, { message ->
+    }, { message: String ->
       promise.reject("mnemonic_save_failure", message)
     })
   }
