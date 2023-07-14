@@ -6,7 +6,7 @@ export const PolygonNetworkConfig: NetworkConfig = {
     tokenFaucet: '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
   },
   gsn: {
-    paymasterAddress: '0x61B9BdF9c10F77bD9eD033559Cec410427aeb8A2',
+    paymasterAddress: '0x29CAa31142D17545C310437825aA4C53FbE621C3',
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0xfCEE9036EDc85cD5c12A9De6b267c4672Eb4bA1B',
     relayWorkerAddress: '0x434efbca662f6f846f8dec3fde52fac4c8792e03',
