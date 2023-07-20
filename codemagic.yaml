@@ -202,6 +202,10 @@ workflows:
       - *build_example_previous_ios
       # example app android
       - *build_example_android
+      # example expo app iOS latest xcode
+      - *yarn_bootstrap_example_expo
+      - *prebuild_example_expo
+      - *build_example_expo_ios
 
   # iOS/android libraries
   ios-build-latest-xcode:
@@ -281,6 +285,24 @@ workflows:
     <<: *shared_ios_settings
     environment:
       xcode: latest
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: network.rly.example.RlyNetworkMobileSdkExampleExpo
+      vars:
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExampleExpo'
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example_expo
+      - *setup_ios_profiles
+      - *prebuild_example_expo
+      - *build_example_expo_ios
+  example-expo-app-ios-previous-xcode:
+    name: Previous Xcode - Build example expo iOS app
+    <<: *shared_ios_settings
+    # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
+    <<: *trigger_on_main_push
+    environment:
+      xcode: 13.4
       ios_signing:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExampleExpo
