@@ -84,6 +84,37 @@ definitions:
     - &setup_ios_profiles
       name: Set up iOS provisioning profile
       script: xcode-project use-profiles
+
+    # uses .cur_android_build_dir tmp file as a way to abstract this into its own function (env vars get cleared
+    # between steps so cant use that)
+    - &build_android_in_env_dir
+      name: Build multiple gradle + SDK versions in .cur_android_build_dir
+      script: |
+        cd "$(cat .cur_android_build_dir)"
+        # setting gradle version fails sometimes if compileSdkVersion isnt set correctly so just put something temp here
+        sed -i '' -e "s/compileSdkVersion = .*$/compileSdkVersion = 33/g" build.gradle
+        for CURRENT_GRADLE_VERSION in 7.6.1 7.5.1 7.4.2 7.3.3; do
+          echo "#### Setting gradle to version $CURRENT_GRADLE_VERSION ####"
+          ./gradlew wrapper --gradle-version=$CURRENT_GRADLE_VERSION
+          if [[ ! `./gradlew --version | grep "Gradle $CURRENT_GRADLE_VERSION"` ]]; then
+            echo "#### Setting gradle version to $CURRENT_GRADLE_VERSION failed ####"
+            exit 1
+          fi
+          for CURRENT_SDK_VERSION in 33 32 31; do
+            rm -r app/build
+            echo "#### Setting SDK to version $CURRENT_SDK_VERSION ####"
+            sed -i '' -e "s/compileSdkVersion = .*$/compileSdkVersion = $CURRENT_SDK_VERSION/g" build.gradle
+            if [[ ! `cat build.gradle | grep "compileSdkVersion = $CURRENT_SDK_VERSION"` ]]; then
+              echo "#### Setting SDK version to $CURRENT_SDK_VERSION failed ####"
+              exit 1
+            fi
+            ./gradlew build
+            if [[ ! -d app/build/generated ]]; then
+              echo "#### Error building with gradle $CURRENT_GRADLE_VERSION and SDK version $CURRENT_SDK_VERSION ####"
+              exit 1
+            fi
+          done
+        done
     - &build_example_latest_ios
       # TODO: not sure why this only works for simulator and not real devices (i.e. generic/platform=iOS)
       # need to investigate more
@@ -108,38 +139,15 @@ definitions:
         if [[ ! -d build/generated/ios ]]; then
         exit 1
         fi
-    - &build_example_android
-      name: Build example android app (loops multiple gradle + SDK versions)
-      script: |
-        cd example/android
-        for CURRENT_GRADLE_VERSION in 7.6.1 7.5.1 7.4.2 7.3.3; do
-            echo "#### Setting gradle to version $CURRENT_GRADLE_VERSION ####"
-            ./gradlew wrapper --gradle-version=$CURRENT_GRADLE_VERSION
-            if [[ ! `./gradlew --version | grep "Gradle $CURRENT_GRADLE_VERSION"` ]]; then
-                echo "#### Setting gradle version to $CURRENT_GRADLE_VERSION failed ####"
-                exit 1
-            fi
-            for CURRENT_SDK_VERSION in 33 32 31; do
-                rm -r app/build
-                echo "#### Setting SDK to version $CURRENT_SDK_VERSION ####"
-                sed -i '' -e "s/compileSdkVersion = [0-9]*$/compileSdkVersion = $CURRENT_SDK_VERSION/g" build.gradle
-                if [[ ! `cat build.gradle | grep "compileSdkVersion = $CURRENT_SDK_VERSION"` ]]; then
-                    echo "#### Setting SDK version to $CURRENT_SDK_VERSION failed ####"
-                    exit 1
-                fi
-                ./gradlew build
-                if [[ ! -d app/build/generated ]]; then
-                    echo "#### Error building with gradle $CURRENT_GRADLE_VERSION and SDK version $CURRENT_SDK_VERSION ####"
-                    exit 1
-                fi
-            done
-        done
+    - &setup_build_example_android
+      name: Setup build example android app
+      script: echo "example/android" > .cur_android_build_dir
     - &prebuild_example_expo
       name: Create ios/android native projects to test build
       script: |
         cd example_expo
         jq '.expo.ios.bundleIdentifier = "network.rly.example.RlyNetworkMobileSdkExampleExpo"' app.json > tmp.json && mv tmp.json app.json
-        jq '.expo.android.package = "network.rly.ci.exampleexpo"' app.json > tmp.json && mv tmp.json app.json
+        jq '.expo.android.package = "network.rly.example.exampleexpo"' app.json > tmp.json && mv tmp.json app.json
         npx expo prebuild
     - &build_example_expo_ios
       name: Build example expo iOS app
@@ -151,6 +159,9 @@ definitions:
         if [[ ! -d build/generated/ios ]]; then
         exit 1
         fi
+    - &setup_build_example_expo_android
+      name: Setup build example expo android app
+      script: echo "example_expo/android" > .cur_android_build_dir
 
 workflows:
   yarn-tests:
@@ -201,7 +212,8 @@ workflows:
       - *build_example_latest_ios
       - *build_example_previous_ios
       # example app android
-      - *build_example_android
+      - *setup_build_example_android
+      - *build_android_in_env_dir
       # example expo app iOS latest xcode
       - *yarn_bootstrap_example_expo
       - *prebuild_example_expo
@@ -277,7 +289,8 @@ workflows:
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example
-      - *build_example_android
+      - *setup_build_example_android
+      - *build_android_in_env_dir
 
   # example expo apps
   example-expo-app-ios-latest-xcode:
@@ -314,6 +327,15 @@ workflows:
       - *setup_ios_profiles
       - *prebuild_example_expo
       - *build_example_expo_ios
+  example-expo-app-android:
+    name: Build example expo android app
+    <<: *shared_android_settings
+    scripts:
+      - *yarn_install
+      - *yarn_bootstrap_example_expo
+      - *prebuild_example_expo
+      - *setup_build_example_expo_android
+      - *build_android_in_env_dir
 
   # npm publish
   publish-npm:
