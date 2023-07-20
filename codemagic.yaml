@@ -182,7 +182,7 @@ workflows:
 
   full-suite-and-mobile-tests:
     name: Full test suite and mobile builds
-    max_build_duration: 60
+    max_build_duration: 120
     environment:
       <<: *default_environments
       xcode: latest
@@ -229,6 +229,7 @@ workflows:
     name: Latest Xcode - Build iOS and check for artifact
     <<: *shared_ios_settings
     environment:
+      <<: *default_environments
       xcode: latest
     scripts:
       - *build_sdk_latest_ios
@@ -239,6 +240,7 @@ workflows:
     # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
     <<: *trigger_on_main_push
     environment:
+      <<: *default_environments
       xcode: 13.4
     scripts:
       - *build_sdk_latest_ios
@@ -246,6 +248,8 @@ workflows:
   android-build:
     name: Build android and check for artifact
     <<: *shared_android_settings
+    environment:
+      <<: *default_environments
     scripts:
       - *yarn_install # probably need this? not sure
       - name: Set Android SDK location # probably need this too? not sure
@@ -258,6 +262,7 @@ workflows:
     name: Latest Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
     environment:
+      <<: *default_environments
       xcode: latest
       ios_signing:
         distribution_type: development
@@ -276,6 +281,7 @@ workflows:
     # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
     <<: *trigger_on_main_push
     environment:
+      <<: *default_environments
       xcode: 13.4
       ios_signing:
         distribution_type: development
@@ -291,6 +297,8 @@ workflows:
   example-app-android:
     name: Build example android app
     <<: *shared_android_settings
+    environment:
+      <<: *default_environments
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example
@@ -302,6 +310,7 @@ workflows:
     name: Latest Xcode - Build example expo iOS app
     <<: *shared_ios_settings
     environment:
+      <<: *default_environments
       xcode: latest
       ios_signing:
         distribution_type: development
@@ -320,6 +329,7 @@ workflows:
     # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
     <<: *trigger_on_main_push
     environment:
+      <<: *default_environments
       xcode: 13.4
       ios_signing:
         distribution_type: development
@@ -335,6 +345,8 @@ workflows:
   example-expo-app-android:
     name: Build example expo android app
     <<: *shared_android_settings
+    environment:
+      <<: *default_environments
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example_expo
