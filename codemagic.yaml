@@ -203,21 +203,26 @@ workflows:
       - *run_linter
       - *compile_typescript
       - *yarn_test_full_suite
-      # iOS latest xcode
+      # sdk: iOS latest xcode
       - *build_sdk_latest_ios
       - *build_sdk_previous_ios
-      # example app iOS latest xcode
+      # example app
       - *yarn_bootstrap_example
+      # example app: iOS latest xcode
       - *setup_ios_profiles
       - *build_example_latest_ios
       - *build_example_previous_ios
-      # example app android
+      # example app: android
       - *setup_build_example_android
       - *build_android_in_env_dir
-      # example expo app iOS latest xcode
+      # example expo app
       - *yarn_bootstrap_example_expo
       - *prebuild_example_expo
+      # example expo app: iOS latest xcode
       - *build_example_expo_ios
+      # example expo app: android
+      - *setup_build_example_expo_android
+      - *build_android_in_env_dir
 
   # iOS/android libraries
   ios-build-latest-xcode:
