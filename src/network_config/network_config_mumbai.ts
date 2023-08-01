@@ -9,7 +9,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     paymasterAddress: '0x8b3a505413Ca3B0A17F077e507aF8E3b3ad4Ce4d',
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0x3232f21A6E08312654270c78A773f00dd61d60f5',
-    relayWorkerAddress: '0x7b556ef275185122257090bd59f74fe4c3c3ca96',
+    relayWorkerAddress: '0xb9950b71ec94cbb274aeb1be98e697678077a17f',
     relayUrl: 'https://api.rallyprotocol.com',
     rpcUrl:
       'https://polygon-mumbai.g.alchemy.com/v2/-dYNjZXvre3GC9kYtwDzzX4N8tcgomU4',
