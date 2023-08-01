@@ -9,7 +9,7 @@ export const PolygonNetworkConfig: NetworkConfig = {
     paymasterAddress: '0x29CAa31142D17545C310437825aA4C53FbE621C3',
     forwarderAddress: '0xB2b5841DBeF766d4b521221732F9B618fCf34A87',
     relayHubAddress: '0xfCEE9036EDc85cD5c12A9De6b267c4672Eb4bA1B',
-    relayWorkerAddress: '0x434efbca662f6f846f8dec3fde52fac4c8792e03',
+    relayWorkerAddress: '0x579de7c56cd9a07330504a7c734023a9f703778a',
     relayUrl: 'https://api.rallyprotocol.com',
     rpcUrl:
       'https://polygon-mainnet.g.alchemy.com/v2/-dYNjZXvre3GC9kYtwDzzX4N8tcgomU4',
