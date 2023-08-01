@@ -18,11 +18,19 @@ import {
 
 import { ethers, providers } from 'ethers';
 
+const authHeader = (config: NetworkConfig) => {
+  return {
+    Authorization: `Bearer ${config.relayerApiKey || ''}`,
+  };
+};
+
 const updateConfig = async (
   config: NetworkConfig,
   transaction: GsnTransactionDetails
 ) => {
-  const { data } = await axios.get(`${config.gsn.relayUrl}/getaddr`);
+  const { data } = await axios.get(`${config.gsn.relayUrl}/getaddr`, {
+    headers: authHeader(config),
+  });
   //get current relay worker address from relay server config
   config.gsn.relayWorkerAddress = data.relayWorkerAddress;
 
@@ -164,12 +172,8 @@ export const relayTransaction = async (
 
   httpRequest.metadata.relayRequestId = relayRequestId;
 
-  const authHeader = {
-    Authorization: `Bearer ${config.relayerApiKey || ''}`,
-  };
-
   const res = await axios.post(`${config.gsn.relayUrl}/relay`, httpRequest, {
-    headers: authHeader,
+    headers: authHeader(config),
   });
   return handleGsnResponse(res, web3Provider);
 };
