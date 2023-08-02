@@ -1,6 +1,6 @@
 import { Wallet } from 'ethers';
 import { getWallet } from '../../account';
-import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
+import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../coreNetworkWrapper';
 import { testSkipInCI } from '../__utils__/test_utils';
 
 let mockMnemonic: string;

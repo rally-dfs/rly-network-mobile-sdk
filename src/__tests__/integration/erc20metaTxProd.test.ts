@@ -1,9 +1,9 @@
 import { ethers, Contract } from 'ethers';
 import { getWallet } from '../../account';
-import { RlyPolygonNetwork } from '../../network';
-import { PolygonNetworkConfig } from '../../network_config/network_config_polygon';
-import * as ERC20 from '../../contracts/erc20Data.json';
-import { MetaTxMethod } from '../../gsnClient/utils';
+import { RlyPolygonNetwork } from '../../coreNetworkWrapper';
+import { PolygonNetworkConfig } from '@rly-network/core-sdk';
+import { ERC20 } from '@rly-network/core-sdk';
+import { MetaTxMethod } from '@rly-network/core-sdk';
 import { testSkipInCI } from '../__utils__/test_utils';
 
 let ethersProvider: ethers.providers.JsonRpcProvider;

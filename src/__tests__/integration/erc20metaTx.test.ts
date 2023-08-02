@@ -1,9 +1,9 @@
 import { ethers, Wallet, Contract } from 'ethers';
 import { getWallet } from '../../account';
-import * as TokenFaucet from '../../contracts/tokenFaucetData.json';
-import * as ERC20 from '../../contracts/erc20Data.json';
-import { RlyLocalNetwork } from '../../network';
-import { MetaTxMethod } from '../../gsnClient/utils';
+import { TokenFaucet } from '@rly-network/core-sdk';
+import { ERC20 } from '@rly-network/core-sdk';
+import { RlyLocalNetwork } from '../../coreNetworkWrapper';
+import { MetaTxMethod } from '@rly-network/core-sdk';
 import { testSkipInCI } from '../__utils__/test_utils';
 
 let mockMnemonic: string;

@@ -10,5 +10,5 @@ export {
   signHash,
   permanentlyDeleteAccount,
 } from './account';
-export { MetaTxMethod } from './gsnClient/utils';
-export * from './network';
+export { MetaTxMethod } from '@rly-network/core-sdk';
+export * from './coreNetworkWrapper';
