@@ -73,12 +73,7 @@ const setGasFeesForTransaction = (
   if (serverConfigUpdate.chainId === '80001') {
     transaction.maxFeePerGas = paddedMaxPriority.toString();
   } else {
-    const serverSuggestedMaxGas = parseInt(
-      serverConfigUpdate.maxMaxFeePerGas,
-      10
-    );
-    const paddedMaxGas = Math.round(serverSuggestedMaxGas * 1.1);
-    transaction.maxFeePerGas = paddedMaxGas.toString();
+    transaction.maxFeePerGas = serverConfigUpdate.maxMaxFeePerGas;
   }
 };
 
