@@ -368,7 +368,7 @@ PODS:
     - React-jsi (= 0.70.8)
     - React-logger (= 0.70.8)
     - React-perflogger (= 0.70.8)
-  - rly-network-mobile-sdk (0.4.0):
+  - rly-network-mobile-sdk (1.1.0-beta.2):
     - React-Core
   - SocketRocket (0.6.0)
   - Yoga (1.14.0)
@@ -574,7 +574,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 19d21a3ed620352180800447771f68a101f196e9
   React-runtimeexecutor: f795fd426264709901c09432c6ce072f8400147e
   ReactCommon: c440e7f15075e81eb29802521c58a1f38b1aa903
-  rly-network-mobile-sdk: e6502febc36134c16d94ce223e46c566a08f0ff5
+  rly-network-mobile-sdk: 2d14c8282a906f8b1ac7dba94a1c0819c25e5e8b
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
