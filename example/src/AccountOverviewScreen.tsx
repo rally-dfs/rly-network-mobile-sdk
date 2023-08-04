@@ -48,10 +48,14 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const claimRlyTokens = async () => {
     setPerformingAction('Registering Account');
-    await RlyNetwork.claimRly();
-
-    await fetchBalance();
-    setPerformingAction(undefined);
+    try {
+      await RlyNetwork.claimRly();
+      await fetchBalance();
+    } catch (e: any) {
+      Alert.alert('Unable to claim RLY: ', e.message);
+    } finally {
+      setPerformingAction(undefined);
+    }
   };
 
   const transferTokens = async () => {
