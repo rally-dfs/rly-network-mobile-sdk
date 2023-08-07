@@ -2,6 +2,7 @@ import * as React from 'react';
 import { AppContainer } from './components/AppContainer';
 import { BodyText, HeadingText } from './components/text';
 import {
+  Alert,
   Button,
   Linking,
   ScrollView,
@@ -23,6 +24,9 @@ const RlyNetwork = RlyMumbaiNetwork;
 
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
+// If you want to test using a custom token, set the hex address of the token here
+const customTokenAddress: string | undefined = undefined;
+
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();
 
@@ -34,7 +38,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [mnemonic, setMnemonic] = useState<string>();
 
   const fetchBalance = async () => {
-    const bal = await RlyNetwork.getBalance();
+    const bal = await RlyNetwork.getBalance(customTokenAddress);
 
     setBalance(bal);
   };
@@ -45,20 +49,32 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const claimRlyTokens = async () => {
     setPerformingAction('Registering Account');
-    await RlyNetwork.claimRly();
-
-    await fetchBalance();
-    setPerformingAction(undefined);
+    try {
+      await RlyNetwork.claimRly();
+      await fetchBalance();
+    } catch (e: any) {
+      Alert.alert('Unable to claim RLY: ', e.message);
+    } finally {
+      setPerformingAction(undefined);
+    }
   };
 
   const transferTokens = async () => {
     setPerformingAction('Transfering Tokens');
-    await RlyNetwork.transfer(transferAddress, parseInt(transferBalance, 10));
-
-    await fetchBalance();
-    setPerformingAction(undefined);
-    setTransferBalance('');
-    setTranferAddress('');
+    try {
+      await RlyNetwork.transfer(
+        transferAddress,
+        parseInt(transferBalance, 10),
+        customTokenAddress
+      );
+      await fetchBalance();
+      setTransferBalance('');
+      setTranferAddress('');
+    } catch (e: any) {
+      Alert.alert('Something went wrong', e.message);
+    } finally {
+      setPerformingAction(undefined);
+    }
   };
 
   const deleteAccount = async () => {
