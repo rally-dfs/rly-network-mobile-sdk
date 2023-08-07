@@ -1,3 +1,4 @@
+import { ethers, BigNumber } from 'ethers';
 import { NativeModules } from 'react-native';
 
 const RlyNativeModule =
@@ -43,5 +44,14 @@ export const NativeCodeWrapper = {
     } else {
       return new Promise((resolve) => resolve('bundle not found'));
     }
+  },
+  getClientId: async function (): Promise<string> {
+    //get bundleId string from application convert it to integer for use in GSN
+    //get bundle id from native module
+    const bundleId = await this.getBundleId();
+    //convert bundle to hex
+    const hexValue = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(bundleId));
+    //convert hex to int
+    return BigNumber.from(hexValue).toString();
   },
 };

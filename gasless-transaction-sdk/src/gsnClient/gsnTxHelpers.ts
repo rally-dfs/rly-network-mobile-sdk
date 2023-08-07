@@ -194,17 +194,6 @@ export const getClaimTx = async (
   return gsnTx;
 };
 
-// TODO: just move this into NativeCodeWrapper
-// export const getClientId = async (): Promise<string> => {
-//   //get bundleId string from application convert it to integer for use in GSN
-//   //get bundle id from native module
-//   const bundleId = await NativeCodeWrapper.getBundleId();
-//   //convert bundle to hex
-//   const hexValue = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(bundleId));
-//   //convert hex to int
-//   return BigNumber.from(hexValue).toString();
-// };
-
 export const handleGsnResponse = async (
   res: AxiosResponse<any, any>,
   provider: ethers.providers.JsonRpcProvider
