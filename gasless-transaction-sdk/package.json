@@ -1,5 +1,5 @@
 {
-  "name": "@rly-network/core-sdk",
+  "name": "@rly-network/gasless-transaction-sdk",
   "version": "0.1.0",
   "description": "Shared SDK for core GSN and RLY network functionality",
   "main": "src/index",

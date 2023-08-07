@@ -2,7 +2,7 @@ import type {
   PrefixedHexString,
   GsnTransactionDetails,
   MetaTxMethod,
-} from '@rly-network/core-sdk';
+} from '@rly-network/gasless-transaction-sdk';
 
 import {
   RlyCoreMumbaiNetwork,
@@ -10,7 +10,7 @@ import {
   RlyCorePolygonNetwork,
   RlyCoreDummyNetwork,
   CoreNetwork,
-} from '@rly-network/core-sdk';
+} from '@rly-network/gasless-transaction-sdk';
 
 import { getWallet } from './account';
 import { MissingWalletError } from './errors';

@@ -10,5 +10,5 @@ export {
   signHash,
   permanentlyDeleteAccount,
 } from './account';
-export { MetaTxMethod } from '@rly-network/core-sdk';
+export { MetaTxMethod } from '@rly-network/gasless-transaction-sdk';
 export * from './coreNetworkWrapper';

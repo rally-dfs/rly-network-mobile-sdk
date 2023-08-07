@@ -1,9 +1,9 @@
 import { ethers, Wallet, Contract } from 'ethers';
 import { getWallet } from '../../account';
-import { TokenFaucet } from '@rly-network/core-sdk';
-import { ERC20 } from '@rly-network/core-sdk';
+import { TokenFaucet } from '@rly-network/gasless-transaction-sdk';
+import { ERC20 } from '@rly-network/gasless-transaction-sdk';
 import { RlyLocalNetwork } from '../../coreNetworkWrapper';
-import { MetaTxMethod } from '@rly-network/core-sdk';
+import { MetaTxMethod } from '@rly-network/gasless-transaction-sdk';
 import { testSkipInCI } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
