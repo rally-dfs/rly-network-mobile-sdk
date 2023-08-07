@@ -24,6 +24,7 @@ const RlyNetwork = RlyMumbaiNetwork;
 
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
+// If you want to test using a custom token, set the hex address of the token here
 const customTokenAddress: string | undefined = undefined;
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
