@@ -1,0 +1,89 @@
+{
+  "name": "@rly-network/core-sdk",
+  "version": "0.1.0",
+  "description": "Shared SDK for core GSN and RLY network functionality",
+  "main": "src/index",
+  "repository": "https://github.com/rally-dfs/rly-network-core-sdk",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "typescript": "tsc --noEmit",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "release": "release-it"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.9",
+    "@babel/preset-env": "^7.22.9",
+    "@babel/preset-typescript": "^7.22.5",
+    "@react-native-community/eslint-config": "^3.0.2",
+    "@release-it/conventional-changelog": "^5.0.0",
+    "@types/jest": "^28.1.2",
+    "babel-jest": "^29.6.2",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^28.1.1",
+    "prettier": "^2.0.5",
+    "release-it": "^15.0.0",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "@ethersproject/shims": "^5.7.0",
+    "axios": "^1.2.1",
+    "buffer": "^6.0.3",
+    "ethers": "^5.7.2",
+    "yarn": "^1.22.19"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular"
+      }
+    }
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/__tests__/__utils__/"
+    ]
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@react-native-community/eslint-config",
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "quoteProps": "consistent",
+          "singleQuote": true,
+          "tabWidth": 2,
+          "trailingComma": "es5",
+          "useTabs": false
+        }
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ],
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
+  }
+}
