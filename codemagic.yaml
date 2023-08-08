@@ -407,14 +407,20 @@ workflows:
         script: |
           if [[ $RELEASE_INCREMENT_OVERRIDE ]]; then
             if [[ `cat package.json | jq -r '.version'` = $RELEASE_OVERRIDE_VERSION ]]; then
-              yarn release $RELEASE_INCREMENT_OVERRIDE --ci
+              yarn release $RELEASE_INCREMENT_OVERRIDE --ci \
+                '--github.releaseName="[mobile-sdk] ${version}"' \
+                '--git.commitMessage="[mobile-sdk] release ${version}"' \
+                '--git.tagName="mobile-sdk-v${version}"'
             else
               echo Override version $RELEASE_OVERRIDE_VERSION does not match current version `cat package.json | jq -r '.version'`
               echo If this is left over from a previous release, just go delete these from the codemagic env vars
               exit 1
             fi
           else
-            yarn release patch --ci
+            yarn release patch --ci \
+              '--github.releaseName="[mobile-sdk] ${version}"' \
+              '--git.commitMessage="[mobile-sdk] release ${version}"' \
+              '--git.tagName="mobile-sdk-v${version}"'
           fi
     publishing:
       slack:
@@ -488,14 +494,20 @@ workflows:
         script: |
           if [[ $RELEASE_INCREMENT_OVERRIDE ]]; then
             if [[ `cat package.json | jq -r '.version'` = $RELEASE_OVERRIDE_VERSION ]]; then
-              yarn release $RELEASE_INCREMENT_OVERRIDE --ci
+              yarn release $RELEASE_INCREMENT_OVERRIDE --ci \
+                '--github.releaseName="[gasless-transaction-sdk] ${version}"' \
+                '--git.commitMessage="[gasless-transaction-sdk] release ${version}"' \
+                '--git.tagName="gasless-transaction-sdk-v${version}"'
             else
               echo Override version $RELEASE_OVERRIDE_VERSION does not match current version `cat package.json | jq -r '.version'`
               echo If this is left over from a previous release, just go delete these from the codemagic env vars
               exit 1
             fi
           else
-            yarn release patch --ci
+            yarn release patch --ci \
+              '--github.releaseName="[gasless-transaction-sdk] ${version}"' \
+              '--git.commitMessage="[gasless-transaction-sdk] release ${version}"' \
+              '--git.tagName="gasless-transaction-sdk-v${version}"'
           fi
     publishing:
       slack:
