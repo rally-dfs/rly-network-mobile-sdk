@@ -18,6 +18,21 @@ import {
 
 import { ethers, providers } from 'ethers';
 
+interface GsnServerConfigPayload {
+  relayWorkerAddress: string;
+  relayManagerAddress: string;
+  relayHubAddress: string;
+  ownerAddress: string;
+  minMaxPriorityFeePerGas: string;
+  maxMaxFeePerGas: string;
+  minMaxFeePerGas: string;
+  maxAcceptanceBudget: string;
+  chainId: string;
+  networkId: string;
+  ready: boolean;
+  version: string;
+}
+
 const authHeader = (config: NetworkConfig) => {
   return {
     Authorization: `Bearer ${config.relayerApiKey || ''}`,
@@ -28,20 +43,38 @@ const updateConfig = async (
   config: NetworkConfig,
   transaction: GsnTransactionDetails
 ) => {
-  const { data } = await axios.get(`${config.gsn.relayUrl}/getaddr`, {
+  const response = await axios.get(`${config.gsn.relayUrl}/getaddr`, {
     headers: authHeader(config),
   });
-  //get current relay worker address from relay server config
-  config.gsn.relayWorkerAddress = data.relayWorkerAddress;
+  const serverConfigUpdate = response.data as GsnServerConfigPayload;
 
-  //get accepted fees from server
-  transaction.maxPriorityFeePerGas = data.minMaxPriorityFeePerGas;
-  // if chainId is 285252, use minMaxPriorityFeePerGas, otherwise use minMaxFeePerGas as minMaxFeePerGas on mumbai server set to 16 tx will fail
-  transaction.maxFeePerGas =
-    config.gsn.chainId === '80001'
-      ? data.minMaxPriorityFeePerGas
-      : data.maxMaxFeePerGas.toString();
+  config.gsn.relayWorkerAddress = serverConfigUpdate.relayWorkerAddress;
+
+  setGasFeesForTransaction(transaction, serverConfigUpdate);
+
   return { config, transaction };
+};
+
+const setGasFeesForTransaction = (
+  transaction: GsnTransactionDetails,
+  serverConfigUpdate: GsnServerConfigPayload
+) => {
+  const serverSuggestedMinPriorityFeePerGas = parseInt(
+    serverConfigUpdate.minMaxPriorityFeePerGas,
+    10
+  );
+
+  const paddedMaxPriority = Math.round(
+    serverSuggestedMinPriorityFeePerGas * 1.4
+  );
+  transaction.maxPriorityFeePerGas = paddedMaxPriority.toString();
+
+  //Special handling for mumbai because of quirk with gas estimate returned by GSN for mumbai
+  if (serverConfigUpdate.chainId === '80001') {
+    transaction.maxFeePerGas = paddedMaxPriority.toString();
+  } else {
+    transaction.maxFeePerGas = serverConfigUpdate.maxMaxFeePerGas;
+  }
 };
 
 const buildRelayRequest = async (
