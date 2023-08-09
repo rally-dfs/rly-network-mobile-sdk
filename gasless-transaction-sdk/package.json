@@ -1,6 +1,6 @@
 {
   "name": "@rly-network/gasless-transaction-sdk",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.0",
   "description": "Shared SDK for core GSN and RLY network functionality",
   "main": "src/index",
   "repository": "https://github.com/rally-dfs/rly-network-core-sdk",
