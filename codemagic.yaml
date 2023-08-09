@@ -205,6 +205,8 @@ workflows:
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
       vars:
         BUNDLE_ID: "network.rly.example.RlyNetworkMobileSdkExample"
+      groups:
+        - full-suite-tests
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
@@ -386,6 +388,7 @@ workflows:
       <<: *default_environments
       groups:
         - publish-npm-group
+        - full-suite-tests
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
