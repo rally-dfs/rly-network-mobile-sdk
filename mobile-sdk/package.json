@@ -99,6 +99,9 @@
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
     ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(@rly-network/gasless-transaction-sdk|react-native|@react-native)/)"
+    ],
     "testPathIgnorePatterns": [
       "<rootDir>/src/__tests__/__utils__/"
     ]
