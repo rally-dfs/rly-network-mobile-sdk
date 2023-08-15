@@ -1,10 +1,8 @@
 The Rally Mobile SDK is a key component of the Rally Protocol that allows developers to retake control of the user experience by eliminating the reliance for end-users to complete complex blockchain operations through third party apps. By utilizing the SDK, developers gain access to the necessary tools that enable them to create familiar and native mobile UX while leveraging the benefits of blockchain technology.
 
-This git repo is split into two separate npm packages:
-
 `gasless-transaction-sdk` contains all of the logic and functionality needed to interact with the Rally Protocol on chain contracts and provides a GSN client to execute gasless transactions. You should only use this directly if you wish to interact with the Rally Protocol in a pure node environment without any mobile dependencies.
 
-`mobile-sdk` provides functionality for easily creating and managing crypto accounts in a mobile context. It also provides a wrapper around the `gasless-transaction-sdk` functionality to allow the Rally Protocol to work in a mobile context. You can use this to interact with the Rally Protocol as part of your mobile app.
+See also `@rly-network/mobile-sdk` [here](https://www.npmjs.com/package/@rly-network/mobile-sdk) to interact with the Rally Protocol as part of your mobile app.
 
 # Documentation
 
