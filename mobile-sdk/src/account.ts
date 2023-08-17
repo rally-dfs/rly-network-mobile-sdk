@@ -1,7 +1,13 @@
 import { Wallet, utils, BigNumber } from 'ethers';
 import KeyManager from './keyManager';
+import type { KeyStorageConfig } from './keyManagerTypes';
 
 let _cachedWallet: Wallet | undefined;
+
+export type CreateAccountOptions = {
+  overwrite?: boolean;
+  storageOptions?: KeyStorageConfig;
+};
 
 export type TransactionRequest = {
   to?: string;
@@ -24,15 +30,21 @@ export type TransactionRequest = {
   maxFeePerGas?: string | number | bigint | BigNumber | ArrayLike<number>;
 };
 
-export async function createAccount(overwrite?: boolean) {
+export async function createAccount(options: CreateAccountOptions = {}) {
   const existingWallet = await getWallet();
+
+  const overwrite = options.overwrite || false;
+  const storageOptions = options.storageOptions || {
+    saveToCloud: true,
+    rejectOnCloudSaveFailure: false,
+  };
 
   if (existingWallet && !overwrite) {
     throw 'Account already exists';
   }
 
   const mnemonic = await KeyManager.generateMnemonic();
-  await KeyManager.saveMnemonic(mnemonic);
+  await KeyManager.saveMnemonic(mnemonic, storageOptions);
   const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
   const newWallet = new Wallet(pkey);
 
