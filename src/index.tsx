@@ -8,6 +8,7 @@ export {
   signMessage,
   signTransaction,
   signHash,
+  signTypedData,
   permanentlyDeleteAccount,
 } from './account';
 export { MetaTxMethod } from './gsnClient/utils';
