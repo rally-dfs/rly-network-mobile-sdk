@@ -15,6 +15,7 @@ import {
   getAccountPhrase,
   RlyMumbaiNetwork,
   permanentlyDeleteAccount,
+  MetaTxMethod,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
@@ -65,7 +66,8 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
       await RlyNetwork.transfer(
         transferAddress,
         parseInt(transferBalance, 10),
-        customTokenAddress
+        customTokenAddress,
+        MetaTxMethod.ExecuteMetaTransaction
       );
       await fetchBalance();
       setTransferBalance('');
