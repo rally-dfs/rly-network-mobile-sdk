@@ -10,13 +10,19 @@ import {
   View,
 } from 'react-native';
 import { useEffect, useState } from 'react';
-import { getAccountPhrase, RlyMumbaiNetwork } from '@rly-network/mobile-sdk';
+import {
+  getAccountPhrase,
+  RlyMumbaiNetwork,
+  MetaTxMethod,
+} from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 import { PrivateConfig } from './private_config';
 
 const RlyNetwork = RlyMumbaiNetwork;
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY);
+
+const customTokenAddress: string | undefined = undefined;
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();
@@ -48,7 +54,12 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const transferTokens = async () => {
     setPerformingAction('Transfering Tokens');
-    await RlyNetwork.transfer(transferAddress, parseInt(transferBalance, 10));
+    await RlyNetwork.transfer(
+      transferAddress,
+      parseInt(transferBalance, 10),
+      customTokenAddress,
+      MetaTxMethod.ExecuteMetaTransaction
+    );
 
     await fetchBalance();
     setPerformingAction(undefined);
