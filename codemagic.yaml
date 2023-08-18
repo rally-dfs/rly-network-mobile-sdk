@@ -7,7 +7,7 @@ definitions:
       events:
         - push
       branch_patterns:
-        - pattern: "main"
+        - pattern: 'main'
           include: true
       cancel_previous_builds: true
   trigger_on_pr_to_main: &trigger_on_pr_to_main
@@ -15,7 +15,7 @@ definitions:
       events:
         - pull_request
       branch_patterns:
-        - pattern: "main"
+        - pattern: 'main'
           include: true
           source: false
       cancel_previous_builds: true
@@ -162,23 +162,10 @@ definitions:
     - &setup_build_example_expo_android
       name: Setup build example expo android app
       script: echo "example_expo/android" > .cur_android_build_dir
-    - &npm_publish_authorize_npm
-      name: Authorize npm
-      script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-    - &npm_publish_authorize_github
-      # In theory `yarn release` should work without this step (with just the $GITHUB_TOKEN env var),
-      # but something in the codemagic is overriding the auth for git push, so this forces it back to using the
-      # github token
-      name: Authorize git push
-      script: git remote set-url origin https://rly-network-ci-bot:$GITHUB_TOKEN@github.com/rally-dfs/rly-network-mobile-sdk
 
 workflows:
-  ######################################
-  ##### mobile-sdk workflows start #####
-  ######################################
-  mobile-sdk-yarn-tests:
-    name: (mobile-sdk) Lightweight yarn lint/tests
-    working_directory: mobile-sdk
+  yarn-tests:
+    name: Lightweight yarn lint/tests
     max_build_duration: 10
     environment:
       <<: *default_environments
@@ -193,9 +180,8 @@ workflows:
       - *compile_typescript
       - *yarn_test
 
-  mobile-sdk-full-suite-and-mobile-tests:
-    name: (mobile-sdk) Full test suite and mobile builds
-    working_directory: mobile-sdk
+  full-suite-and-mobile-tests:
+    name: Full test suite and mobile builds
     max_build_duration: 120
     environment:
       <<: *default_environments
@@ -204,9 +190,7 @@ workflows:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
       vars:
-        BUNDLE_ID: "network.rly.example.RlyNetworkMobileSdkExample"
-      groups:
-        - full-suite-tests
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
@@ -241,9 +225,8 @@ workflows:
       - *build_android_in_env_dir
 
   # iOS/android libraries
-  mobile-sdk-ios-build-latest-xcode:
-    name: (mobile-sdk) Latest Xcode - Build iOS and check for artifact
-    working_directory: mobile-sdk
+  ios-build-latest-xcode:
+    name: Latest Xcode - Build iOS and check for artifact
     <<: *shared_ios_settings
     environment:
       <<: *default_environments
@@ -251,9 +234,8 @@ workflows:
     scripts:
       - *build_sdk_latest_ios
       - *build_sdk_previous_ios
-  mobile-sdk-ios-build-previous-xcode:
-    name: (mobile-sdk) Previous XCode - Build iOS and check for artifact
-    working_directory: mobile-sdk
+  ios-build-previous-xcode:
+    name: Previous XCode - Build iOS and check for artifact
     <<: *shared_ios_settings
     # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
     <<: *trigger_on_main_push
@@ -263,9 +245,8 @@ workflows:
     scripts:
       - *build_sdk_latest_ios
       - *build_sdk_previous_ios
-  mobile-sdk-android-build:
-    name: (mobile-sdk) Build android and check for artifact
-    working_directory: mobile-sdk
+  android-build:
+    name: Build android and check for artifact
     <<: *shared_android_settings
     environment:
       <<: *default_environments
@@ -277,9 +258,8 @@ workflows:
       - *build_sdk_android
 
   # example apps
-  mobile-sdk-example-app-ios-latest-xcode:
-    name: (mobile-sdk) Latest Xcode - Build example iOS app (bare RN)
-    working_directory: mobile-sdk
+  example-app-ios-latest-xcode:
+    name: Latest Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
     environment:
       <<: *default_environments
@@ -288,16 +268,15 @@ workflows:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
       vars:
-        BUNDLE_ID: "network.rly.example.RlyNetworkMobileSdkExample"
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example
       - *setup_ios_profiles
       - *build_example_latest_ios
       - *build_example_previous_ios
-  mobile-sdk-example-app-ios-previous-xcode:
-    name: (mobile-sdk) Previous Xcode - Build example iOS app (bare RN)
-    working_directory: mobile-sdk
+  example-app-ios-previous-xcode:
+    name: Previous Xcode - Build example iOS app (bare RN)
     <<: *shared_ios_settings
     # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
     <<: *trigger_on_main_push
@@ -308,16 +287,15 @@ workflows:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExample
       vars:
-        BUNDLE_ID: "network.rly.example.RlyNetworkMobileSdkExample"
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExample'
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example
       - *setup_ios_profiles
       - *build_example_latest_ios
       - *build_example_previous_ios
-  mobile-sdk-example-app-android:
-    name: (mobile-sdk) Build example android app
-    working_directory: mobile-sdk
+  example-app-android:
+    name: Build example android app
     <<: *shared_android_settings
     environment:
       <<: *default_environments
@@ -328,9 +306,8 @@ workflows:
       - *build_android_in_env_dir
 
   # example expo apps
-  mobile-sdk-example-expo-app-ios-latest-xcode:
-    name: (mobile-sdk) Latest Xcode - Build example expo iOS app
-    working_directory: mobile-sdk
+  example-expo-app-ios-latest-xcode:
+    name: Latest Xcode - Build example expo iOS app
     <<: *shared_ios_settings
     environment:
       <<: *default_environments
@@ -339,16 +316,15 @@ workflows:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExampleExpo
       vars:
-        BUNDLE_ID: "network.rly.example.RlyNetworkMobileSdkExampleExpo"
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExampleExpo'
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example_expo
       - *setup_ios_profiles
       - *prebuild_example_expo
       - *build_example_expo_ios
-  mobile-sdk-example-expo-app-ios-previous-xcode:
-    name: (mobile-sdk) Previous Xcode - Build example expo iOS app
-    working_directory: mobile-sdk
+  example-expo-app-ios-previous-xcode:
+    name: Previous Xcode - Build example expo iOS app
     <<: *shared_ios_settings
     # this can't be included in full-suite-and-mobile-tests (which uses xcode: latest) so trigger here too
     <<: *trigger_on_main_push
@@ -359,16 +335,15 @@ workflows:
         distribution_type: development
         bundle_identifier: network.rly.example.RlyNetworkMobileSdkExampleExpo
       vars:
-        BUNDLE_ID: "network.rly.example.RlyNetworkMobileSdkExampleExpo"
+        BUNDLE_ID: 'network.rly.example.RlyNetworkMobileSdkExampleExpo'
     scripts:
       - *yarn_install
       - *yarn_bootstrap_example_expo
       - *setup_ios_profiles
       - *prebuild_example_expo
       - *build_example_expo_ios
-  mobile-sdk-example-expo-app-android:
-    name: (mobile-sdk) Build example expo android app
-    working_directory: mobile-sdk
+  example-expo-app-android:
+    name: Build example expo android app
     <<: *shared_android_settings
     environment:
       <<: *default_environments
@@ -380,15 +355,13 @@ workflows:
       - *build_android_in_env_dir
 
   # npm publish
-  mobile-sdk-publish-npm:
-    name: (mobile-sdk) Publish tag to NPM
-    working_directory: mobile-sdk
+  publish-npm:
+    name: Publish tag to NPM
     max_build_duration: 120
     environment:
       <<: *default_environments
       groups:
         - publish-npm-group
-        - full-suite-tests
     cache:
       cache_paths:
         - $CM_BUILD_DIR/node_modules
@@ -402,116 +375,28 @@ workflows:
       - *yarn_test_full_suite # make sure to run full suite test for publish workflow
       - name: Clean and prepare
         script: yarn clean && yarn prepare
-      - *npm_publish_authorize_npm
-      - *npm_publish_authorize_github
+      - name: Authorize npm
+        script: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
+      # In theory `yarn release` should work without this step (with just the $GITHUB_TOKEN env var),
+      # but something in the codemagic is overriding the auth for git push, so this forces it back to using the
+      # github token
+      - name: Authorize git push
+        script: git remote set-url origin https://rly-network-ci-bot:$GITHUB_TOKEN@github.com/rally-dfs/rly-network-mobile-sdk
       - name: Release
         # Defaults to `patch` type release. To override, set $RELEASE_INCREMENT_OVERRIDE (e.g. "minor" "major" etc)
         # and $RELEASE_OVERRIDE_VERSION (to current version) in codemagic env vars
         script: |
           if [[ $RELEASE_INCREMENT_OVERRIDE ]]; then
             if [[ `cat package.json | jq -r '.version'` = $RELEASE_OVERRIDE_VERSION ]]; then
-              yarn release $RELEASE_INCREMENT_OVERRIDE --ci \
-                '--github.releaseName="[mobile-sdk] ${version}"' \
-                '--git.commitMessage="[mobile-sdk] release ${version}"' \
-                '--git.tagName="mobile-sdk-v${version}"'
+              yarn release $RELEASE_INCREMENT_OVERRIDE --ci
             else
               echo Override version $RELEASE_OVERRIDE_VERSION does not match current version `cat package.json | jq -r '.version'`
               echo If this is left over from a previous release, just go delete these from the codemagic env vars
               exit 1
             fi
           else
-            yarn release patch --ci \
-              '--github.releaseName="[mobile-sdk] ${version}"' \
-              '--git.commitMessage="[mobile-sdk] release ${version}"' \
-              '--git.tagName="mobile-sdk-v${version}"'
+            yarn release patch --ci
           fi
     publishing:
       slack:
-        channel: "#ci-builds"
-  ####################################
-  ##### mobile-sdk workflows end #####
-  ####################################
-
-  ###################################################
-  ##### gasless-transaction-sdk workflows start #####
-  ###################################################
-  gasless-transaction-sdk-yarn-tests:
-    name: (gasless-transaction-sdk) Lightweight yarn lint/tests
-    working_directory: gasless-transaction-sdk
-    max_build_duration: 10
-    environment:
-      <<: *default_environments
-    cache:
-      cache_paths:
-        - $CM_BUILD_DIR/node_modules
-    <<: *trigger_on_pr_to_main
-    scripts:
-      - *yarn_install
-      - *run_linter
-      - *compile_typescript
-      - *yarn_test
-
-  gasless-transaction-sdk-yarn-full-suite:
-    name: (gasless-transaction-sdk) Full suite yarn lint/tests
-    working_directory: gasless-transaction-sdk
-    max_build_duration: 60
-    environment:
-      <<: *default_environments
-      groups:
-        - full-suite-tests
-    cache:
-      cache_paths:
-        - $CM_BUILD_DIR/node_modules
-    <<: *trigger_on_main_push
-    scripts:
-      - *yarn_install
-      - *run_linter
-      - *compile_typescript
-      - *yarn_test_full_suite
-
-  # npm publish
-  gasless-transaction-sdk-publish-npm:
-    name: (gasless-transaction-sdk) Publish tag to NPM
-    working_directory: gasless-transaction-sdk
-    max_build_duration: 120
-    environment:
-      <<: *default_environments
-      groups:
-        - publish-npm-group
-        - full-suite-tests
-    cache:
-      cache_paths:
-        - $CM_BUILD_DIR/node_modules
-    scripts:
-      - name: Abort if not on main
-        script: if [[ `git rev-parse --abbrev-ref HEAD` != main ]]; then exit 1; fi
-      - *yarn_install
-      - *run_linter
-      - *compile_typescript
-      - *yarn_test_full_suite # make sure to run full suite test for publish workflow
-      - *npm_publish_authorize_npm
-      - *npm_publish_authorize_github
-      - name: Release
-        # Defaults to `patch` type release. To override, set $RELEASE_INCREMENT_OVERRIDE (e.g. "minor" "major" etc)
-        # and $RELEASE_OVERRIDE_VERSION (to current version) in codemagic env vars
-        script: |
-          if [[ $RELEASE_INCREMENT_OVERRIDE ]]; then
-            if [[ `cat package.json | jq -r '.version'` = $RELEASE_OVERRIDE_VERSION ]]; then
-              yarn release $RELEASE_INCREMENT_OVERRIDE --ci \
-                '--github.releaseName="[gasless-transaction-sdk] ${version}"' \
-                '--git.commitMessage="[gasless-transaction-sdk] release ${version}"' \
-                '--git.tagName="gasless-transaction-sdk-v${version}"'
-            else
-              echo Override version $RELEASE_OVERRIDE_VERSION does not match current version `cat package.json | jq -r '.version'`
-              echo If this is left over from a previous release, just go delete these from the codemagic env vars
-              exit 1
-            fi
-          else
-            yarn release patch --ci \
-              '--github.releaseName="[gasless-transaction-sdk] ${version}"' \
-              '--git.commitMessage="[gasless-transaction-sdk] release ${version}"' \
-              '--git.tagName="gasless-transaction-sdk-v${version}"'
-          fi
-    publishing:
-      slack:
-        channel: "#ci-builds"
+        channel: '#ci-builds'
