@@ -1,13 +1,15 @@
 import { Wallet } from 'ethers';
-import { getWallet } from '../../account';
+import { getWallet, permanentlyDeleteAccount } from '../../account';
 import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
-import { testSkipInCI } from '../__utils__/test_utils';
+import { testOnlyRunInCIFullSuite } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
 let mockPk: string;
 
-beforeAll(async () => {
+beforeEach(async () => {
   // need to create new mnemonic for each run so that claim can be called
+  await permanentlyDeleteAccount();
+
   const wallet = Wallet.createRandom();
   mockMnemonic = wallet.mnemonic.phrase;
   mockPk = Wallet.fromMnemonic(mockMnemonic).privateKey;
@@ -30,9 +32,11 @@ jest.mock('react-native', () => {
   };
 });
 
-testSkipInCI(
+testOnlyRunInCIFullSuite(
   'claim mumbai legacy method name',
   async () => {
+    RlyMumbaiNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
+
     const oldBal = await RlyMumbaiNetwork.getBalance();
     const txHash = await RlyMumbaiNetwork.registerAccount();
     const newBal = await RlyMumbaiNetwork.getBalance();
@@ -43,11 +47,11 @@ testSkipInCI(
   30000
 );
 
-// this can be enabled again (with testOnlyRunInCIFullSuite) if we add an API key for CI
-// (otherwise claimRly fails without an API key)
-testSkipInCI(
+testOnlyRunInCIFullSuite(
   'claim mumbai',
   async () => {
+    RlyMumbaiNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
+
     const oldBal = await RlyMumbaiNetwork.getBalance();
     const txHash = await RlyMumbaiNetwork.claimRly();
     const newBal = await RlyMumbaiNetwork.getBalance();
