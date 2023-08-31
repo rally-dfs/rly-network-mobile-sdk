@@ -31,7 +31,10 @@ export type TransactionRequest = {
   maxFeePerGas?: string | number | bigint | BigNumber | ArrayLike<number>;
 };
 
-export async function createAccount(options: CreateAccountOptions = {}) {
+async function _createAccountWithMnemonicPromise(
+  mnemonicPromise: Promise<string>,
+  options: CreateAccountOptions = {}
+) {
   const existingWallet = await getWallet();
 
   const overwrite = options.overwrite || false;
@@ -44,7 +47,7 @@ export async function createAccount(options: CreateAccountOptions = {}) {
     throw 'Account already exists';
   }
 
-  const mnemonic = await KeyManager.generateMnemonic();
+  const mnemonic = await mnemonicPromise;
   await KeyManager.saveMnemonic(mnemonic, storageOptions);
   const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
   const newWallet = new Wallet(pkey);
@@ -52,6 +55,23 @@ export async function createAccount(options: CreateAccountOptions = {}) {
   _cachedWallet = newWallet;
 
   return newWallet.address;
+}
+
+export async function createAccount(options: CreateAccountOptions = {}) {
+  return await _createAccountWithMnemonicPromise(
+    KeyManager.generateMnemonic(),
+    options
+  );
+}
+
+export async function importExistingAccount(
+  mnemonic: string,
+  options: CreateAccountOptions = {}
+) {
+  return await _createAccountWithMnemonicPromise(
+    Promise.resolve(mnemonic),
+    options
+  );
 }
 
 export async function getWallet() {
