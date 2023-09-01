@@ -1,22 +1,33 @@
-import { utils } from 'ethers';
+import { utils, Wallet } from 'ethers';
 import { signMessage, getWallet, signTransaction, signHash } from '../account';
+import type { KeyStorageConfig } from 'src/keyManagerTypes';
 
 // mock native code, just testing signing function
+// address is 0x88046468228953d17c7DAaE39cfEF9B4b082164D, pk is 0x8666ebf0f4d397955c55932642fb9dd97fb60a2df121a9d2a39f7f1930958ca3)
+const mockDefaultMnemonic =
+  'bronze adjust crane guard crater merry village wealth smoke exit woman cabbage';
+
+let mockMnemonic: string | null = mockDefaultMnemonic;
+let mockGetPrivateKeyFromMnemonic = (mnemonic: string) =>
+  Promise.resolve(utils.arrayify(Wallet.fromMnemonic(mnemonic).privateKey));
 
 jest.mock('react-native', () => {
-  const mnemonic =
-    'bronze adjust crane guard crater merry village wealth smoke exit woman cabbage';
-  const pk =
-    '0x8666ebf0f4d397955c55932642fb9dd97fb60a2df121a9d2a39f7f1930958ca3';
-
   return {
     NativeModules: {
       RlyNetworkMobileSdk: {
-        getMnemonic: () => Promise.resolve(mnemonic),
-        generateMnemonic: () => Promise.resolve(mnemonic),
-        saveMnemonic: () => Promise.resolve(),
-        deleteMnemonic: () => Promise.resolve(),
-        getPrivateKeyFromMnemonic: () => Promise.resolve(pk),
+        getMnemonic: () => Promise.resolve(mockMnemonic),
+        generateMnemonic: () => Promise.resolve(mockDefaultMnemonic),
+        saveMnemonic: (mnemonic: string, _options?: KeyStorageConfig) => {
+          mockMnemonic = mnemonic;
+          return Promise.resolve();
+        },
+        deleteMnemonic: () => {
+          mockMnemonic = null;
+          return Promise.resolve();
+        },
+        // make sure to not invoke mockGetPrivateKeyFromMnemonic directly here or jest complains about import errors
+        getPrivateKeyFromMnemonic: (mnemonic: string) =>
+          mockGetPrivateKeyFromMnemonic(mnemonic),
       },
     },
     Platform: {
