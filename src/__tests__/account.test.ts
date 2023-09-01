@@ -1,5 +1,12 @@
 import { utils, Wallet } from 'ethers';
-import { signMessage, getWallet, signTransaction, signHash } from '../account';
+import {
+  createAccount,
+  importExistingAccount,
+  signMessage,
+  getWallet,
+  signTransaction,
+  signHash,
+} from '../account';
 import type { KeyStorageConfig } from 'src/keyManagerTypes';
 
 // mock native code, just testing signing function
@@ -34,6 +41,34 @@ jest.mock('react-native', () => {
       select: jest.fn(),
     },
   };
+});
+
+test('create account', async () => {
+  await expect(createAccount({ overwrite: false })).rejects.toThrow(
+    'Account already exists'
+  );
+
+  const address = await createAccount({ overwrite: true });
+  expect(address).toEqual('0x88046468228953d17c7DAaE39cfEF9B4b082164D');
+});
+
+test('import existing account', async () => {
+  const existingMnemonic =
+    'huge remain palm vanish spike exotic amount scheme window crowd shift spoil';
+  await expect(
+    importExistingAccount(existingMnemonic, { overwrite: false })
+  ).rejects.toThrow('Account already exists');
+
+  const address = await importExistingAccount(existingMnemonic, {
+    overwrite: true,
+  });
+  expect(address).toEqual('0x242F7fDaF2eF119CfdB7F9D0aa7BE1D1C7dA4587');
+
+  // re-creating account should regenerate back to the default
+  const recreatedAddress = await createAccount({ overwrite: true });
+  expect(recreatedAddress).toEqual(
+    '0x88046468228953d17c7DAaE39cfEF9B4b082164D'
+  );
 });
 
 test('sign message', async () => {

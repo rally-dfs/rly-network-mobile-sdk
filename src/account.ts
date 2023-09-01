@@ -44,7 +44,7 @@ async function _createAccountWithMnemonicPromise(
   };
 
   if (existingWallet && !overwrite) {
-    throw 'Account already exists';
+    throw new Error('Account already exists');
   }
 
   const mnemonic = await mnemonicPromise;
@@ -115,7 +115,7 @@ export async function signMessage(message: string): Promise<string> {
   const wallet = await getWallet();
 
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
 
   return wallet.signMessage(message);
@@ -124,7 +124,7 @@ export async function signMessage(message: string): Promise<string> {
 export async function signTransaction(tx: TransactionRequest): Promise<string> {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
 
   return wallet.signTransaction(tx);
@@ -133,7 +133,7 @@ export async function signTransaction(tx: TransactionRequest): Promise<string> {
 export async function signHash(hash: string): Promise<string> {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
   const signingKey = new utils.SigningKey(wallet.privateKey);
 
@@ -147,7 +147,7 @@ export async function signTypedData(
 ): Promise<string> {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
   return await wallet._signTypedData(domain, types, value);
 }
