@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
-import { createAccount, getAccount } from '@rly-network/mobile-sdk';
+import {
+  createAccount,
+  getAccount,
+  importExistingAccount,
+} from '@rly-network/mobile-sdk';
 import { AccountOverviewScreen } from './AccountOverviewScreen';
 import { GenerateAccountScreen } from './GenerateAccountScreen';
 import { LoadingScreen } from './LoadingScreen';
@@ -12,13 +16,18 @@ export default function App() {
 
   useEffect(() => {
     const readAccount = async () => {
-      const account = await getAccount();
-      console.log('user account', account);
+      try {
+        const account = await getAccount();
 
-      setAccountLoaded(true);
+        console.log('user account', account);
 
-      if (account) {
-        setRlyAccount(account);
+        if (account) {
+          setRlyAccount(account);
+        }
+      } catch (error: any) {
+        console.error('Error occurred while reading account', error.message);
+      } finally {
+        setAccountLoaded(true);
       }
     };
 
@@ -28,7 +37,12 @@ export default function App() {
   }, [accountLoaded]);
 
   const createRlyAccount = async () => {
-    const rlyAct = await createAccount();
+    const rlyAct = await createAccount({ overwrite: true });
+    setRlyAccount(rlyAct);
+  };
+
+  const importExistingRlyAccount = async (mnemonic: string) => {
+    const rlyAct = await importExistingAccount(mnemonic);
     setRlyAccount(rlyAct);
   };
 
@@ -37,7 +51,12 @@ export default function App() {
   }
 
   if (!rlyAccount) {
-    return <GenerateAccountScreen generateAccount={createRlyAccount} />;
+    return (
+      <GenerateAccountScreen
+        generateAccount={createRlyAccount}
+        importExistingAccount={importExistingRlyAccount}
+      />
+    );
   }
 
   return <AccountOverviewScreen rlyAccount={rlyAccount} />;
