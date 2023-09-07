@@ -31,13 +31,23 @@ export type TransactionRequest = {
   maxFeePerGas?: string | number | bigint | BigNumber | ArrayLike<number>;
 };
 
-async function _createAccountWithMnemonicPromise(
+async function _saveAccount(
   mnemonicPromise: Promise<string>,
   options: CreateAccountOptions = {}
 ) {
-  const existingWallet = await getWallet();
-
   const overwrite = options.overwrite || false;
+
+  let existingWallet;
+  try {
+    existingWallet = await getWallet();
+  } catch (error: any) {
+    // if overwrite = true then just ignore the error and proceed to overwrite
+    if (!overwrite) {
+      throw new Error(`Error while reading existing wallet: ${error.message}`);
+    }
+    existingWallet = undefined;
+  }
+
   const storageOptions = options.storageOptions || {
     saveToCloud: true,
     rejectOnCloudSaveFailure: false,
@@ -48,8 +58,9 @@ async function _createAccountWithMnemonicPromise(
   }
 
   const mnemonic = await mnemonicPromise;
-  await KeyManager.saveMnemonic(mnemonic, storageOptions);
+  // get pkey to check for a valid mnemonic first before passing anything invalid into saveMnemonic
   const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
+  await KeyManager.saveMnemonic(mnemonic, storageOptions);
   const newWallet = new Wallet(pkey);
 
   _cachedWallet = newWallet;
@@ -58,20 +69,14 @@ async function _createAccountWithMnemonicPromise(
 }
 
 export async function createAccount(options: CreateAccountOptions = {}) {
-  return await _createAccountWithMnemonicPromise(
-    KeyManager.generateMnemonic(),
-    options
-  );
+  return await _saveAccount(KeyManager.generateMnemonic(), options);
 }
 
 export async function importExistingAccount(
   mnemonic: string,
   options: CreateAccountOptions = {}
 ) {
-  return await _createAccountWithMnemonicPromise(
-    Promise.resolve(mnemonic),
-    options
-  );
+  return await _saveAccount(Promise.resolve(mnemonic), options);
 }
 
 export async function getWallet() {
