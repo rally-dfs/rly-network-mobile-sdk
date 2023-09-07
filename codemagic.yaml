@@ -1,7 +1,7 @@
 definitions:
   default_environments: &default_environments
     node: 16.14.2
-    npm: latest
+    npm: 9.8.1
   trigger_on_main_push: &trigger_on_main_push
     triggering:
       events:
