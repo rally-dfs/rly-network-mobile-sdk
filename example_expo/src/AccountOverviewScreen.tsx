@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { AppContainer } from './components/AppContainer';
-import { BodyText, HeadingText } from './components/text';
+import { BodyText, HeadingText, SelectableText } from './components/text';
 import {
   Button,
   Linking,
@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
   RlyMumbaiNetwork,
+  permanentlyDeleteAccount,
   MetaTxMethod,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
@@ -67,6 +68,10 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     setTranferAddress('');
   };
 
+  const deleteAccount = async () => {
+    await permanentlyDeleteAccount();
+  };
+
   const revealMnemonic = async () => {
     const value = await getAccountPhrase();
 
@@ -85,7 +90,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <HeadingText>Welcome to RLY</HeadingText>
           </View>
           <View style={styles.addressContainer}>
-            <BodyText>{props.rlyAccount || 'No Account Exists'}</BodyText>
+            <SelectableText>
+              {props.rlyAccount || 'No Account Exists'}
+            </SelectableText>
           </View>
           <RlyCard style={styles.balanceCard}>
             <View style={styles.balanceContainer}>
@@ -146,6 +153,16 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             </View>
             <Button title="Reveal my Mnemonic" onPress={revealMnemonic} />
           </RlyCard>
+
+          <RlyCard style={styles.balanceCard}>
+            <View style={styles.alignMiddle}>
+              <BodyText>Delete Your Account</BodyText>
+            </View>
+            <Button
+              title="Delete my on device account"
+              onPress={deleteAccount}
+            />
+          </RlyCard>
         </ScrollView>
       </AppContainer>
 
@@ -155,7 +172,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <BodyText>Copy The Phrase below to export your wallet</BodyText>
           </View>
           <View style={styles.balanceCard}>
-            <HeadingText>{mnemonic}</HeadingText>
+            <SelectableText>{mnemonic}</SelectableText>
           </View>
           <View style={styles.balanceCard}>
             <Button

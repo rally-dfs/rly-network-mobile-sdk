@@ -31,27 +31,52 @@ export type TransactionRequest = {
   maxFeePerGas?: string | number | bigint | BigNumber | ArrayLike<number>;
 };
 
-export async function createAccount(options: CreateAccountOptions = {}) {
-  const existingWallet = await getWallet();
-
+async function _saveAccount(
+  mnemonicPromise: Promise<string>,
+  options: CreateAccountOptions = {}
+) {
   const overwrite = options.overwrite || false;
+
+  let existingWallet;
+  try {
+    existingWallet = await getWallet();
+  } catch (error: any) {
+    // if overwrite = true then just ignore the error and proceed to overwrite
+    if (!overwrite) {
+      throw new Error(`Error while reading existing wallet: ${error.message}`);
+    }
+    existingWallet = undefined;
+  }
+
   const storageOptions = options.storageOptions || {
     saveToCloud: true,
     rejectOnCloudSaveFailure: false,
   };
 
   if (existingWallet && !overwrite) {
-    throw 'Account already exists';
+    throw new Error('Account already exists');
   }
 
-  const mnemonic = await KeyManager.generateMnemonic();
-  await KeyManager.saveMnemonic(mnemonic, storageOptions);
+  const mnemonic = await mnemonicPromise;
+  // get pkey to check for a valid mnemonic first before passing anything invalid into saveMnemonic
   const pkey = await KeyManager.getPrivateKeyFromMnemonic(mnemonic);
+  await KeyManager.saveMnemonic(mnemonic, storageOptions);
   const newWallet = new Wallet(pkey);
 
   _cachedWallet = newWallet;
 
   return newWallet.address;
+}
+
+export async function createAccount(options: CreateAccountOptions = {}) {
+  return await _saveAccount(KeyManager.generateMnemonic(), options);
+}
+
+export async function importExistingAccount(
+  mnemonic: string,
+  options: CreateAccountOptions = {}
+) {
+  return await _saveAccount(Promise.resolve(mnemonic), options);
 }
 
 export async function getWallet() {
@@ -95,7 +120,7 @@ export async function signMessage(message: string): Promise<string> {
   const wallet = await getWallet();
 
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
 
   return wallet.signMessage(message);
@@ -104,7 +129,7 @@ export async function signMessage(message: string): Promise<string> {
 export async function signTransaction(tx: TransactionRequest): Promise<string> {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
 
   return wallet.signTransaction(tx);
@@ -113,7 +138,7 @@ export async function signTransaction(tx: TransactionRequest): Promise<string> {
 export async function signHash(hash: string): Promise<string> {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
   const signingKey = new utils.SigningKey(wallet.privateKey);
 
@@ -127,7 +152,7 @@ export async function signTypedData(
 ): Promise<string> {
   const wallet = await getWallet();
   if (!wallet) {
-    throw 'No account';
+    throw new Error('No account');
   }
   return await wallet._signTypedData(domain, types, value);
 }

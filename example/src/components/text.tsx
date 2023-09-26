@@ -9,6 +9,14 @@ export function HeadingText({ children }: { children: React.ReactNode }) {
   return <Text style={styles.headingText}>{children}</Text>;
 }
 
+export function SelectableText({ children }: { children: React.ReactNode }) {
+  return (
+    <Text selectable={true} style={styles.standardText}>
+      {children}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
   standardText: {
     color: '#FFFFFF',

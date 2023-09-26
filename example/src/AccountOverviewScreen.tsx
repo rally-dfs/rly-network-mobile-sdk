@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { AppContainer } from './components/AppContainer';
-import { BodyText, HeadingText } from './components/text';
+import { BodyText, HeadingText, SelectableText } from './components/text';
 import {
   Alert,
   Button,
@@ -101,7 +101,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <HeadingText>Welcome to RLY</HeadingText>
           </View>
           <View style={styles.addressContainer}>
-            <BodyText>{props.rlyAccount || 'No Account Exists'}</BodyText>
+            <SelectableText>
+              {props.rlyAccount || 'No Account Exists'}
+            </SelectableText>
           </View>
           <RlyCard style={styles.balanceCard}>
             <View style={styles.balanceContainer}>
@@ -181,7 +183,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <BodyText>Copy The Phrase below to export your wallet</BodyText>
           </View>
           <View style={styles.balanceCard}>
-            <HeadingText>{mnemonic}</HeadingText>
+            <SelectableText>{mnemonic}</SelectableText>
           </View>
           <View style={styles.balanceCard}>
             <Button
