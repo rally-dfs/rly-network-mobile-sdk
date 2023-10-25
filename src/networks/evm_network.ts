@@ -25,13 +25,37 @@ import { MetaTxMethod } from '../gsnClient/utils';
 
 async function transfer(
   destinationAddress: string,
+  amount: number,
+  network: NetworkConfig,
+  tokenAddress?: PrefixedHexString,
+  metaTxMethod?: MetaTxMethod
+): Promise<string> {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const account = await getWallet();
+  if (!account) {
+    throw MissingWalletError;
+  }
+
+  tokenAddress = tokenAddress || network.contracts.rlyERC20;
+
+  const token = erc20(provider, tokenAddress);
+  const decimals = await token.decimals();
+
+  const amountBigNum = ethers.utils.parseUnits(amount.toString(), decimals);
+
+  return await transferExact(destinationAddress, amountBigNum.toString(), network, tokenAddress, metaTxMethod);
+}
+
+async function transferExact(
+  destinationAddress: string,
   amount: string,
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString,
   metaTxMethod?: MetaTxMethod
 ): Promise<string> {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
   const account = await getWallet();
-
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
 
   if (!account) {
@@ -48,8 +72,6 @@ async function transfer(
   if (sourceFinalBalance.lt(0)) {
     throw InsufficientBalanceError;
   }
-
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   let transferTx;
 
@@ -216,11 +238,25 @@ export function getEvmNetwork(network: NetworkConfig) {
   return {
     transfer: function (
       destinationAddress: string,
-      amount: string,
+      amount: number,
       tokenAddress?: PrefixedHexString,
       metaTxMethod?: MetaTxMethod
     ) {
       return transfer(
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        metaTxMethod
+      );
+    },
+    transferExact: function (
+      destinationAddress: string,
+      amount: string,
+      tokenAddress?: PrefixedHexString,
+      metaTxMethod?: MetaTxMethod
+    ) {
+      return transferExact(
         destinationAddress,
         amount,
         network,
