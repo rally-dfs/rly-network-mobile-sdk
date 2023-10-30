@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   InsufficientBalanceError,
   MissingWalletError,
@@ -30,23 +30,54 @@ async function transfer(
   tokenAddress?: PrefixedHexString,
   metaTxMethod?: MetaTxMethod
 ): Promise<string> {
-  const account = await getWallet();
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
+  const account = await getWallet();
+  if (!account) {
+    throw MissingWalletError;
+  }
+
+  tokenAddress = tokenAddress || network.contracts.rlyERC20;
+
+  const token = erc20(provider, tokenAddress);
+  const decimals = await token.decimals();
+
+  const amountBigNum = ethers.utils.parseUnits(amount.toString(), decimals);
+
+  return await transferExact(
+    destinationAddress,
+    amountBigNum.toString(),
+    network,
+    tokenAddress,
+    metaTxMethod
+  );
+}
+
+async function transferExact(
+  destinationAddress: string,
+  amount: string,
+  network: NetworkConfig,
+  tokenAddress?: PrefixedHexString,
+  metaTxMethod?: MetaTxMethod
+): Promise<string> {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const account = await getWallet();
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
 
   if (!account) {
     throw MissingWalletError;
   }
 
-  const sourceBalance = await getBalance(network, tokenAddress);
+  const sourceBalance = await getExactBalance(network, tokenAddress);
 
-  const sourceFinalBalance = sourceBalance - amount;
+  const sourceBigNum = BigNumber.from(sourceBalance);
+  const amountBigNum = BigNumber.from(amount);
 
-  if (sourceFinalBalance < 0) {
+  const sourceFinalBalance = sourceBigNum.sub(amountBigNum);
+
+  if (sourceFinalBalance.lt(0)) {
     throw InsufficientBalanceError;
   }
-
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   let transferTx;
 
@@ -59,7 +90,7 @@ async function transfer(
       transferTx = await getPermitTx(
         account,
         destinationAddress,
-        amount,
+        amountBigNum,
         network,
         tokenAddress,
         provider
@@ -68,7 +99,7 @@ async function transfer(
       transferTx = await getExecuteMetatransactionTx(
         account,
         destinationAddress,
-        amount,
+        amountBigNum,
         network,
         tokenAddress,
         provider
@@ -78,7 +109,7 @@ async function transfer(
     const executeMetaTransactionSupported = await hasExecuteMetaTransaction(
       account,
       destinationAddress,
-      amount,
+      amountBigNum,
       network,
       tokenAddress,
       provider
@@ -86,7 +117,7 @@ async function transfer(
 
     const permitSupported = await hasPermit(
       account,
-      amount,
+      amountBigNum,
       network,
       tokenAddress,
       provider
@@ -96,7 +127,7 @@ async function transfer(
       transferTx = await getExecuteMetatransactionTx(
         account,
         destinationAddress,
-        amount,
+        amountBigNum,
         network,
         tokenAddress,
         provider
@@ -105,7 +136,7 @@ async function transfer(
       transferTx = await getPermitTx(
         account,
         destinationAddress,
-        amount,
+        amountBigNum,
         network,
         tokenAddress,
         provider
@@ -117,7 +148,21 @@ async function transfer(
   return relay(transferTx, network);
 }
 
+// This method is deprecated. Update to 'getDisplayBalance'
+// or 'getExactBalance' instead.
+// Will be removed in future library versions.
 async function getBalance(
+  network: NetworkConfig,
+  tokenAddress?: PrefixedHexString
+) {
+  console.error(
+    "This method is deprecated. Update to 'getDisplayBalance' or 'getExactBalance' instead."
+  );
+
+  return getDisplayBalance(network, tokenAddress);
+}
+
+async function getDisplayBalance(
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString
 ) {
@@ -137,13 +182,33 @@ async function getBalance(
   return Number(ethers.utils.formatUnits(bal.toString(), decimals));
 }
 
+async function getExactBalance(
+  network: NetworkConfig,
+  tokenAddress?: PrefixedHexString
+): Promise<string> {
+  const account = await getWallet();
+
+  //if token address use it otherwise default to RLY
+  tokenAddress = tokenAddress || network.contracts.rlyERC20;
+  if (!account) {
+    throw MissingWalletError;
+  }
+
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const token = erc20(provider, tokenAddress);
+  const bal = await token.balanceOf(account.address);
+
+  return bal.toString();
+}
+
 async function claimRly(network: NetworkConfig): Promise<string> {
   const account = await getWallet();
   if (!account) {
     throw MissingWalletError;
   }
 
-  const existingBalance = await getBalance(network);
+  const existingBalance = await getDisplayBalance(network);
 
   if (existingBalance && existingBalance > 0) {
     throw PriorDustingError;
@@ -192,8 +257,28 @@ export function getEvmNetwork(network: NetworkConfig) {
         metaTxMethod
       );
     },
+    transferExact: function (
+      destinationAddress: string,
+      amount: string,
+      tokenAddress?: PrefixedHexString,
+      metaTxMethod?: MetaTxMethod
+    ) {
+      return transferExact(
+        destinationAddress,
+        amount,
+        network,
+        tokenAddress,
+        metaTxMethod
+      );
+    },
     getBalance: function (tokenAddress?: PrefixedHexString) {
       return getBalance(network, tokenAddress);
+    },
+    getDisplayBalance: function (tokenAddress?: PrefixedHexString) {
+      return getDisplayBalance(network, tokenAddress);
+    },
+    getExactBalance: function (tokenAddress?: PrefixedHexString) {
+      return getExactBalance(network, tokenAddress);
     },
     claimRly: function () {
       return claimRly(network);

@@ -1,4 +1,4 @@
-import { ethers, Wallet } from 'ethers';
+import { BigNumber, ethers, Wallet } from 'ethers';
 import type {
   PrefixedHexString,
   GsnTransactionDetails,
@@ -97,22 +97,21 @@ export const getMetatransactionEIP712Signature = async (
 export const hasExecuteMetaTransaction = async (
   account: Wallet,
   destinationAddress: Address,
-  amount: number,
+  amount: BigNumber,
   config: NetworkConfig,
   contractAddress: Address,
   provider: ethers.providers.JsonRpcProvider
 ): Promise<boolean> => {
   try {
     const token = erc20(provider, contractAddress);
-    const [name, nonce, decimals] = await Promise.all([
+    const [name, nonce] = await Promise.all([
       token.name(),
       getSenderContractNonce(token, account.address),
       token.decimals(),
     ]);
-    const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
     const data = await token.interface.encodeFunctionData('transfer', [
       destinationAddress,
-      decimalAmount,
+      amount,
     ]);
 
     const { r, s, v } = await getMetatransactionEIP712Signature(
@@ -142,23 +141,21 @@ export const hasExecuteMetaTransaction = async (
 export const getExecuteMetatransactionTx = async (
   account: Wallet,
   destinationAddress: Address,
-  amount: number,
+  amount: BigNumber,
   config: NetworkConfig,
   contractAddress: string,
   provider: ethers.providers.JsonRpcProvider
 ): Promise<GsnTransactionDetails> => {
   const token = erc20(provider, contractAddress);
-  const [name, nonce, decimals] = await Promise.all([
+  const [name, nonce] = await Promise.all([
     token.name(),
     getSenderContractNonce(token, account.address),
-    token.decimals(),
   ]);
-  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   // get function signature
   const data = await token.interface.encodeFunctionData('transfer', [
     destinationAddress,
-    decimalAmount,
+    amount,
   ]);
 
   const { r, s, v } = await getMetatransactionEIP712Signature(

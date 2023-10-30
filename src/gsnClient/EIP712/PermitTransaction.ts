@@ -102,7 +102,7 @@ export const getPermitEIP712Signature = async (
 
 export const hasPermit = async (
   account: Wallet,
-  amount: number,
+  amount: BigNumber,
   config: NetworkConfig,
   contractAddress: Address,
   provider: ethers.providers.JsonRpcProvider
@@ -110,17 +110,14 @@ export const hasPermit = async (
   try {
     const token = erc20(provider, contractAddress);
 
-    const [name, nonce, decimals, deadline, eip712Domain] = await Promise.all([
+    const [name, nonce, deadline, eip712Domain] = await Promise.all([
       token.name(),
       token.nonces(account.address),
-      token.decimals(),
       await getPermitDeadline(provider),
       await token.eip712Domain(),
     ]);
 
     const { salt } = eip712Domain;
-
-    const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
     const { r, s, v } = await getPermitEIP712Signature(
       account,
@@ -128,14 +125,14 @@ export const hasPermit = async (
       token.address,
       config,
       nonce.toNumber(),
-      decimalAmount,
+      amount,
       deadline,
       salt
     );
     await token.estimateGas.permit?.(
       account.address,
       config.gsn.paymasterAddress,
-      decimalAmount,
+      amount,
       deadline,
       v,
       r,
@@ -152,24 +149,21 @@ export const hasPermit = async (
 export const getPermitTx = async (
   account: Wallet,
   destinationAddress: Address,
-  amount: number,
+  amount: BigNumber,
   config: NetworkConfig,
   contractAddress: PrefixedHexString,
   provider: ethers.providers.JsonRpcProvider
 ): Promise<GsnTransactionDetails> => {
   const token = erc20(provider, contractAddress);
 
-  const [name, nonce, decimals, deadline, eip712Domain] = await Promise.all([
+  const [name, nonce, deadline, eip712Domain] = await Promise.all([
     token.name(),
     token.nonces(account.address),
-    token.decimals(),
     await getPermitDeadline(provider),
     await token.eip712Domain(),
   ]);
 
   const { salt } = eip712Domain;
-
-  const decimalAmount = ethers.utils.parseUnits(amount.toString(), decimals);
 
   const { r, s, v } = await getPermitEIP712Signature(
     account,
@@ -177,7 +171,7 @@ export const getPermitTx = async (
     token.address,
     config,
     nonce.toNumber(),
-    decimalAmount,
+    amount,
     deadline,
     salt
   );
@@ -185,7 +179,7 @@ export const getPermitTx = async (
   const tx = await token.populateTransaction.permit?.(
     account.address,
     config.gsn.paymasterAddress,
-    decimalAmount,
+    amount,
     deadline,
     v,
     r,
@@ -196,7 +190,7 @@ export const getPermitTx = async (
   const gas = await token.estimateGas.permit?.(
     account.address,
     config.gsn.paymasterAddress,
-    decimalAmount,
+    amount,
     deadline,
     v,
     r,
@@ -207,7 +201,7 @@ export const getPermitTx = async (
   const fromTx = await token.populateTransaction.transferFrom?.(
     account.address,
     destinationAddress,
-    decimalAmount
+    amount
   );
 
   const paymasterData =
