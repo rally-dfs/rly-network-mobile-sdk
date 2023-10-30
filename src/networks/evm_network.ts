@@ -44,7 +44,13 @@ async function transfer(
 
   const amountBigNum = ethers.utils.parseUnits(amount.toString(), decimals);
 
-  return await transferExact(destinationAddress, amountBigNum.toString(), network, tokenAddress, metaTxMethod);
+  return await transferExact(
+    destinationAddress,
+    amountBigNum.toString(),
+    network,
+    tokenAddress,
+    metaTxMethod
+  );
 }
 
 async function transferExact(
@@ -142,7 +148,6 @@ async function transferExact(
   return relay(transferTx, network);
 }
 
-
 // This method is deprecated. Update to 'getDisplayBalance'
 // or 'getExactBalance' instead.
 // Will be removed in future library versions.
@@ -150,7 +155,9 @@ async function getBalance(
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString
 ) {
-  console.error("This method is deprecated. Update to 'getDisplayBalance' or 'getExactBalance' instead.");
+  console.error(
+    "This method is deprecated. Update to 'getDisplayBalance' or 'getExactBalance' instead."
+  );
 
   return getDisplayBalance(network, tokenAddress);
 }
