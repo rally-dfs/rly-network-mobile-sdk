@@ -13,9 +13,17 @@ import {
 
 export interface Network {
   getBalance: (tokenAddress?: PrefixedHexString) => Promise<number>;
+  getDisplayBalance: (tokenAddress?: PrefixedHexString) => Promise<number>;
+  getExactBalance: (tokenAddress?: PrefixedHexString) => Promise<string>;
   transfer: (
     destinationAddress: string,
     amount: number,
+    tokenAddress?: PrefixedHexString,
+    metaTxMethod?: MetaTxMethod
+  ) => Promise<string>;
+  transferExact: (
+    destinationAddress: string,
+    amount: string,
     tokenAddress?: PrefixedHexString,
     metaTxMethod?: MetaTxMethod
   ) => Promise<string>;

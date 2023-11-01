@@ -11,20 +11,25 @@ const balances: Record<string, number> = {};
 export let dummyApiKey: string | undefined;
 
 async function transfer(destinationAddress: string, amount: number) {
+  return transferExact(destinationAddress, amount.toString());
+}
+
+async function transferExact(destinationAddress: string, amount: string) {
   const wallet = await getWallet();
   if (!wallet) {
     throw MissingWalletError;
   }
   const sourceBalance = balances[wallet.publicKey] || 0;
+  const intAmount = parseInt(amount, 10);
 
-  const sourceFinalBalance = sourceBalance - amount;
+  const sourceFinalBalance = sourceBalance - intAmount;
 
   if (sourceFinalBalance < 0) {
     throw InsufficientBalanceError;
   }
 
   const receiverInitialBalance = balances[destinationAddress] || 0;
-  const receiverFinalBalance = receiverInitialBalance + amount;
+  const receiverFinalBalance = receiverInitialBalance + intAmount;
 
   balances[wallet.publicKey] = sourceFinalBalance;
   balances[destinationAddress] = receiverFinalBalance;
@@ -32,11 +37,19 @@ async function transfer(destinationAddress: string, amount: number) {
 }
 
 async function getBalance() {
+  return getDisplayBalance();
+}
+
+async function getDisplayBalance() {
   const wallet = await getWallet();
   if (!wallet) {
     throw MissingWalletError;
   }
   return balances[wallet.publicKey] || 0;
+}
+
+async function getExactBalance() {
+  return (await getDisplayBalance()).toString();
 }
 
 // This method is deprecated. Update to 'claimRly' instead.
@@ -67,7 +80,10 @@ function setApiKey(apiKeyParam: string) {
 
 export const RlyDummyNetwork: Network = {
   transfer: transfer,
+  transferExact: transferExact,
   getBalance: getBalance,
+  getDisplayBalance: getDisplayBalance,
+  getExactBalance: getExactBalance,
   claimRly: claimRly,
   registerAccount: registerAccount,
   setApiKey: setApiKey,

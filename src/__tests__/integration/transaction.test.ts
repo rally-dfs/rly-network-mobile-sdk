@@ -52,9 +52,10 @@ testOnlyRunInCIFullSuite(
   async () => {
     RlyMumbaiNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
 
-    const oldBal = await RlyMumbaiNetwork.getBalance();
+    const oldBal = await RlyMumbaiNetwork.getDisplayBalance();
     const txHash = await RlyMumbaiNetwork.claimRly();
-    const newBal = await RlyMumbaiNetwork.getBalance();
+    const newBal = await RlyMumbaiNetwork.getDisplayBalance();
+
     expect(oldBal).toEqual(0);
     expect(txHash).toMatch(/^0x/);
     expect(newBal).toEqual(10);
