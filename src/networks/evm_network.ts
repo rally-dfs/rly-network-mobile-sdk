@@ -166,20 +166,15 @@ async function getDisplayBalance(
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString
 ) {
-  const account = await getWallet();
-
-  //if token address use it otherwise default to RLY
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
-  if (!account) {
-    throw MissingWalletError;
-  }
 
   const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
-
   const token = erc20(provider, tokenAddress);
+
   const decimals = await token.decimals();
-  const bal = await token.balanceOf(account.address);
-  return Number(ethers.utils.formatUnits(bal.toString(), decimals));
+
+  const exactBalance = await getExactBalance(network, tokenAddress);
+  return Number(ethers.utils.formatUnits(exactBalance, decimals));
 }
 
 async function getExactBalance(
