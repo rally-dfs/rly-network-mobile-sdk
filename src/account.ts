@@ -156,3 +156,16 @@ export async function signTypedData(
   }
   return await wallet._signTypedData(domain, types, value);
 }
+
+export const EoaWalletManager = {
+  createAccount: createAccount,
+  getAccount: getAccount,
+  getWallet: getWallet,
+  importExistingAccount: importExistingAccount,
+  permanentlyDeleteAccount: permanentlyDeleteAccount,
+  getAccountPhrase: getAccountPhrase,
+  signMessage: signMessage,
+  signTransaction: signTransaction,
+  signHash: signHash,
+  signTypedData: signTypedData,
+};
