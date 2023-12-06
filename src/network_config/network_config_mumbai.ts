@@ -23,4 +23,15 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     maxApprovalDataLength: 300,
     maxRelayNonceGap: 3,
   },
+  aa: {
+    entrypointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+    smartAccountFactoryAddress: '0xabafacaa87cce0814a9dd52ce35e2d50ad22a35e',
+    lightAccountImplAddress: '0x5467b1947F47d0646704EB801E075e72aeAe8113',
+    lightAccountFactoryAddress: '0x00000055C0b4fA41dde26A74435ff03692292FBD',
+    kernalImplAddress: '0xf048AD83CB2dfd6037A43902a2A5Be04e53cd2Eb',
+    kernalFactoryAddress: '0x5de4839a76cf55d0c90e2061ef4386d962E15ae3',
+    kernalECDSAValidatorAddress: '0xd9AB5096a832b9ce79914329DAEE236f8Eea0390',
+    candideFactoryAddress: '0xb73Eb505Abc30d0e7e15B73A492863235B3F4309',
+    candideImplAddress: '0x3A0a17Bcc84576b099373ab3Eed9702b07D30402',
+  },
 };

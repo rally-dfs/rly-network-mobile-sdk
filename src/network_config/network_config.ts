@@ -1,5 +1,17 @@
 import type { PrefixedHexString, IntString } from '../gsnClient/utils';
 
+export type AAConfig = {
+  entrypointAddress: PrefixedHexString;
+  smartAccountFactoryAddress: PrefixedHexString;
+  lightAccountImplAddress: PrefixedHexString;
+  lightAccountFactoryAddress: PrefixedHexString;
+  kernalImplAddress: PrefixedHexString;
+  kernalFactoryAddress: PrefixedHexString;
+  kernalECDSAValidatorAddress: PrefixedHexString;
+  candideFactoryAddress: PrefixedHexString;
+  candideImplAddress: PrefixedHexString;
+};
+
 export type GSNConfig = {
   paymasterAddress: PrefixedHexString;
   forwarderAddress: PrefixedHexString;
@@ -24,6 +36,7 @@ export interface NetworkConfig {
     rlyERC20: PrefixedHexString;
   };
   gsn: GSNConfig;
+  aa: AAConfig;
   relayerApiKey?: string;
 }
 
