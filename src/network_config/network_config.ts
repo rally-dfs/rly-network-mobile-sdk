@@ -1,6 +1,7 @@
 import type { PrefixedHexString, IntString } from '../gsnClient/utils';
 
 export type AAConfig = {
+  bundlerRpcUrl: string;
   entrypointAddress: PrefixedHexString;
   smartAccountFactoryAddress: PrefixedHexString;
   lightAccountImplAddress: PrefixedHexString;

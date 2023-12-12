@@ -12,8 +12,18 @@ export interface SmartAccountManager {
     account: PrefixedHexString,
     network: NetworkConfig
   ): Promise<Contract>;
-  sendUserOperation: (userOp: UserOperation) => Promise<UserOperation>;
-  confirmUserOperation: (operation: string) => Promise<string>;
+  getInitCode(
+    owner: PrefixedHexString,
+    network: NetworkConfig
+  ): Promise<PrefixedHexString>;
+  sendUserOperation: (
+    userOp: UserOperation,
+    network: NetworkConfig
+  ) => Promise<PrefixedHexString>;
+  confirmUserOperation: (
+    userOpHash: PrefixedHexString,
+    network: NetworkConfig
+  ) => Promise<Event | null | undefined>;
 }
 
 export * from './smart_accounts/accounts/light_account';

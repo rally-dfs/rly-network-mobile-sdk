@@ -23,6 +23,7 @@ export const LocalNetworkConfig: NetworkConfig = {
     maxRelayNonceGap: 3,
   },
   aa: {
+    bundlerRpcUrl: 'http://localhost:3000/rpc',
     entrypointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     smartAccountFactoryAddress: '0xabafacaa87cce0814a9dd52ce35e2d50ad22a35e',
     lightAccountImplAddress: '0x5467b1947F47d0646704EB801E075e72aeAe8113',

@@ -30,9 +30,28 @@ const getAccount = async (
   return new Contract(address, LightAccount.abi, provider);
 };
 
+const getInitCode = async (
+  owner: PrefixedHexString,
+  network: NetworkConfig
+): Promise<PrefixedHexString> => {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const factory = new Contract(
+    network.aa.lightAccountFactoryAddress,
+    LightAccountFactory.abi,
+    provider
+  );
+
+  return ethers.utils.hexConcat([
+    network.aa.lightAccountFactoryAddress,
+    factory.interface.encodeFunctionData('createAccount', [owner, 0]),
+  ]) as PrefixedHexString;
+};
+
 export const LightAccountManager: SmartAccountManager = {
   getAddress: getAddress,
   getAccount: getAccount,
   sendUserOperation: sendUserOperation,
+  getInitCode: getInitCode,
   confirmUserOperation: confirmUserOperation,
 };
