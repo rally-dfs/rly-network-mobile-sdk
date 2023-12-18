@@ -1,4 +1,4 @@
-import { Contract, ethers } from 'ethers';
+import { Contract, ethers, Wallet } from 'ethers';
 import type { SmartAccountManager } from '../../smart_account';
 import type { PrefixedHexString } from '../..//gsnClient/utils';
 import { sendUserOperation, confirmUserOperation } from '../common/common';
@@ -58,13 +58,74 @@ const getAccount = async (
   address: PrefixedHexString,
   network: NetworkConfig
 ): Promise<Contract> => {
-  const contract = new Contract(address, network.aa.lightAccountImplAddress);
-  return contract;
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  return new Contract(address, Candide.abi, provider);
+};
+
+const getInitCode = async (
+  owner: PrefixedHexString,
+  network: NetworkConfig
+): Promise<PrefixedHexString> => {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const factory = new Contract(
+    network.aa.candideFactoryAddress,
+    CandideFactory.abi,
+    provider
+  );
+
+  const candide = new Contract(
+    network.aa.candideImplAddress,
+    Candide.abi,
+    provider
+  );
+
+  const initializer = await candide.interface.encodeFunctionData(
+    'setupWithEntrypoint',
+    [
+      [owner],
+      1,
+      ethers.constants.AddressZero,
+      '0x',
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+      0,
+      ethers.constants.AddressZero,
+      network.aa.entrypointAddress,
+    ]
+  );
+
+  return ethers.utils.hexConcat([
+    network.aa.candideFactoryAddress,
+    factory.interface.encodeFunctionData('createProxyWithNonce', [
+      network.aa.candideImplAddress,
+      initializer,
+      0,
+    ]),
+  ]) as PrefixedHexString;
+};
+
+const getDummySignature = async (): Promise<PrefixedHexString> => {
+  return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c';
+};
+
+const signUserOperation = async (
+  owner: Wallet,
+  userOpHash: PrefixedHexString
+): Promise<PrefixedHexString> => {
+  const sig = (await owner.signMessage(
+    ethers.utils.arrayify(userOpHash)
+  )) as PrefixedHexString;
+  return sig;
 };
 
 export const SafeAccountManager: SmartAccountManager = {
   getAddress: getAddress,
   getAccount: getAccount,
+  getInitCode: getInitCode,
+  getDummySignature: getDummySignature,
+  signUserOperation: signUserOperation,
   sendUserOperation: sendUserOperation,
   confirmUserOperation: confirmUserOperation,
 };

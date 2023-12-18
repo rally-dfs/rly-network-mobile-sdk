@@ -1,4 +1,4 @@
-import type { Contract } from 'ethers';
+import type { Contract, Wallet } from 'ethers';
 import type { NetworkConfig } from './network_config/network_config';
 import type { PrefixedHexString } from './gsnClient/utils';
 import type { UserOperation } from './smart_accounts/common/common';
@@ -16,6 +16,11 @@ export interface SmartAccountManager {
     owner: PrefixedHexString,
     network: NetworkConfig
   ): Promise<PrefixedHexString>;
+  getDummySignature(): Promise<PrefixedHexString>;
+  signUserOperation: (
+    owner: Wallet,
+    userOpHash: PrefixedHexString
+  ) => Promise<PrefixedHexString>;
   sendUserOperation: (
     userOp: UserOperation,
     network: NetworkConfig

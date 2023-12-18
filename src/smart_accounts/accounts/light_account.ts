@@ -1,4 +1,4 @@
-import { Contract, ethers } from 'ethers';
+import { Contract, ethers, Wallet } from 'ethers';
 import type { SmartAccountManager } from '../../smart_account';
 import type { PrefixedHexString } from '../../gsnClient/utils';
 import type { NetworkConfig } from '../../network_config/network_config';
@@ -48,10 +48,26 @@ const getInitCode = async (
   ]) as PrefixedHexString;
 };
 
+const getDummySignature = async (): Promise<PrefixedHexString> => {
+  return '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c';
+};
+
+const signUserOperation = async (
+  owner: Wallet,
+  userOpHash: PrefixedHexString
+): Promise<PrefixedHexString> => {
+  const sig = (await owner.signMessage(
+    ethers.utils.arrayify(userOpHash)
+  )) as PrefixedHexString;
+  return sig;
+};
+
 export const LightAccountManager: SmartAccountManager = {
   getAddress: getAddress,
   getAccount: getAccount,
-  sendUserOperation: sendUserOperation,
   getInitCode: getInitCode,
+  getDummySignature: getDummySignature,
+  signUserOperation: signUserOperation,
+  sendUserOperation: sendUserOperation,
   confirmUserOperation: confirmUserOperation,
 };

@@ -24,10 +24,10 @@ export const userOpDefaults: UserOperation = {
   nonce: ethers.constants.Zero,
   initCode: '0x',
   callData: '0x',
-  callGasLimit: BigNumber.from(0),
-  verificationGasLimit: BigNumber.from(100000), // default verification gas. will add create2 cost (3200+200*length) if initCode exists
-  preVerificationGas: BigNumber.from(21000), // should also cover calldata cost.
-  maxFeePerGas: BigNumber.from(0),
+  callGasLimit: BigNumber.from(10000000),
+  verificationGasLimit: BigNumber.from(110000), // default verification gas. will add create2 cost (3200+200*length) if initCode exists
+  preVerificationGas: BigNumber.from(100000), // should also cover calldata cost.
+  maxFeePerGas: BigNumber.from(50000),
   maxPriorityFeePerGas: BigNumber.from(1),
   paymasterAndData: '0x',
   signature: '0x',
@@ -46,6 +46,7 @@ export const createUserOperation = async (
     owner.address as PrefixedHexString,
     network
   );
+
   const code = await provider.getCode(sender);
 
   op.sender = sender;
@@ -77,7 +78,7 @@ export const createUserOperation = async (
 
   const block = await provider.getBlock('latest');
   op.maxFeePerGas = block.baseFeePerGas!.add(op.maxPriorityFeePerGas);
-
+  op.signature = await account.getDummySignature();
   const { preVerificationGas, verificationGasLimit, callGasLimit } =
     await bundlerProvider.send('eth_estimateUserOperationGas', [
       OpToJSON(op),
@@ -88,17 +89,18 @@ export const createUserOperation = async (
     BigNumber.from(preVerificationGas)
   );
   op.verificationGasLimit = BigNumber.from(verificationGasLimit);
+
   op.callGasLimit = BigNumber.from(callGasLimit);
 
   const chainId = await provider.getNetwork().then((n) => n.chainId);
 
-  const userOpHash = await getUserOpHash(
+  const userOpHash = (await getUserOpHash(
     op,
     network.aa.entrypointAddress,
     chainId
-  );
+  )) as PrefixedHexString;
 
-  const sig = await owner.signMessage(ethers.utils.arrayify(userOpHash));
+  const sig = await account.signUserOperation(owner, userOpHash);
   op.signature = sig as PrefixedHexString;
   return op;
 };
@@ -236,9 +238,9 @@ export function getUserOpHash(
   chainId: number
 ): string {
   const userOpHash = ethers.utils.keccak256(packUserOp(op, true));
-  const enc = ethers.utils.defaultAbiCoder.encode(
+  const encoded = ethers.utils.defaultAbiCoder.encode(
     ['bytes32', 'address', 'uint256'],
     [userOpHash, entryPoint, chainId]
   );
-  return ethers.utils.keccak256(enc);
+  return ethers.utils.keccak256(encoded);
 }
