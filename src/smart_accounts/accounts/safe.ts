@@ -120,11 +120,40 @@ const signUserOperation = async (
   return sig;
 };
 
+const getExecuteCall = async (
+  to: PrefixedHexString,
+  value: string,
+  callData: PrefixedHexString,
+  network: NetworkConfig
+): Promise<PrefixedHexString> => {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const scwImpl = new Contract(
+    network.aa.candideImplAddress,
+    Candide.abi,
+    provider
+  );
+
+  return (await scwImpl.interface.encodeFunctionData(
+    'execTransactionFromEntrypoint',
+    [
+      to,
+      ethers.utils.parseEther(value),
+      callData,
+      0,
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+      0,
+    ]
+  )) as PrefixedHexString;
+};
+
 export const SafeAccountManager: SmartAccountManager = {
   getAddress: getAddress,
   getAccount: getAccount,
   getInitCode: getInitCode,
   getDummySignature: getDummySignature,
+  getExecuteCall: getExecuteCall,
   signUserOperation: signUserOperation,
   sendUserOperation: sendUserOperation,
   confirmUserOperation: confirmUserOperation,

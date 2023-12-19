@@ -4,7 +4,7 @@ import type { PrefixedHexString } from 'src/gsnClient/utils';
 import type { NetworkConfig } from '../../network_config/network_config';
 import { sendUserOperation, confirmUserOperation } from '../common/common';
 import KernalFactory from '../../contracts/smartAccounts/kernelFactoryData.json';
-import Kernal from '../../contracts/smartAccounts/kernelData.json';
+import Kernel from '../../contracts/smartAccounts/kernelData.json';
 
 const getAddress = async (
   owner: PrefixedHexString,
@@ -20,7 +20,7 @@ const getAddress = async (
 
   const kernal = new Contract(
     network.aa.kernalImplAddress,
-    Kernal.abi,
+    Kernel.abi,
     provider
   );
 
@@ -38,7 +38,7 @@ const getAccount = async (
 ): Promise<Contract> => {
   const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
-  return new Contract(address, Kernal.abi, provider);
+  return new Contract(address, Kernel.abi, provider);
 };
 
 const getInitCode = async (
@@ -55,7 +55,7 @@ const getInitCode = async (
 
   const kernal = new Contract(
     network.aa.kernalImplAddress,
-    Kernal.abi,
+    Kernel.abi,
     provider
   );
 
@@ -85,11 +85,34 @@ const signUserOperation = async (
   return ethers.utils.hexConcat([`0x00000000`, userSig]) as PrefixedHexString;
 };
 
+const getExecuteCall = async (
+  to: PrefixedHexString,
+  value: string,
+  callData: PrefixedHexString,
+  network: NetworkConfig
+): Promise<PrefixedHexString> => {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+
+  const scwImpl = new Contract(
+    network.aa.kernalImplAddress,
+    Kernel.abi,
+    provider
+  );
+
+  return (await scwImpl.interface.encodeFunctionData('execute', [
+    to,
+    ethers.utils.parseEther(value),
+    callData,
+    0,
+  ])) as PrefixedHexString;
+};
+
 export const KernelAccountManager: SmartAccountManager = {
   getAddress: getAddress,
   getAccount: getAccount,
   getInitCode: getInitCode,
   getDummySignature: getDummySignature,
+  getExecuteCall: getExecuteCall,
   signUserOperation: signUserOperation,
   sendUserOperation: sendUserOperation,
   confirmUserOperation: confirmUserOperation,

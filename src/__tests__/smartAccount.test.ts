@@ -18,6 +18,8 @@ import type { PrefixedHexString } from 'src/gsnClient/utils';
 import LightAccount from '../contracts/smartAccounts/lightAccountData.json';
 import KernelAccount from '../contracts/smartAccounts/kernelData.json';
 import Candide from '../contracts/smartAccounts/candideData.json';
+import TokenFaucet from '../contracts/tokenFaucetData.json';
+import { erc20 } from '../contracts/erc20';
 
 // mock native code, just testing signing function
 // address is 0x88046468228953d17c7DAaE39cfEF9B4b082164D, pk is 0x8666ebf0f4d397955c55932642fb9dd97fb60a2df121a9d2a39f7f1930958ca3)
@@ -119,23 +121,13 @@ test('create and send user op kernel account', async () => {
 
   const newAccount = ethers.Wallet.createRandom();
 
-  const scwImpl = new Contract(
-    network.aa.kernalImplAddress,
-    KernelAccount.abi,
-    provider
-  );
-  const data = (await scwImpl.interface.encodeFunctionData('execute', [
-    newAccount.address,
-    ethers.utils.parseEther('1.0'),
-    '0x',
-    0,
-  ])) as PrefixedHexString;
-
   const op = await createUserOperation(
     KernelAccountManager,
     account,
     network,
-    data
+    newAccount.address as PrefixedHexString,
+    '1',
+    '0x'
   );
 
   funder.connect(provider);
@@ -144,7 +136,10 @@ test('create and send user op kernel account', async () => {
   await confirmUserOperation(hash, network);
 
   const { receipt } = await getUserOperationReceipt(hash, network);
+  const newAccountBalance = await provider.getBalance(newAccount.address);
+
   expect(receipt.confirmations).toEqual('0x1');
+  expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
 }, 10000);
 
 test('create and send user op light account', async () => {
@@ -172,22 +167,13 @@ test('create and send user op light account', async () => {
 
   const newAccount = ethers.Wallet.createRandom();
 
-  const scwImpl = new Contract(
-    network.aa.lightAccountImplAddress,
-    LightAccount.abi,
-    provider
-  );
-  const data = (await scwImpl.interface.encodeFunctionData('execute', [
-    newAccount.address,
-    ethers.utils.parseEther('1.0'),
-    '0x',
-  ])) as PrefixedHexString;
-
   const op = await createUserOperation(
     LightAccountManager,
     account,
     network,
-    data
+    newAccount.address as PrefixedHexString,
+    '1',
+    '0x'
   );
 
   const hash = await sendUserOperation(op, network);
@@ -195,7 +181,10 @@ test('create and send user op light account', async () => {
 
   const { receipt } = await getUserOperationReceipt(hash, network);
 
+  const newAccountBalance = await provider.getBalance(newAccount.address);
+
   expect(receipt.confirmations).toEqual('0x1');
+  expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
 }, 10000);
 
 test('create and send user op safe account', async () => {
@@ -223,27 +212,100 @@ test('create and send user op safe account', async () => {
 
   const newAccount = ethers.Wallet.createRandom();
 
-  const scwImpl = new Contract(
-    network.aa.candideImplAddress,
-    Candide.abi,
+  const op = await createUserOperation(
+    SafeAccountManager,
+    account,
+    network,
+    newAccount.address as PrefixedHexString,
+    '1',
+    '0x'
+  );
+
+  const hash = await sendUserOperation(op, network);
+  await confirmUserOperation(hash, network);
+
+  const { receipt } = await getUserOperationReceipt(hash, network);
+  const newAccountBalance = await provider.getBalance(newAccount.address);
+
+  expect(receipt.confirmations).toEqual('0x1');
+  expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
+}, 10000);
+
+/*test('batch claim rly with light account', async () => {
+  const account = await getWallet();
+  const network = LocalNetworkConfig;
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const faucet = new Contract(
+    '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+    TokenFaucet.abi,
     provider
   );
 
-  const data = (await scwImpl.interface.encodeFunctionData(
-    'execTransactionFromEntrypoint',
+  const rlyToken = erc20(
+    provider,
+    '0x76b8D57e5ac6afAc5D415a054453d1DD2c3C0094'
+  );
+  const funder = new ethers.Wallet(
+    '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+    provider
+  );
+
+  if (!account) {
+    throw new Error('account is undefined');
+  }
+
+  const scwAddress = await LightAccountManager.getAddress(
+    account.address as PrefixedHexString,
+    LocalNetworkConfig
+  );
+
+  const preBalance = await rlyToken.balanceOf(scwAddress);
+
+  await funder.sendTransaction({
+    to: scwAddress,
+    value: ethers.utils.parseEther('1.0'),
+  });
+
+  const newAccount = ethers.Wallet.createRandom();
+
+  const scwImpl = new Contract(
+    network.aa.lightAccountImplAddress,
     [
-      newAccount.address,
-      ethers.utils.parseEther('1.0'),
-      '0x',
-      0,
-      ethers.constants.AddressZero,
-      ethers.constants.AddressZero,
-      0,
-    ]
-  )) as PrefixedHexString;
+      {
+        inputs: [
+          {
+            internalType: 'address[]',
+            name: 'dest',
+            type: 'address[]',
+          },
+          {
+            internalType: 'uint256[]',
+            name: 'value',
+            type: 'uint256[]',
+          },
+          {
+            internalType: 'bytes[]',
+            name: 'func',
+            type: 'bytes[]',
+          },
+        ],
+        name: 'executeBatch',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ],
+    provider
+  );
+
+  const data = (await scwImpl.interface.encodeFunctionData('executeBatch', [
+    [faucet.address, newAccount.address],
+    [0, ethers.utils.parseEther('1.0')],
+    [faucet.interface.encodeFunctionData('claim', []), '0x'],
+  ])) as PrefixedHexString;
 
   const op = await createUserOperation(
-    SafeAccountManager,
+    LightAccountManager,
     account,
     network,
     data
@@ -254,5 +316,10 @@ test('create and send user op safe account', async () => {
 
   const { receipt } = await getUserOperationReceipt(hash, network);
 
+  const postBalance = await rlyToken.balanceOf(scwAddress);
+  const newAccountBalance = await provider.getBalance(newAccount.address);
   expect(receipt.confirmations).toEqual('0x1');
+  expect(postBalance.sub(preBalance)).toEqual(ethers.utils.parseEther('10'));
+  expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
 }, 10000);
+*/

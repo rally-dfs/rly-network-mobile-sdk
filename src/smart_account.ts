@@ -17,6 +17,12 @@ export interface SmartAccountManager {
     network: NetworkConfig
   ): Promise<PrefixedHexString>;
   getDummySignature(): Promise<PrefixedHexString>;
+  getExecuteCall(
+    to: PrefixedHexString,
+    value: string,
+    callData: PrefixedHexString,
+    network: NetworkConfig
+  ): Promise<PrefixedHexString>;
   signUserOperation: (
     owner: Wallet,
     userOpHash: PrefixedHexString

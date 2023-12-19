@@ -37,6 +37,8 @@ export const createUserOperation = async (
   account: SmartAccountManager,
   owner: Wallet,
   network: NetworkConfig,
+  to: PrefixedHexString,
+  value: string,
   callData: PrefixedHexString
 ): Promise<UserOperation> => {
   let op: UserOperation = userOpDefaults;
@@ -74,7 +76,7 @@ export const createUserOperation = async (
     op.nonce = await scw.getNonce();
   }
 
-  op.callData = callData;
+  op.callData = await account.getExecuteCall(to, value, callData, network);
 
   const block = await provider.getBlock('latest');
   op.maxFeePerGas = block.baseFeePerGas!.add(op.maxPriorityFeePerGas);
