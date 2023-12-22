@@ -289,5 +289,6 @@ export function getEvmNetwork(network: NetworkConfig) {
     setApiKey: function (apiKey: string) {
       network.relayerApiKey = apiKey;
     },
+    config: network,
   };
 }

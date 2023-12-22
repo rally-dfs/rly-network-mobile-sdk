@@ -1,57 +1,54 @@
 import type { Contract, Wallet, Event } from 'ethers';
-import type { NetworkConfig } from './network_config/network_config';
+import type { Network } from './network';
 import type { PrefixedHexString } from './gsnClient/utils';
 import type { UserOperation } from './smart_accounts/utils/utils';
 
 export interface SmartAccountManager {
   getAccountAddress: (
-    account: PrefixedHexString,
-    network: NetworkConfig
+    owner: PrefixedHexString,
+    network: Network
   ) => Promise<PrefixedHexString>;
-  getAccount(
-    account: PrefixedHexString,
-    network: NetworkConfig
-  ): Promise<Contract>;
+  getAccount(account: PrefixedHexString, network: Network): Promise<Contract>;
   createUserOperation: (
     owner: Wallet,
     to: PrefixedHexString,
     value: string,
     callData: PrefixedHexString,
-    network: NetworkConfig
+    network: Network
   ) => Promise<UserOperation>;
   createUserOperationBatch: (
     owner: Wallet,
     to: PrefixedHexString[],
     value: string[],
     callData: PrefixedHexString[],
-    network: NetworkConfig
+    network: Network
   ) => Promise<UserOperation>;
   signUserOperation: (
     owner: Wallet,
     op: UserOperation,
-    network: NetworkConfig
+    network: Network
   ) => Promise<UserOperation>;
   sendUserOperation: (
     userOp: UserOperation,
-    network: NetworkConfig
+    network: Network
   ) => Promise<PrefixedHexString>;
   createAndSendUserOperation: (
     owner: Wallet,
     to: PrefixedHexString,
     value: string,
     callData: PrefixedHexString,
-    network: NetworkConfig
+    network: Network
   ) => Promise<PrefixedHexString>;
   createAndSendUserOperationBatch: (
     owner: Wallet,
     to: PrefixedHexString[],
     value: string[],
     callData: PrefixedHexString[],
-    network: NetworkConfig
+    network: Network
   ) => Promise<PrefixedHexString>;
   confirmUserOperation: (
     userOpHash: PrefixedHexString,
-    network: NetworkConfig
+    network: Network
   ) => Promise<Event | null | undefined>;
 }
 

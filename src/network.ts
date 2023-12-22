@@ -9,6 +9,7 @@ import {
   MumbaiNetworkConfig,
   LocalNetworkConfig,
   PolygonNetworkConfig,
+  NetworkConfig,
 } from './network_config/network_config';
 
 export interface Network {
@@ -32,6 +33,7 @@ export interface Network {
   registerAccount: () => Promise<string>;
   relay?: (tx: GsnTransactionDetails) => Promise<string>;
   setApiKey: (apiKey: string) => void;
+  config: NetworkConfig;
 }
 
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);

@@ -24,6 +24,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     maxRelayNonceGap: 3,
   },
   aa: {
+    bundlerRpcUrl: 'http://localhost:3000/rpc',
     entrypointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     smartAccountFactoryAddress: '0xabafacaa87cce0814a9dd52ce35e2d50ad22a35e',
     lightAccountImplAddress: '0x5467b1947F47d0646704EB801E075e72aeAe8113',
@@ -33,5 +34,6 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     kernalECDSAValidatorAddress: '0xd9AB5096a832b9ce79914329DAEE236f8Eea0390',
     candideFactoryAddress: '0xb73Eb505Abc30d0e7e15B73A492863235B3F4309',
     candideImplAddress: '0x3A0a17Bcc84576b099373ab3Eed9702b07D30402',
+    safeMultiSendAddress: '0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526',
   },
 };

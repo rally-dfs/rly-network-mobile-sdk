@@ -1,4 +1,4 @@
-import { ethers, BigNumber, Contract } from 'ethers';
+import { ethers, BigNumber, Contract, Wallet } from 'ethers';
 import { Buffer } from 'buffer';
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type { RelayRequest } from './EIP712/RelayRequest';
@@ -164,7 +164,7 @@ export const getRelayRequestID = (
 };
 
 export const getClaimTx = async (
-  account: AccountKeypair,
+  account: Wallet,
   config: NetworkConfig,
   provider: ethers.providers.JsonRpcProvider
 ) => {

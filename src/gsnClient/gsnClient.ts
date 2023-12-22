@@ -1,4 +1,4 @@
-import type { GsnTransactionDetails, AccountKeypair } from './utils';
+import type { GsnTransactionDetails, AccountKeypair, Wallet } from './utils';
 
 import type { RelayRequest } from './EIP712/RelayRequest';
 import { handleGsnResponse } from './gsnTxHelpers';
@@ -177,7 +177,7 @@ const buildRelayHttpRequest = async (
 };
 
 export const relayTransaction = async (
-  account: AccountKeypair,
+  account: Wallet,
   config: NetworkConfig,
   transaction: GsnTransactionDetails
 ) => {

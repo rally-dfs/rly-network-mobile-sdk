@@ -5,19 +5,15 @@ import {
   SafeAccountManager,
   getAccount,
   getWallet,
+  RlyLocalNetwork,
 } from '../index';
 import {
-  createUserOperation,
-  sendUserOperation,
   confirmUserOperation,
   getUserOperationReceipt,
-} from '../smart_accounts/utills/common';
-import { LocalNetworkConfig } from '../network_config/network_config_local';
+} from '../smart_accounts/utils/utils';
 import type { KeyStorageConfig } from 'src/keyManagerTypes';
 import type { PrefixedHexString } from 'src/gsnClient/utils';
-import LightAccount from '../contracts/smartAccounts/lightAccountData.json';
-import KernelAccount from '../contracts/smartAccounts/kernelData.json';
-import Candide from '../contracts/smartAccounts/candideData.json';
+
 import TokenFaucet from '../contracts/tokenFaucetData.json';
 import { erc20 } from '../contracts/erc20';
 
@@ -62,9 +58,9 @@ test('get light account address', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await LightAccountManager.getAddress(
+  const scwAddress = await LightAccountManager.getAccountAddress(
     account,
-    LocalNetworkConfig
+    RlyLocalNetwork
   );
   expect(scwAddress).toEqual('0x9e35D495035bDd07De85967f2B6743Cdb956883b');
 });
@@ -76,9 +72,9 @@ test('get kernal account address', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await KernelAccountManager.getAddress(
+  const scwAddress = await KernelAccountManager.getAccountAddress(
     account,
-    LocalNetworkConfig
+    RlyLocalNetwork
   );
   expect(scwAddress).toEqual('0xC0E29868b5c42Fa78Bc2CB56583DCf405D830d09');
 });
@@ -90,62 +86,48 @@ test('get safe account address', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await SafeAccountManager.getAddress(
+  const scwAddress = await SafeAccountManager.getAccountAddress(
     account,
-    LocalNetworkConfig
+    RlyLocalNetwork
   );
   expect(scwAddress).toEqual('0xD3f465da8672edF8F78BF23c86ef3fB89474576a');
 });
-test('create and send user op kernel account', async () => {
+test('create and send user op kernel account use paymaster', async () => {
   const account = await getWallet();
-  const network = LocalNetworkConfig;
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
-  const funder = new ethers.Wallet(
-    '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
-    provider
+  const network = RlyLocalNetwork;
+  const provider = new ethers.providers.JsonRpcProvider(
+    network.config.gsn.rpcUrl
   );
 
   if (!account) {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await KernelAccountManager.getAddress(
-    account.address as PrefixedHexString,
-    LocalNetworkConfig
-  );
-
-  await funder.sendTransaction({
-    to: scwAddress,
-    value: ethers.utils.parseEther('1.0'),
-  });
-
   const newAccount = ethers.Wallet.createRandom();
 
-  const op = await createUserOperation(
-    KernelAccountManager,
+  const hash = await KernelAccountManager.createAndSendUserOperation(
     account,
-    network,
     newAccount.address as PrefixedHexString,
-    '1',
-    '0x'
+    '0',
+    '0x',
+    network
   );
 
-  funder.connect(provider);
-
-  const hash = await sendUserOperation(op, network);
   await confirmUserOperation(hash, network);
 
   const { receipt } = await getUserOperationReceipt(hash, network);
   const newAccountBalance = await provider.getBalance(newAccount.address);
 
   expect(receipt.confirmations).toEqual('0x1');
-  expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
+  expect(newAccountBalance).toEqual(ethers.utils.parseEther('0'));
 }, 10000);
 
 test('create and send user op light account', async () => {
   const account = await getWallet();
-  const network = LocalNetworkConfig;
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const network = RlyLocalNetwork;
+  const provider = new ethers.providers.JsonRpcProvider(
+    network.config.gsn.rpcUrl
+  );
   const funder = new ethers.Wallet(
     '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
     provider
@@ -155,9 +137,9 @@ test('create and send user op light account', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await LightAccountManager.getAddress(
+  const scwAddress = await LightAccountManager.getAccountAddress(
     account.address as PrefixedHexString,
-    LocalNetworkConfig
+    network
   );
 
   await funder.sendTransaction({
@@ -167,16 +149,14 @@ test('create and send user op light account', async () => {
 
   const newAccount = ethers.Wallet.createRandom();
 
-  const op = await createUserOperation(
-    LightAccountManager,
+  const hash = await LightAccountManager.createAndSendUserOperation(
     account,
-    network,
     newAccount.address as PrefixedHexString,
-    '1',
-    '0x'
+    '1.0',
+    '0x',
+    network
   );
 
-  const hash = await sendUserOperation(op, network);
   await confirmUserOperation(hash, network);
 
   const { receipt } = await getUserOperationReceipt(hash, network);
@@ -189,8 +169,10 @@ test('create and send user op light account', async () => {
 
 test('create and send user op safe account', async () => {
   const account = await getWallet();
-  const network = LocalNetworkConfig;
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const network = RlyLocalNetwork;
+  const provider = new ethers.providers.JsonRpcProvider(
+    network.config.gsn.rpcUrl
+  );
   const funder = new ethers.Wallet(
     '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
     provider
@@ -200,9 +182,9 @@ test('create and send user op safe account', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await SafeAccountManager.getAddress(
+  const scwAddress = await SafeAccountManager.getAccountAddress(
     account.address as PrefixedHexString,
-    LocalNetworkConfig
+    network
   );
 
   await funder.sendTransaction({
@@ -212,16 +194,14 @@ test('create and send user op safe account', async () => {
 
   const newAccount = ethers.Wallet.createRandom();
 
-  const op = await createUserOperation(
-    SafeAccountManager,
+  const hash = await SafeAccountManager.createAndSendUserOperation(
     account,
-    network,
     newAccount.address as PrefixedHexString,
     '1',
-    '0x'
+    '0x',
+    network
   );
 
-  const hash = await sendUserOperation(op, network);
   await confirmUserOperation(hash, network);
 
   const { receipt } = await getUserOperationReceipt(hash, network);
@@ -231,10 +211,12 @@ test('create and send user op safe account', async () => {
   expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
 }, 10000);
 
-/*test('batch claim rly with light account', async () => {
+test('batch claim rly with light account', async () => {
   const account = await getWallet();
-  const network = LocalNetworkConfig;
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const network = RlyLocalNetwork;
+  const provider = new ethers.providers.JsonRpcProvider(
+    network.config.gsn.rpcUrl
+  );
   const faucet = new Contract(
     '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
     TokenFaucet.abi,
@@ -254,9 +236,9 @@ test('create and send user op safe account', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await LightAccountManager.getAddress(
+  const scwAddress = await LightAccountManager.getAccountAddress(
     account.address as PrefixedHexString,
-    LocalNetworkConfig
+    network
   );
 
   const preBalance = await rlyToken.balanceOf(scwAddress);
@@ -268,50 +250,20 @@ test('create and send user op safe account', async () => {
 
   const newAccount = ethers.Wallet.createRandom();
 
-  const scwImpl = new Contract(
-    network.aa.lightAccountImplAddress,
-    [
-      {
-        inputs: [
-          {
-            internalType: 'address[]',
-            name: 'dest',
-            type: 'address[]',
-          },
-          {
-            internalType: 'uint256[]',
-            name: 'value',
-            type: 'uint256[]',
-          },
-          {
-            internalType: 'bytes[]',
-            name: 'func',
-            type: 'bytes[]',
-          },
-        ],
-        name: 'executeBatch',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-    ],
-    provider
-  );
-
-  const data = (await scwImpl.interface.encodeFunctionData('executeBatch', [
-    [faucet.address, newAccount.address],
-    [0, ethers.utils.parseEther('1.0')],
-    [faucet.interface.encodeFunctionData('claim', []), '0x'],
-  ])) as PrefixedHexString;
-
-  const op = await createUserOperation(
-    LightAccountManager,
+  const hash = await LightAccountManager.createAndSendUserOperationBatch(
     account,
-    network,
-    data
+    [
+      faucet.address as PrefixedHexString,
+      newAccount.address as PrefixedHexString,
+    ],
+    ['0', '1'],
+    [
+      faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString,
+      '0x',
+    ],
+    network
   );
 
-  const hash = await sendUserOperation(op, network);
   await confirmUserOperation(hash, network);
 
   const { receipt } = await getUserOperationReceipt(hash, network);
@@ -322,4 +274,3 @@ test('create and send user op safe account', async () => {
   expect(postBalance.sub(preBalance)).toEqual(ethers.utils.parseEther('10'));
   expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
 }, 10000);
-*/
