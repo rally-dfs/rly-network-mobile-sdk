@@ -157,7 +157,7 @@ export async function signTypedData(
   return await wallet._signTypedData(domain, types, value);
 }
 
-export const EoaWalletManager = {
+export const EoaAccountManager = {
   createAccount: createAccount,
   getAccount: getAccount,
   getWallet: getWallet,

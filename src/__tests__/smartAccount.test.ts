@@ -3,8 +3,7 @@ import {
   LightAccountManager,
   KernelAccountManager,
   SafeAccountManager,
-  getAccount,
-  getWallet,
+  EoaAccountManager,
   RlyLocalNetwork,
 } from '../index';
 import {
@@ -52,7 +51,7 @@ jest.mock('react-native', () => {
 });
 
 test('get light account address', async () => {
-  const account = (await getAccount()) as PrefixedHexString;
+  const account = (await EoaAccountManager.getAccount()) as PrefixedHexString;
 
   if (!account) {
     throw new Error('account is undefined');
@@ -66,7 +65,7 @@ test('get light account address', async () => {
 });
 
 test('get kernal account address', async () => {
-  const account = (await getAccount()) as PrefixedHexString;
+  const account = (await EoaAccountManager.getAccount()) as PrefixedHexString;
 
   if (!account) {
     throw new Error('account is undefined');
@@ -80,7 +79,7 @@ test('get kernal account address', async () => {
 });
 
 test('get safe account address', async () => {
-  const account = (await getAccount()) as PrefixedHexString;
+  const account = (await EoaAccountManager.getAccount()) as PrefixedHexString;
 
   if (!account) {
     throw new Error('account is undefined');
@@ -93,7 +92,7 @@ test('get safe account address', async () => {
   expect(scwAddress).toEqual('0xD3f465da8672edF8F78BF23c86ef3fB89474576a');
 });
 test('create and send user op kernel account use paymaster', async () => {
-  const account = await getWallet();
+  const account = await EoaAccountManager.getWallet();
   const network = RlyLocalNetwork;
   const provider = new ethers.providers.JsonRpcProvider(
     network.config.gsn.rpcUrl
@@ -123,7 +122,7 @@ test('create and send user op kernel account use paymaster', async () => {
 }, 10000);
 
 test('create and send user op light account', async () => {
-  const account = await getWallet();
+  const account = await EoaAccountManager.getWallet();
   const network = RlyLocalNetwork;
   const provider = new ethers.providers.JsonRpcProvider(
     network.config.gsn.rpcUrl
@@ -168,7 +167,7 @@ test('create and send user op light account', async () => {
 }, 10000);
 
 test('create and send user op safe account', async () => {
-  const account = await getWallet();
+  const account = await EoaAccountManager.getWallet();
   const network = RlyLocalNetwork;
   const provider = new ethers.providers.JsonRpcProvider(
     network.config.gsn.rpcUrl
@@ -212,7 +211,7 @@ test('create and send user op safe account', async () => {
 }, 10000);
 
 test('batch claim rly with light account', async () => {
-  const account = await getWallet();
+  const account = await EoaAccountManager.getWallet();
   const network = RlyLocalNetwork;
   const provider = new ethers.providers.JsonRpcProvider(
     network.config.gsn.rpcUrl

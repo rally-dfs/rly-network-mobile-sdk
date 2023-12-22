@@ -25,15 +25,15 @@ The Rally Mobile SDK allows you to use 3 different types of smart account wallet
 ```
 
 import {
+  EoaAccountManager,
   LightAccountManager,
-  getAccount,
   RlyMumbaiNetwork
 } from 'rly-mobile-sdk';
 
   const network = RlyMumbaiNetwork;
-  const account = (await getAccount()) as PrefixedHexString;
+  const eoa = await EoaAccountManager.getAccount();
 
-  if (!account) {
+  if (!eoa) {
     throw new Error('account is undefined');
   }
 
@@ -47,7 +47,7 @@ import {
   //call claim on faucet contract
 
   const hash = await LightAccountManager.createAndSendUserOperation(
-    account,
+    eoa,
     faucet.address,
     '0',
     faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString
