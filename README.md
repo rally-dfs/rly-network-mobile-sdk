@@ -20,7 +20,7 @@ If you want to learn how you can contribute, reach out to us on [Discord](https:
 
 # Account Abstraction
 
-The Rally Mobile SDK allows you to use 3 different types of smart account wallets (Kernel by Zero Dev, Light Account by Alchemy and a Gnosis Safe). Below is an example of using a LightAccount to send 1 eth.
+The Rally Mobile SDK allows you to use 3 different types of smart account wallets (Kernel by Zero Dev, Light Account by Alchemy and a Gnosis Safe). Below is an example of calling `claim` on the faucet contract.
 
 ```
 
