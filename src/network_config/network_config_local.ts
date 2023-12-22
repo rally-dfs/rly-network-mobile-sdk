@@ -33,5 +33,6 @@ export const LocalNetworkConfig: NetworkConfig = {
     kernalECDSAValidatorAddress: '0xd9AB5096a832b9ce79914329DAEE236f8Eea0390',
     candideFactoryAddress: '0xb73Eb505Abc30d0e7e15B73A492863235B3F4309',
     candideImplAddress: '0x3A0a17Bcc84576b099373ab3Eed9702b07D30402',
+    safeMultiSendAddress: '0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526',
   },
 };

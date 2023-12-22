@@ -1,10 +1,10 @@
-import type { Contract, Wallet } from 'ethers';
+import type { Contract, Wallet, Event } from 'ethers';
 import type { NetworkConfig } from './network_config/network_config';
 import type { PrefixedHexString } from './gsnClient/utils';
-import type { UserOperation } from './smart_accounts/common/common';
+import type { UserOperation } from './smart_accounts/utils/utils';
 
 export interface SmartAccountManager {
-  getAddress: (
+  getAccountAddress: (
     account: PrefixedHexString,
     network: NetworkConfig
   ) => Promise<PrefixedHexString>;
@@ -12,23 +12,41 @@ export interface SmartAccountManager {
     account: PrefixedHexString,
     network: NetworkConfig
   ): Promise<Contract>;
-  getInitCode(
-    owner: PrefixedHexString,
-    network: NetworkConfig
-  ): Promise<PrefixedHexString>;
-  getDummySignature(): Promise<PrefixedHexString>;
-  getExecuteCall(
+  createUserOperation: (
+    owner: Wallet,
     to: PrefixedHexString,
     value: string,
     callData: PrefixedHexString,
     network: NetworkConfig
-  ): Promise<PrefixedHexString>;
+  ) => Promise<UserOperation>;
+  createUserOperationBatch: (
+    owner: Wallet,
+    to: PrefixedHexString[],
+    value: string[],
+    callData: PrefixedHexString[],
+    network: NetworkConfig
+  ) => Promise<UserOperation>;
   signUserOperation: (
     owner: Wallet,
-    userOpHash: PrefixedHexString
-  ) => Promise<PrefixedHexString>;
+    op: UserOperation,
+    network: NetworkConfig
+  ) => Promise<UserOperation>;
   sendUserOperation: (
     userOp: UserOperation,
+    network: NetworkConfig
+  ) => Promise<PrefixedHexString>;
+  createAndSendUserOperation: (
+    owner: Wallet,
+    to: PrefixedHexString,
+    value: string,
+    callData: PrefixedHexString,
+    network: NetworkConfig
+  ) => Promise<PrefixedHexString>;
+  createAndSendUserOperationBatch: (
+    owner: Wallet,
+    to: PrefixedHexString[],
+    value: string[],
+    callData: PrefixedHexString[],
     network: NetworkConfig
   ) => Promise<PrefixedHexString>;
   confirmUserOperation: (

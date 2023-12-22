@@ -11,7 +11,7 @@ import {
   sendUserOperation,
   confirmUserOperation,
   getUserOperationReceipt,
-} from '../smart_accounts/common/common';
+} from '../smart_accounts/utills/common';
 import { LocalNetworkConfig } from '../network_config/network_config_local';
 import type { KeyStorageConfig } from 'src/keyManagerTypes';
 import type { PrefixedHexString } from 'src/gsnClient/utils';

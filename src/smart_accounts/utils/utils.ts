@@ -1,7 +1,6 @@
-import { ethers, Wallet, BigNumber, Contract, Event } from 'ethers';
+import { ethers, providers, BigNumber, Contract, Event } from 'ethers';
 import type { PrefixedHexString } from '../../gsnClient/utils';
 import { BundlerJsonRpcProvider } from './bundlerProvider';
-import type { SmartAccountManager } from 'src/smart_account';
 import type { NetworkConfig } from '../../network_config/network_config';
 import EntryPoint from '../../contracts/accountAbstraction/entryPointData.json';
 
@@ -33,77 +32,24 @@ export const userOpDefaults: UserOperation = {
   signature: '0x',
 };
 
-export const createUserOperation = async (
-  account: SmartAccountManager,
-  owner: Wallet,
-  network: NetworkConfig,
-  to: PrefixedHexString,
-  value: string,
-  callData: PrefixedHexString
+export const estimateUserOperationGas = async (
+  op: UserOperation,
+  network: NetworkConfig
 ): Promise<UserOperation> => {
-  let op: UserOperation = userOpDefaults;
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = new providers.JsonRpcProvider(network.gsn.rpcUrl);
   const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
-  const sender = await account.getAddress(
-    owner.address as PrefixedHexString,
-    network
-  );
-
-  const code = await provider.getCode(sender);
-
-  op.sender = sender;
-
-  //if account not created include init code in userop
-  if (code === '0x') {
-    op.initCode = await account.getInitCode(
-      owner.address as PrefixedHexString,
-      network
-    );
-    op.nonce = ethers.constants.Zero;
-
-    const deployerAddress = op.initCode.substring(0, 42);
-    const deployerCallData = '0x' + op.initCode.substring(42);
-
-    const initEstimate = await provider.estimateGas({
-      to: deployerAddress,
-      data: deployerCallData,
-    });
-
-    op.verificationGasLimit = op.verificationGasLimit.add(initEstimate);
-  } else {
-    const scw = await account.getAccount(sender, network);
-
-    op.nonce = await scw.getNonce();
-  }
-
-  op.callData = await account.getExecuteCall(to, value, callData, network);
-
-  const block = await provider.getBlock('latest');
-  op.maxFeePerGas = block.baseFeePerGas!.add(op.maxPriorityFeePerGas);
-  op.signature = await account.getDummySignature();
   const { preVerificationGas, verificationGasLimit, callGasLimit } =
     await bundlerProvider.send('eth_estimateUserOperationGas', [
       OpToJSON(op),
       network.aa.entrypointAddress,
     ]);
-
+  const block = await provider.getBlock('latest');
+  op.maxFeePerGas = block.baseFeePerGas!.add(op.maxPriorityFeePerGas);
   op.preVerificationGas = op.preVerificationGas.add(
     BigNumber.from(preVerificationGas)
   );
   op.verificationGasLimit = BigNumber.from(verificationGasLimit);
-
   op.callGasLimit = BigNumber.from(callGasLimit);
-
-  const chainId = await provider.getNetwork().then((n) => n.chainId);
-
-  const userOpHash = (await getUserOpHash(
-    op,
-    network.aa.entrypointAddress,
-    chainId
-  )) as PrefixedHexString;
-
-  const sig = await account.signUserOperation(owner, userOpHash);
-  op.signature = sig as PrefixedHexString;
   return op;
 };
 
@@ -246,3 +192,23 @@ export function getUserOpHash(
   );
   return ethers.utils.keccak256(encoded);
 }
+
+function encodeMultiSendTransaction(tx: Transaction): string {
+  const data = tx.data;
+  const encoded = ethers.utils.solidityPack(
+    ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
+    [tx.operation, tx.to, tx.value, data.length, data]
+  );
+  return encoded.slice(2);
+}
+
+export function encodeMultiSendCallData(txs: Transaction[]): string {
+  return '0x' + txs.map((tx) => encodeMultiSendTransaction(tx)).join('');
+}
+
+export type Transaction = {
+  to: PrefixedHexString;
+  value: string;
+  data: PrefixedHexString;
+  operation: number;
+};

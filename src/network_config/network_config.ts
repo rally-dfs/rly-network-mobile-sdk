@@ -11,6 +11,7 @@ export type AAConfig = {
   kernalECDSAValidatorAddress: PrefixedHexString;
   candideFactoryAddress: PrefixedHexString;
   candideImplAddress: PrefixedHexString;
+  safeMultiSendAddress: PrefixedHexString;
 };
 
 export type GSNConfig = {
