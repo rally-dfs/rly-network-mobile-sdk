@@ -1,8 +1,9 @@
 import type { Wallet, Contract, Event } from 'ethers';
 import type { Network, NetworkConfig } from '../../network';
 import type { SmartAccountManager } from './smartAccountManager';
-import type { PrefixedHexString } from 'src/gsnClient/utils';
+import type { PrefixedHexString } from '../../gsnClient/utils';
 import type { UserOperation } from './common/common';
+import type { ISmartAccount } from './ISmartAccount';
 import {
   LightAccountManager,
   KernelAccountManager,
@@ -16,7 +17,7 @@ import {
   getClaimRlyTx,
 } from './common/accountTransaction';
 
-class SmartAccount {
+class SmartAccount implements ISmartAccount {
   private owner: Wallet;
   private network: Network;
   private config: NetworkConfig;

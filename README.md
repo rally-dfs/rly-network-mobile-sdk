@@ -25,13 +25,12 @@ The Rally Mobile SDK allows you to use 3 different types of smart account wallet
 ```
 
 import {
-  EoaAccountManager,
-  LightAccountManager,
-  RlyMumbaiNetwork
+  EoaAccount,
+  LightAccount,
+  Mumbai
 } from 'rly-mobile-sdk';
 
-  const network = RlyMumbaiNetwork;
-  const eoa = await EoaAccountManager.getAccount();
+  const eoa = await EoaAccount.getWallet();
 
   if (!eoa) {
     throw new Error('account is undefined');
@@ -46,77 +45,70 @@ import {
   //will check if account for user exists, if not create it
   //call claim on faucet contract
 
-  const hash = await LightAccountManager.createAndSendUserOperation(
-    eoa,
+  const lightAccount = new LightAccount(account, Mumbai);
+
+  const hash = await lightAccount.createAndSendUserOperation(
     faucet.address,
     '0',
     faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString
-    network
   );
 
-  await confirmUserOperation(hash, network);
+  await lightAccount.confirmUserOperation(hash, network);
 
 ```
 
-## Smart Account Manager Interface
+## Smart Account Interface
+
+Each smart account is a class that implements the below interface
 
 ```
-export interface SmartAccountManager {
-  getAccountAddress: (
-    owner: PrefixedHexString,
-    network: Network
-  ) => Promise<PrefixedHexString>;
-  getAccount(account: PrefixedHexString, network: Network): Promise<Contract>;
-  createUserOperation: (
-    owner: Wallet,
+interface ISmartAccount {
+  getAccountAddress(): Promise<PrefixedHexString>;
+  getAccount(): Promise<Contract>;
+  createUserOperation(
     to: PrefixedHexString,
     value: string,
-    callData: PrefixedHexString,
-    network: Network
-  ) => Promise<UserOperation>;
-  createUserOperationBatch: (
-    owner: Wallet,
+    callData: PrefixedHexString
+  ): Promise<UserOperation>;
+  createUserOperationBatch(
     to: PrefixedHexString[],
     value: string[],
-    callData: PrefixedHexString[],
-    network: Network
-  ) => Promise<UserOperation>;
-  signUserOperation: (
-    owner: Wallet,
-    op: UserOperation,
-    network: Network
-  ) => Promise<UserOperation>;
-  sendUserOperation: (
-    userOp: UserOperation,
-    network: Network
-  ) => Promise<PrefixedHexString>;
-  createAndSendUserOperation: (
-    owner: Wallet,
+    callData: PrefixedHexString[]
+  ): Promise<UserOperation>;
+  signUserOperation(userOp: UserOperation): Promise<UserOperation>;
+  sendUserOperation(userOp: UserOperation): Promise<PrefixedHexString>;
+  confirmUserOperation(
+    userOpHash: PrefixedHexString
+  ): Promise<Event | null | undefined>;
+  getUserOperationReceipt(userOpHash: PrefixedHexString): Promise<any>;
+  createAndSendUserOperation(
     to: PrefixedHexString,
     value: string,
-    callData: PrefixedHexString,
-    network: Network
-  ) => Promise<PrefixedHexString>;
-  createAndSendUserOperationBatch: (
-    owner: Wallet,
+    callData: PrefixedHexString
+  ): Promise<PrefixedHexString>;
+  createAndSendUserOperationBatch(
     to: PrefixedHexString[],
     value: string[],
-    callData: PrefixedHexString[],
-    network: Network
-  ) => Promise<PrefixedHexString>;
-  confirmUserOperation: (
-    userOpHash: PrefixedHexString,
-    network: Network
-  ) => Promise<Event | null | undefined>;
+    callData: PrefixedHexString[]
+  ): Promise<PrefixedHexString>;
+  getBalance(): Promise<any>;
+  getErc20BalanceDisplay(tokenAddress?: PrefixedHexString): Promise<any>;
+  getErc20BalanceExact(tokenAddress?: PrefixedHexString): Promise<any>;
+  transferErc20(
+    to: string,
+    amount: number,
+    tokenAddress?: PrefixedHexString
+  ): Promise<PrefixedHexString>;
+  claimRly(): Promise<PrefixedHexString>;
 }
 ```
 
-The Rally Mobile SDK exports 3 types of smart account wallets: `LightAccountManager`, `KernelAccountManager`, `SafeAccountManager`
+The Rally Mobile SDK exports 3 types of smart account wallets: `LightAccount`, `KernelAccount`, `SafeAccount`
 
 ## Usage
 
 ```
-import {LightAccountManager} from `rly-mobile-sdk`;
+import {LightAccount, KernelAccount, SafeAccount} from `rly-mobile-sdk`;
 ```
 
 ### Accounts
@@ -127,14 +119,14 @@ This method returns the smart account address for the specified EOA account owne
 
 ```
 import {
-  LightAccountManager,
-  EoaAccountManager,
-  RlyMumbaiNetwork
+  EoaAccount,
+  LightAccount,
+  Mumbai
   } from `rly-mobile-sdk`;
 
-const eoaAccount = EoaAccountManager.getAccount();
-
-const accountAddress = LightAccountManager.getAccountAddress(eoaAccount, RlyMumbaiNetwork);
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+const accountAddress = lightAccount.getAccountAddress();
 
 ```
 
@@ -144,26 +136,197 @@ This method returns smart account contract instance for the specified EOA accoun
 
 ```
 import {
-  LightAccountManager,
+  LightAccount,
   EoaAccountManager,
   RlyMumbaiNetwork
   } from `rly-mobile-sdk`;
 
-const eoaAccount = EoaAccountManager.getAccount();
-
-const accountAddress = LightAccountManager.getAccount(eoaAccount, RlyMumbaiNetwork);
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+const accountAddress = lightAccount.getAccount();
 ```
 
 ### User Operations
 
+#### createAndSendUserOperation
+
+This method will create, sign and send a single user operation. a to address, value and call data are required parameters.
+
+```
+
+import {
+  LightAccount,
+  EoaAccountManager,
+  RlyMumbaiNetwork
+  } from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+
+ const faucet = new Contract(
+    '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+    TokenFaucet.abi,
+    provider
+  );
+
+const userOp = lightAccount.createAndSendUserOperation(
+    faucet.address,
+    '0',
+    faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString
+)
+```
+
+#### createAndSendUserOperationBatch
+
+This method will create, sign and send a batch of user operations. an aarray of to addresses, an array of values and an array of call data are required parameters.
+
+```
+
+import {
+LightAccount,
+EoaAccountManager,
+RlyMumbaiNetwork
+} from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+
+const randomAddress = '0x3433c5aDDAD6e5eb2897318CcFB4854f7820A232'
+
+const faucet = new Contract(
+'0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+TokenFaucet.abi,
+provider
+);
+
+// create a batch user operation calling a smart contract and sending matic
+const userOpBatch = lightAccount.createAndSendUserOperationBatch(
+  [faucet.address, randomAddress],
+  ['0', 1],
+  [faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString, '0x']
+)
+
+```
+
 #### createUserOperation
+
+This method will create and return a single user operation. a to address, value and call data are required parameters.
+
+```
+
+import {
+LightAccount,
+EoaAccountManager,
+RlyMumbaiNetwork
+} from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+
+const faucet = new Contract(
+  '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+  TokenFaucet.abi,
+  provider
+);
+
+const userOp = lightAccount.createUserOperation(
+  faucet.address,
+  '0',
+  faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString
+)
+
+```
 
 #### createUserOperationBatch
 
+This method will create and return a batch of user operations. an aarray of to addresses, an array of values and an array of call data are required parameters.
+
+```
+
+import {
+LightAccount,
+EoaAccountManager,
+RlyMumbaiNetwork
+} from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+
+const randomAddress = '0x3433c5aDDAD6e5eb2897318CcFB4854f7820A232'
+
+const faucet = new Contract(
+  '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+  TokenFaucet.abi,
+  provider
+);
+
+// create a batch user operation calling a smart contract and sending matic
+const userOpBatch = lightAccount.createUserOperationBatch(
+  [faucet.address, randomAddress],
+  ['0', 1],
+  [faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString, '0x']
+)
+
+```
+
 #### signUserOperation
+
+this method signs and returns a user operation
+
+```
+
+import {
+LightAccount,
+EoaAccountManager,
+RlyMumbaiNetwork
+} from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+
+const faucet = new Contract(
+  '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+  TokenFaucet.abi,
+  provider
+);
+
+const userOp = lightAccount.createUserOperation(
+  faucet.address,
+  '0',
+  faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString
+  const signedUserOp = lightAccount.signUserOperation(userOp);
+)
+
+```
 
 #### sendUserOperation
 
-#### createAndSendUserOperation
+the method broadcasts a user operation
 
-#### createAndSendUserOperationBatch
+```
+
+import {
+LightAccount,
+EoaAccountManager,
+RlyMumbaiNetwork
+} from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccount.getWallet();
+const lightAcount = new LightAccount(eoaAccount, Mumbai);
+
+const faucet = new Contract(
+  '0x78a0794Bb3BB06238ed5f8D926419bD8fc9546d8',
+  TokenFaucet.abi,
+  provider
+);
+
+const userOp = lightAccount.createUserOperation(
+  faucet.address,
+  '0',
+  faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString
+)
+
+const signedUserOp = lightAccount.signUserOperation(userOp);
+const hash = lightAccount.sendUserOperation(signedUserOp);
+
+```
