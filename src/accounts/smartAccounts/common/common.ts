@@ -1,7 +1,7 @@
 import { ethers, providers, BigNumber, Contract, Event } from 'ethers';
 import type { PrefixedHexString } from '../../../gsnClient/utils';
 import { BundlerJsonRpcProvider } from './bundlerProvider';
-import type { NetworkConfig } from '../../../network';
+import type { Network } from '../../../network';
 import EntryPoint from '../../../contracts/accountAbstraction/entryPointData.json';
 
 export type UserOperation = {
@@ -34,14 +34,15 @@ export const userOpDefaults: UserOperation = {
 
 export const estimateUserOperationGas = async (
   op: UserOperation,
-  network: NetworkConfig
+  network: Network
 ): Promise<UserOperation> => {
-  const provider = new providers.JsonRpcProvider(network.gsn.rpcUrl);
-  const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
+  const { config } = network;
+  const provider = new providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const bundlerProvider = new BundlerJsonRpcProvider(config.aa.bundlerRpcUrl);
   const { preVerificationGas, verificationGasLimit, callGasLimit } =
     await bundlerProvider.send('eth_estimateUserOperationGas', [
       OpToJSON(op),
-      network.aa.entrypointAddress,
+      config.aa.entrypointAddress,
     ]);
   const [fee, block] = await Promise.all([
     provider.send('eth_maxPriorityFeePerGas', []),
@@ -66,24 +67,26 @@ export const estimateUserOperationGas = async (
 
 export const sendUserOperation = async (
   userOp: UserOperation,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
+  const { config } = network;
+  const bundlerProvider = new BundlerJsonRpcProvider(config.aa.bundlerRpcUrl);
   return bundlerProvider.send('eth_sendUserOperation', [
     OpToJSON(userOp),
-    network.aa.entrypointAddress,
+    config.aa.entrypointAddress,
   ]);
 };
 
 export const confirmUserOperation = async (
   userOpHash: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<Event | null | undefined> => {
+  const { config } = network;
   const waitTimeoutMs = 30000;
   const waitIntervalMs = 1000;
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
   const entryPoint = new Contract(
-    network.aa.entrypointAddress,
+    config.aa.entrypointAddress,
     EntryPoint.abi,
     provider
   );
@@ -106,10 +109,16 @@ export const confirmUserOperation = async (
 
 export const getUserOperationReceipt = async (
   userOpHash: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ) => {
-  const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
-  return bundlerProvider.send('eth_getUserOperationReceipt', [userOpHash]);
+  const { config } = network;
+  const bundlerProvider = new BundlerJsonRpcProvider(config.aa.bundlerRpcUrl);
+  // @ts-ignore
+  const { receipt } = await bundlerProvider.send(
+    'eth_getUserOperationReceipt',
+    [userOpHash]
+  );
+  return receipt;
 };
 
 export const OpToJSON = (op: UserOperation): UserOperation => {

@@ -130,5 +130,3 @@ export async function signTypedData(
   }
   return await wallet._signTypedData(domain, types, value);
 }
-
-export * from './eoaAccount';

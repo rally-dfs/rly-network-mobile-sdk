@@ -4,24 +4,20 @@ import {
   KernalAccount,
   SafeAccount,
   EoaAccount,
-  MumbaiNetworkConfig,
   Mumbai,
-  RlyMumbaiNetwork,
 } from '../index';
-import {
-  confirmUserOperation,
-  getUserOperationReceipt,
-} from '../accounts/smartAccounts/common/common';
 import type { KeyStorageConfig } from 'src/keyManager.types';
 import type { PrefixedHexString } from 'src/gsnClient/utils';
 
 import TokenFaucet from '../contracts/tokenFaucetData.json';
 import { erc20 } from '../contracts/erc20';
 
+const network = Mumbai;
+
 // mock native code, just testing signing function
-// address is 0x88046468228953d17c7DAaE39cfEF9B4b082164D, pk is 0x8666ebf0f4d397955c55932642fb9dd97fb60a2df121a9d2a39f7f1930958ca3)
+// address is 0x83DFd7530669780051BC6f3d50b4D10F7b199b95, pk is 0x8fb51942453d0a9f4e621aef252af00b5ab160b6efbfcbbc681fb82609d1da86)
 const mockDefaultMnemonic =
-  'solar robot chat embrace trap hole wild february retreat fruit hollow one';
+  'slab exist there need shy fire lazy guard alcohol begin sketch rural';
 
 let mockMnemonic: string | null = mockDefaultMnemonic;
 let mockGetPrivateKeyFromMnemonic = (mnemonic: string) =>
@@ -53,54 +49,56 @@ jest.mock('react-native', () => {
 });
 
 test('get light account address', async () => {
-  const account = await EoaAccount.getExistingOrCreate();
+  const account = await EoaAccount.getWallet();
 
-  //const account = (await EoaAccountManager.getAccount()) as PrefixedHexString;
-
-  if (!account.wallet) {
+  if (!account) {
     throw new Error('wallet is undefined');
   }
 
-  const lightAccount = new LightAccount(account.wallet, MumbaiNetworkConfig);
+  const lightAccount = new LightAccount(account, network);
+  const scwAddress = await lightAccount.getAccountAddress();
 
-  const scwAddress = lightAccount.getAccountAddress();
-
-  expect(scwAddress).toEqual('0xE16AD80b9Ed338cB40763fFe6399fb3fDE6f3743');
+  expect(scwAddress).toEqual('0x370C1B9eBdc6c5045073c505bE38F396E736989a');
 });
 
 test('get kernal account address', async () => {
-  const account = await EoaAccount.getExistingOrCreate();
-  if (!account.wallet) {
+  const account = await EoaAccount.getWallet();
+  if (!account) {
     throw new Error('account is undefined');
   }
-  const kernalAccount = new KernalAccount(account.wallet, MumbaiNetworkConfig);
-
+  const kernalAccount = new KernalAccount(account, network);
   const scwAddress = await kernalAccount.getAccountAddress();
-  expect(scwAddress).toEqual('0x94B8194107eF3441d8e7798A2fE426c0F4B8F94f');
+
+  expect(scwAddress).toEqual('0xa67e71BA16dEF24C2B36841D9f2a1040a0aDdd30');
 });
 
 test('get safe account address', async () => {
-  const account = await EoaAccount.getExistingOrCreate();
-  if (!account.wallet) {
+  const account = await EoaAccount.getWallet();
+
+  if (!account) {
     throw new Error('account is undefined');
   }
 
-  const safeAccount = new SafeAccount(account.wallet, MumbaiNetworkConfig);
+  const safeAccount = new SafeAccount(account, network);
   const scwAddress = await safeAccount.getAccountAddress();
-  expect(scwAddress).toEqual('0x7E9492f7a3035A77c3b1c92A71Ab167293268910');
+
+  expect(scwAddress).toEqual('0x8668919571Df18B2105Ce48305372027c6762FFD');
 });
 test('create and send user op kernel account use paymaster', async () => {
-  const account = await EoaAccount.getExistingOrCreate();
-  if (!account.wallet) {
+  const account = await EoaAccount.getWallet();
+
+  if (!account) {
     throw new Error('account is undefined');
   }
   const provider = new ethers.providers.JsonRpcProvider(
-    MumbaiNetworkConfig.gsn.rpcUrl
+    network.config.gsn.rpcUrl
   );
 
   const newAccount = ethers.Wallet.createRandom();
+  const kernelAccount = new KernalAccount(account, network);
+  const kernelAccountAddress = await kernelAccount.getAccountAddress();
 
-  const kernelAccount = new KernalAccount(account.wallet, Mumbai);
+  console.log('kernal account address', kernelAccountAddress);
 
   const hash = await kernelAccount.createAndSendUserOperation(
     newAccount.address as PrefixedHexString,
@@ -110,7 +108,7 @@ test('create and send user op kernel account use paymaster', async () => {
 
   await kernelAccount.confirmUserOperation(hash);
 
-  const { receipt } = await getUserOperationReceipt(hash, MumbaiNetworkConfig);
+  const receipt = await kernelAccount.getUserOperationReceipt(hash);
   const newAccountBalance = await provider.getBalance(newAccount.address);
 
   expect(receipt.status).toEqual('0x1');
@@ -207,8 +205,11 @@ test('create and send user op safe account', async () => {
 }, 10000);*/
 
 test('batch claim rly with light account', async () => {
-  const account = await EoaAccountManager.getWallet();
-  const network = RlyMumbaiNetwork;
+  const account = await EoaAccount.getWallet();
+
+  if (!account) {
+    throw new Error('account is undefined');
+  }
   const provider = new ethers.providers.JsonRpcProvider(
     network.config.gsn.rpcUrl
   );
@@ -224,17 +225,15 @@ test('batch claim rly with light account', async () => {
     throw new Error('account is undefined');
   }
 
-  const scwAddress = await LightAccountManager.getAccountAddress(
-    account.address as PrefixedHexString,
-    network
-  );
+  const lightAccount = new LightAccount(account, network);
+  const scwAddress = await lightAccount.getAccountAddress();
+
+  console.log('light account address', scwAddress);
 
   const preBalance = await rlyToken.balanceOf(scwAddress);
-
   const newAccount = ethers.Wallet.createRandom();
 
-  const hash = await LightAccountManager.createAndSendUserOperationBatch(
-    account,
+  const hash = await lightAccount.createAndSendUserOperationBatch(
     [
       faucet.address as PrefixedHexString,
       newAccount.address as PrefixedHexString,
@@ -243,17 +242,43 @@ test('batch claim rly with light account', async () => {
     [
       faucet.interface.encodeFunctionData('claim', []) as PrefixedHexString,
       '0x',
-    ],
-    network
+    ]
   );
 
-  await confirmUserOperation(hash, network);
-
-  const { receipt } = await getUserOperationReceipt(hash, network);
+  await lightAccount.confirmUserOperation(hash);
+  const receipt = await lightAccount.getUserOperationReceipt(hash);
 
   const postBalance = await rlyToken.balanceOf(scwAddress);
   const newAccountBalance = await provider.getBalance(newAccount.address);
   expect(receipt.status).toEqual('0x1');
   expect(postBalance.sub(preBalance)).toEqual(ethers.utils.parseEther('10'));
-  expect(newAccountBalance).toEqual(ethers.utils.parseEther('1.0'));
-}, 10000);
+  expect(newAccountBalance).toEqual(ethers.utils.parseEther('0'));
+}, 50000);
+
+test('send  rly with light account', async () => {
+  const account = await EoaAccount.getWallet();
+
+  if (!account) {
+    throw new Error('account is undefined');
+  }
+
+  if (!account) {
+    throw new Error('account is undefined');
+  }
+
+  const lightAccount = new LightAccount(account, network);
+
+  const newAccount = ethers.Wallet.createRandom();
+
+  const hash = await lightAccount.transferErc20(
+    newAccount.address as PrefixedHexString,
+    1
+  );
+
+  await lightAccount.confirmUserOperation(hash);
+  const receipt = await lightAccount.getUserOperationReceipt(hash);
+
+  const postBalance = await lightAccount.getErc20BalanceDisplay();
+  expect(receipt.status).toEqual('0x1');
+  expect(postBalance).toEqual(9);
+}, 50000);

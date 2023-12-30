@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import type { NetworkConfig } from '../../../network';
 import type { PrefixedHexString } from '../../../gsnClient/utils';
 import { erc20, tokenFaucet } from '../../../contract';
@@ -43,15 +43,20 @@ export const getErc20BalanceExact = async (
 };
 
 export const getTransferTx = async (
-  to: PrefixedHexString,
-  amount: BigNumber,
+  to: string,
+  amount: number,
   network: NetworkConfig,
-  tokenAddress: PrefixedHexString
+  tokenAddress?: PrefixedHexString
 ): Promise<string> => {
   const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
+  tokenAddress = tokenAddress || network.contracts.rlyERC20;
+
   const token = erc20(provider, tokenAddress);
-  return token.interface.encodeFunctionData('transfer', [to, amount]);
+  const decimals = await token.decimals();
+
+  const amountBigNum = ethers.utils.parseUnits(amount.toString(), decimals);
+  return token.interface.encodeFunctionData('transfer', [to, amountBigNum]);
 };
 
 export const getClaimRlyTx = async (

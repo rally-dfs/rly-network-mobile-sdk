@@ -7,7 +7,6 @@ import { BodyText, HeadingText } from './components/text';
 
 export const GenerateAccountScreen = (props: {
   generateAccount: () => void;
-  generateSmartAccount: () => void;
   importExistingAccount: (arg0: string) => void;
 }) => {
   const [existingMnemonic, setExistingMnemonic] = useState('');
@@ -30,10 +29,6 @@ export const GenerateAccountScreen = (props: {
           <BodyText>Looks like you don't yet have an account</BodyText>
         </View>
         <Button title="Create RLY Account" onPress={props.generateAccount} />
-        <Button
-          title="Create RLY Smart Account"
-          onPress={props.generateSmartAccount}
-        />
       </RlyCard>
       <RlyCard style={styles.cardMargin}>
         <View style={styles.marginBetween}>

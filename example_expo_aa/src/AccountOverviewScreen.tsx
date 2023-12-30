@@ -9,23 +9,19 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   getAccountPhrase,
-  RlyMumbaiNetwork,
-  permanentlyDeleteAccount,
-  MetaTxMethod,
+  LightAccount,
+  EoaAccount,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
-import { PrivateConfig } from './private_config';
 
-const RlyNetwork = RlyMumbaiNetwork;
-RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY);
-
-const customTokenAddress: string | undefined = undefined;
-
-export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
+export const AccountOverviewScreen = (props: {
+  smartAccount: LightAccount;
+  smartAccountAddress: string | undefined;
+}) => {
   const [performingAction, setPerformingAction] = useState<string>();
 
   const [balance, setBalance] = useState<number>();
@@ -35,33 +31,30 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
 
   const [mnemonic, setMnemonic] = useState<string>();
 
-  const fetchBalance = async () => {
-    const bal = await RlyNetwork.getDisplayBalance();
-
+  const fetchBalance = useCallback(async () => {
+    const bal = await props.smartAccount.getErc20BalanceDisplay();
     setBalance(bal);
-  };
+  }, [props.smartAccount]);
 
   useEffect(() => {
     fetchBalance();
-  }, []);
+  }, [fetchBalance]);
 
   const claimRlyTokens = async () => {
     setPerformingAction('Registering Account');
-    await RlyNetwork.claimRly();
-
+    const hash = await props.smartAccount.claimRly();
+    await props.smartAccount.confirmUserOperation(hash);
     await fetchBalance();
     setPerformingAction(undefined);
   };
 
   const transferTokens = async () => {
     setPerformingAction('Transfering Tokens');
-    await RlyNetwork.transfer(
+    const hash = await props.smartAccount.transferErc20(
       transferAddress,
-      parseInt(transferBalance, 10),
-      customTokenAddress,
-      MetaTxMethod.ExecuteMetaTransaction
+      parseInt(transferBalance, 10)
     );
-
+    await props.smartAccount.confirmUserOperation(hash);
     await fetchBalance();
     setPerformingAction(undefined);
     setTransferBalance('');
@@ -69,7 +62,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   };
 
   const deleteAccount = async () => {
-    await permanentlyDeleteAccount();
+    await EoaAccount.permanentlyDeleteAccount();
   };
 
   const revealMnemonic = async () => {
@@ -89,10 +82,11 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
           <View style={styles.alignMiddle}>
             <HeadingText>Welcome to RLY</HeadingText>
           </View>
+
           <View style={styles.addressContainer}>
             <SelectableText>
-              EOA Address: {''}
-              {props.rlyAccount || 'No Account Exists'}
+              Smart Account Address:{' '}
+              {props.smartAccountAddress || 'No Smart Account Exists'}
             </SelectableText>
           </View>
           <RlyCard style={styles.balanceCard}>
@@ -105,7 +99,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
                 title="View on Polygon"
                 onPress={() => {
                   Linking.openURL(
-                    `https://mumbai.polygonscan.com/address/${props.rlyAccount}`
+                    `https://mumbai.polygonscan.com/address/${props.smartAccountAddress}`
                   );
                 }}
               />
@@ -154,10 +148,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             </View>
             <Button title="Reveal my Mnemonic" onPress={revealMnemonic} />
           </RlyCard>
-
           <RlyCard style={styles.balanceCard}>
             <View style={styles.alignMiddle}>
-              <BodyText>Delete Your Account</BodyText>
+              <BodyText>Delete Your EOA Account</BodyText>
             </View>
             <Button
               title="Delete my on device account"

@@ -1,5 +1,5 @@
-import type { Wallet, Contract, BigNumber, Event } from 'ethers';
-import type { NetworkConfig } from '../../network';
+import type { Wallet, Contract, Event } from 'ethers';
+import type { Network, NetworkConfig } from '../../network';
 import type { SmartAccountManager } from './smartAccountManager';
 import type { PrefixedHexString } from 'src/gsnClient/utils';
 import type { UserOperation } from './common/common';
@@ -18,15 +18,17 @@ import {
 
 class SmartAccount {
   private owner: Wallet;
-  private network: NetworkConfig;
+  private network: Network;
+  private config: NetworkConfig;
   private smartAccountManager: SmartAccountManager;
   constructor(
     owner: Wallet,
-    network: NetworkConfig,
+    network: Network,
     smartAccountManager: SmartAccountManager
   ) {
     this.owner = owner;
     this.network = network;
+    this.config = network.config;
     this.smartAccountManager = smartAccountManager;
   }
   async getAccountAddress(): Promise<PrefixedHexString> {
@@ -87,6 +89,12 @@ class SmartAccount {
     );
   }
 
+  async getUserOperationReceipt(userOpHash: PrefixedHexString): Promise<any> {
+    return this.smartAccountManager.getUserOperationReceipt(
+      userOpHash,
+      this.network
+    );
+  }
   async createAndSendUserOperation(
     to: PrefixedHexString,
     value: string,
@@ -113,28 +121,38 @@ class SmartAccount {
       this.network
     );
   }
-  getBalance = getBalance;
-  getErc20BalanceDisplay = getErc20BalanceDisplay;
-  getErc20BalanceExact = getErc20BalanceExact;
-  async transferErc2020(
-    to: PrefixedHexString,
-    amount: BigNumber,
+  async getBalance() {
+    const address = await this.getAccountAddress();
+    return getBalance(address, this.network.config);
+  }
+
+  async getErc20BalanceDisplay(tokenAddress?: PrefixedHexString) {
+    const address = await this.getAccountAddress();
+    return getErc20BalanceDisplay(address, this.network.config, tokenAddress);
+  }
+  async getErc20BalanceExact(tokenAddress?: PrefixedHexString) {
+    const address = await this.getAccountAddress();
+    return getErc20BalanceExact(address, this.network.config, tokenAddress);
+  }
+  async transferErc20(
+    to: string,
+    amount: number,
     tokenAddress?: PrefixedHexString
   ): Promise<PrefixedHexString> {
-    tokenAddress = tokenAddress || this.network.contracts.rlyERC20;
+    tokenAddress = tokenAddress || this.config.contracts.rlyERC20;
     const data = (await getTransferTx(
       to,
       amount,
-      this.network,
+      this.config,
       tokenAddress
     )) as PrefixedHexString;
     return this.createAndSendUserOperation(tokenAddress, '0', data);
   }
 
   async claimRly() {
-    const data = (await getClaimRlyTx(this.network)) as PrefixedHexString;
+    const data = (await getClaimRlyTx(this.config)) as PrefixedHexString;
     return this.createAndSendUserOperation(
-      this.network.contracts.tokenFaucet,
+      this.config.contracts.tokenFaucet,
       '0',
       data
     );
@@ -142,19 +160,19 @@ class SmartAccount {
 }
 
 export class LightAccount extends SmartAccount {
-  constructor(owner: Wallet, network: NetworkConfig) {
+  constructor(owner: Wallet, network: Network) {
     super(owner, network, LightAccountManager);
   }
 }
 
 export class KernalAccount extends SmartAccount {
-  constructor(owner: Wallet, network: NetworkConfig) {
+  constructor(owner: Wallet, network: Network) {
     super(owner, network, KernelAccountManager);
   }
 }
 
 export class SafeAccount extends SmartAccount {
-  constructor(owner: Wallet, network: NetworkConfig) {
+  constructor(owner: Wallet, network: Network) {
     super(owner, network, SafeAccountManager);
   }
 }

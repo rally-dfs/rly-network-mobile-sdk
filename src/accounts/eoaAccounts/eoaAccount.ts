@@ -6,24 +6,40 @@ import type { MetaTxMethod, PrefixedHexString } from '../../gsnClient/utils';
 export class EoaAccount {
   private network;
   public wallet;
-  constructor(wallet?: Wallet, network?: Network) {
+  public address;
+  constructor(wallet: Wallet, network: Network) {
     this.network = network;
     this.wallet = wallet;
+    this.address = wallet.address;
   }
-  static async getExistingOrCreate(network?: Network) {
+  static async createAccount(network: Network) {
     await eoaAccountManager.createAccount();
     const wallet = await eoaAccountManager.getWallet();
+    if (!wallet) {
+      return 'no account';
+    }
     return new EoaAccount(wallet, network);
   }
-  getAddress = eoaAccountManager.getAccount;
-  getWallet = eoaAccountManager.getWallet;
-  importExistingAccount = eoaAccountManager.importExistingAccount;
-  permanentlyDeleteAccount = eoaAccountManager.permanentlyDeleteAccount;
-  getAccountPhrase = eoaAccountManager.getAccountPhrase;
-  signMessage = eoaAccountManager.signMessage;
-  signTransaction = eoaAccountManager.signTransaction;
-  signHash = eoaAccountManager.signHash;
-  signTypedData = eoaAccountManager.signTypedData;
+  static async getAccount(network: Network) {
+    const wallet = await eoaAccountManager.getWallet();
+    if (!wallet) {
+      return 'no account';
+    }
+    return new EoaAccount(wallet, network);
+  }
+  static async createEoa(): Promise<Wallet | undefined> {
+    await eoaAccountManager.createAccount();
+    return eoaAccountManager.getWallet();
+  }
+  static getAddress = eoaAccountManager.getAccount;
+  static getWallet = eoaAccountManager.getWallet;
+  static importExistingAccount = eoaAccountManager.importExistingAccount;
+  static permanentlyDeleteAccount = eoaAccountManager.permanentlyDeleteAccount;
+  static getAccountPhrase = eoaAccountManager.getAccountPhrase;
+  static signMessage = eoaAccountManager.signMessage;
+  static signTransaction = eoaAccountManager.signTransaction;
+  static signHash = eoaAccountManager.signHash;
+  static signTypedData = eoaAccountManager.signTypedData;
   transfer(
     destinationAddress: string,
     amount: number,

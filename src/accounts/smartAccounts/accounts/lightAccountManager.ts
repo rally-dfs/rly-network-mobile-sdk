@@ -1,7 +1,7 @@
 import { Contract, ethers, Wallet } from 'ethers';
 import type { SmartAccountManager } from '../smartAccountManager';
 import type { PrefixedHexString } from '../../../gsnClient/utils';
-import type { NetworkConfig } from '../../../network';
+import type { Network } from '../../../network';
 import LightAccountFactory from '../../../contracts/smartAccounts/lightAccountFactoryData.json';
 import LightAccount from '../../../contracts/smartAccounts/lightAccountData.json';
 import type { UserOperation } from '../common/common';
@@ -11,16 +11,18 @@ import {
   estimateUserOperationGas,
   userOpDefaults,
   getUserOpHash,
+  getUserOperationReceipt,
 } from '../common/common';
 
 const getAccountAddress = async (
   owner: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const factory = new Contract(
-    network.aa.lightAccountFactoryAddress,
+    config.aa.lightAccountFactoryAddress,
     LightAccountFactory.abi,
     provider
   );
@@ -30,9 +32,10 @@ const getAccountAddress = async (
 
 const getAccount = async (
   address: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<Contract> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   return new Contract(address, LightAccount.abi, provider);
 };
@@ -42,7 +45,7 @@ const createUserOperation = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ) => {
   let op: UserOperation = await fillUserOperation(owner, network);
   op.callData = await getExecuteCall(to, value, callData, network);
@@ -55,7 +58,7 @@ const createUserOperationBatch = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: NetworkConfig
+  network: Network
 ) => {
   let op: UserOperation = await fillUserOperation(owner, network);
   op.callData = await getExecuteBatchCall(to, value, callData, network);
@@ -66,14 +69,15 @@ const createUserOperationBatch = async (
 const signUserOperation = async (
   owner: Wallet,
   op: UserOperation,
-  network: NetworkConfig
+  network: Network
 ): Promise<UserOperation> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
   const chainId = await provider.getNetwork().then((n) => n.chainId);
 
   const userOpHash = (await getUserOpHash(
     op,
-    network.aa.entrypointAddress,
+    config.aa.entrypointAddress,
     chainId
   )) as PrefixedHexString;
 
@@ -90,7 +94,7 @@ const createAndSendUserOperation = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
   const op = await createUserOperation(owner, to, value, callData, network);
   await signUserOperation(owner, op, network);
@@ -102,7 +106,7 @@ const createAndSendUserOperationBatch = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
   const op = await createUserOperationBatch(
     owner,
@@ -117,31 +121,33 @@ const createAndSendUserOperationBatch = async (
 
 const getInitCode = async (
   owner: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const factory = new Contract(
-    network.aa.lightAccountFactoryAddress,
+    config.aa.lightAccountFactoryAddress,
     LightAccountFactory.abi,
     provider
   );
 
   return ethers.utils.hexConcat([
-    network.aa.lightAccountFactoryAddress,
+    config.aa.lightAccountFactoryAddress,
     factory.interface.encodeFunctionData('createAccount', [owner, 0]),
   ]) as PrefixedHexString;
 };
 
-const fillUserOperation = async (owner: Wallet, network: NetworkConfig) => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+const fillUserOperation = async (owner: Wallet, network: Network) => {
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
   let op: UserOperation = userOpDefaults;
   const sender = await getAccountAddress(
     owner.address as PrefixedHexString,
     network
   );
   op.sender = sender;
-  op.paymasterAndData = network.aa.paymaster;
+  op.paymasterAndData = config.aa.paymaster;
 
   const code = await provider.getCode(sender);
 
@@ -179,12 +185,13 @@ const getExecuteCall = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const scwImpl = new Contract(
-    network.aa.lightAccountImplAddress,
+    config.aa.lightAccountImplAddress,
     LightAccount.abi,
     provider
   );
@@ -200,12 +207,13 @@ const getExecuteBatchCall = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const scwImpl = new Contract(
-    network.aa.lightAccountImplAddress,
+    config.aa.lightAccountImplAddress,
     [
       {
         inputs: [
@@ -249,6 +257,7 @@ export const LightAccountManager: SmartAccountManager = {
   signUserOperation: signUserOperation,
   sendUserOperation: sendUserOperation,
   confirmUserOperation: confirmUserOperation,
+  getUserOperationReceipt: getUserOperationReceipt,
   createAndSendUserOperation: createAndSendUserOperation,
   createAndSendUserOperationBatch: createAndSendUserOperationBatch,
 };

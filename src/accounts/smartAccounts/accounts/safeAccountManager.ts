@@ -9,26 +9,28 @@ import {
   estimateUserOperationGas,
   getUserOpHash,
   encodeMultiSendCallData,
+  getUserOperationReceipt,
 } from '../common/common';
-import type { NetworkConfig } from '../../../network';
+import type { Network } from '../../../network';
 import CandideFactory from '../../../contracts/smartAccounts/candideFactoryData.json';
 import Candide from '../../../contracts/smartAccounts/candideData.json';
 import MultiSend from '../../../contracts/smartAccounts/multiSendData.json';
 
 const getAccountAddress = async (
   owner: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const factory = new Contract(
-    network.aa.candideFactoryAddress,
+    config.aa.candideFactoryAddress,
     CandideFactory.abi,
     provider
   );
 
   const candide = new Contract(
-    network.aa.candideImplAddress,
+    config.aa.candideImplAddress,
     Candide.abi,
     provider
   );
@@ -44,13 +46,13 @@ const getAccountAddress = async (
       ethers.constants.AddressZero,
       0,
       ethers.constants.AddressZero,
-      network.aa.entrypointAddress,
+      config.aa.entrypointAddress,
     ]
   );
 
   const deploymentCode = ethers.utils.solidityPack(
     ['bytes', 'uint256'],
-    [await factory.proxyCreationCode(), network.aa.candideImplAddress]
+    [await factory.proxyCreationCode(), config.aa.candideImplAddress]
   );
   const salt = ethers.utils.solidityKeccak256(
     ['bytes32', 'uint256'],
@@ -65,9 +67,11 @@ const getAccountAddress = async (
 
 const getAccount = async (
   address: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<Contract> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   return new Contract(address, Candide.abi, provider);
 };
@@ -77,7 +81,7 @@ const createUserOperation = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<UserOperation> => {
   let op: UserOperation = await fillUserOperation(owner, network);
   op.callData = await getExecuteCall(to, value, callData, network);
@@ -90,7 +94,7 @@ const createUserOperationBatch = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: NetworkConfig
+  network: Network
 ): Promise<UserOperation> => {
   let op: UserOperation = await fillUserOperation(owner, network);
   op.callData = await getExecuteBatchCall(to, value, callData, network);
@@ -101,14 +105,16 @@ const createUserOperationBatch = async (
 const signUserOperation = async (
   owner: Wallet,
   op: UserOperation,
-  network: NetworkConfig
+  network: Network
 ): Promise<UserOperation> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
   const chainId = await provider.getNetwork().then((n) => n.chainId);
 
   const userOpHash = (await getUserOpHash(
     op,
-    network.aa.entrypointAddress,
+    config.aa.entrypointAddress,
     chainId
   )) as PrefixedHexString;
 
@@ -125,7 +131,7 @@ const createAndSendUserOperation = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
   const op = await createUserOperation(owner, to, value, callData, network);
   const signedOp = await signUserOperation(owner, op, network);
@@ -137,7 +143,7 @@ const createAndSendUserOperationBatch = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
   const op = await createUserOperationBatch(
     owner,
@@ -150,15 +156,17 @@ const createAndSendUserOperationBatch = async (
   return sendUserOperation(signedOp, network);
 };
 
-const fillUserOperation = async (owner: Wallet, network: NetworkConfig) => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+const fillUserOperation = async (owner: Wallet, network: Network) => {
+  const { config } = network;
+
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
   let op: UserOperation = userOpDefaults;
   const sender = await getAccountAddress(
     owner.address as PrefixedHexString,
     network
   );
   op.sender = sender;
-  op.paymasterAndData = network.aa.paymaster;
+  op.paymasterAndData = config.aa.paymaster;
 
   const code = await provider.getCode(sender);
 
@@ -190,18 +198,20 @@ const fillUserOperation = async (owner: Wallet, network: NetworkConfig) => {
 
 const getInitCode = async (
   owner: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const factory = new Contract(
-    network.aa.candideFactoryAddress,
+    config.aa.candideFactoryAddress,
     CandideFactory.abi,
     provider
   );
 
   const candide = new Contract(
-    network.aa.candideImplAddress,
+    config.aa.candideImplAddress,
     Candide.abi,
     provider
   );
@@ -217,14 +227,14 @@ const getInitCode = async (
       ethers.constants.AddressZero,
       0,
       ethers.constants.AddressZero,
-      network.aa.entrypointAddress,
+      config.aa.entrypointAddress,
     ]
   );
 
   return ethers.utils.hexConcat([
-    network.aa.candideFactoryAddress,
+    config.aa.candideFactoryAddress,
     factory.interface.encodeFunctionData('createProxyWithNonce', [
-      network.aa.candideImplAddress,
+      config.aa.candideImplAddress,
       initializer,
       0,
     ]),
@@ -239,12 +249,14 @@ const getExecuteCall = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const scwImpl = new Contract(
-    network.aa.candideImplAddress,
+    config.aa.candideImplAddress,
     Candide.abi,
     provider
   );
@@ -267,18 +279,20 @@ const getExecuteBatchCall = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: NetworkConfig
+  network: Network
 ): Promise<PrefixedHexString> => {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const { config } = network;
+
+  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
 
   const scwImpl = new Contract(
-    network.aa.candideImplAddress,
+    config.aa.candideImplAddress,
     Candide.abi,
     provider
   );
 
   const multiSend = new Contract(
-    network.aa.safeMultiSendAddress,
+    config.aa.safeMultiSendAddress,
     MultiSend.abi,
     provider
   );
@@ -306,7 +320,7 @@ const getExecuteBatchCall = async (
   return (await scwImpl.interface.encodeFunctionData(
     'execTransactionBatchFromEntrypoint',
     [
-      network.aa.safeMultiSendAddress,
+      config.aa.safeMultiSendAddress,
       0,
       multiSendCallData,
       0,
@@ -325,6 +339,7 @@ export const SafeAccountManager: SmartAccountManager = {
   signUserOperation: signUserOperation,
   sendUserOperation: sendUserOperation,
   confirmUserOperation: confirmUserOperation,
+  getUserOperationReceipt: getUserOperationReceipt,
   createAndSendUserOperation: createAndSendUserOperation,
   createAndSendUserOperationBatch: createAndSendUserOperationBatch,
 };
