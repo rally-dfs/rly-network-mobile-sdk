@@ -1,35 +1,9 @@
-import { Wallet, utils, BigNumber } from 'ethers';
+import { Wallet, utils } from 'ethers';
 import type { TypedDataDomain, TypedDataField } from 'ethers';
-import KeyManager from './keyManager';
-import type { KeyStorageConfig } from './keyManagerTypes';
+import KeyManager from '../../keyManager';
+import type { CreateAccountOptions, TransactionRequest } from './account.types';
 
 let _cachedWallet: Wallet | undefined;
-
-export type CreateAccountOptions = {
-  overwrite?: boolean;
-  storageOptions?: KeyStorageConfig;
-};
-
-export type TransactionRequest = {
-  to?: string;
-  from?: string;
-  nonce?: string | number | bigint | BigNumber | ArrayLike<number>;
-
-  gasLimit?: string | number | bigint | BigNumber | ArrayLike<number>;
-  gasPrice?: string | number | bigint | BigNumber | ArrayLike<number>;
-
-  data?: string | ArrayLike<number>;
-  value?: string | number | bigint | BigNumber | ArrayLike<number>;
-  chainId?: number;
-
-  maxPriorityFeePerGas?:
-    | string
-    | number
-    | bigint
-    | BigNumber
-    | ArrayLike<number>;
-  maxFeePerGas?: string | number | bigint | BigNumber | ArrayLike<number>;
-};
 
 async function _saveAccount(
   mnemonicPromise: Promise<string>,
@@ -157,15 +131,4 @@ export async function signTypedData(
   return await wallet._signTypedData(domain, types, value);
 }
 
-export const EoaAccountManager = {
-  createAccount: createAccount,
-  getAccount: getAccount,
-  getWallet: getWallet,
-  importExistingAccount: importExistingAccount,
-  permanentlyDeleteAccount: permanentlyDeleteAccount,
-  getAccountPhrase: getAccountPhrase,
-  signMessage: signMessage,
-  signTransaction: signTransaction,
-  signHash: signHash,
-  signTypedData: signTypedData,
-};
+export * from './eoaAccount';

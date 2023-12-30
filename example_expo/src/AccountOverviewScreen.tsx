@@ -25,7 +25,10 @@ RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY);
 
 const customTokenAddress: string | undefined = undefined;
 
-export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
+export const AccountOverviewScreen = (props: {
+  rlyAccount: string;
+  rlySmartAccount: string;
+}) => {
   const [performingAction, setPerformingAction] = useState<string>();
 
   const [balance, setBalance] = useState<number>();
@@ -36,7 +39,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [mnemonic, setMnemonic] = useState<string>();
 
   const fetchBalance = async () => {
-    const bal = await RlyNetwork.getBalance();
+    const bal = await RlyNetwork.getDisplayBalance();
 
     setBalance(bal);
   };
@@ -91,7 +94,14 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
           </View>
           <View style={styles.addressContainer}>
             <SelectableText>
+              EOA Address: {''}
               {props.rlyAccount || 'No Account Exists'}
+            </SelectableText>
+          </View>
+          <View style={styles.addressContainer}>
+            <SelectableText>
+              Smart Account Address:{' '}
+              {props.rlySmartAccount || 'No Smart Account Exists'}
             </SelectableText>
           </View>
           <RlyCard style={styles.balanceCard}>

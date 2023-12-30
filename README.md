@@ -18,9 +18,9 @@ The best way to submit feedback and report bugs is to open a [GitHub issue](http
 
 If you want to learn how you can contribute, reach out to us on [Discord](https://discord.gg/rlynetwork) or at [Partnerships@rallyprotocol.com](mailto:partnerships@rallyprotocol.com).
 
-# Account Abstraction
+# Smart Account Wallets
 
-The Rally Mobile SDK allows you to use 3 different types of smart account wallets (Kernel by Zero Dev, Light Account by Alchemy and a Gnosis Safe). Below is an example of calling `claim` on the faucet contract.
+The Rally Mobile SDK allows you to use 3 different types of smart account wallets (Kernel by Zero Dev, Light Account by Alchemy and a Gnosis Safe). Below is an example of calling `claim` on the faucet contract using a Light Account
 
 ```
 
@@ -57,3 +57,113 @@ import {
   await confirmUserOperation(hash, network);
 
 ```
+
+## Smart Account Manager Interface
+
+```
+export interface SmartAccountManager {
+  getAccountAddress: (
+    owner: PrefixedHexString,
+    network: Network
+  ) => Promise<PrefixedHexString>;
+  getAccount(account: PrefixedHexString, network: Network): Promise<Contract>;
+  createUserOperation: (
+    owner: Wallet,
+    to: PrefixedHexString,
+    value: string,
+    callData: PrefixedHexString,
+    network: Network
+  ) => Promise<UserOperation>;
+  createUserOperationBatch: (
+    owner: Wallet,
+    to: PrefixedHexString[],
+    value: string[],
+    callData: PrefixedHexString[],
+    network: Network
+  ) => Promise<UserOperation>;
+  signUserOperation: (
+    owner: Wallet,
+    op: UserOperation,
+    network: Network
+  ) => Promise<UserOperation>;
+  sendUserOperation: (
+    userOp: UserOperation,
+    network: Network
+  ) => Promise<PrefixedHexString>;
+  createAndSendUserOperation: (
+    owner: Wallet,
+    to: PrefixedHexString,
+    value: string,
+    callData: PrefixedHexString,
+    network: Network
+  ) => Promise<PrefixedHexString>;
+  createAndSendUserOperationBatch: (
+    owner: Wallet,
+    to: PrefixedHexString[],
+    value: string[],
+    callData: PrefixedHexString[],
+    network: Network
+  ) => Promise<PrefixedHexString>;
+  confirmUserOperation: (
+    userOpHash: PrefixedHexString,
+    network: Network
+  ) => Promise<Event | null | undefined>;
+}
+```
+
+The Rally Mobile SDK exports 3 types of smart account wallets: `LightAccountManager`, `KernelAccountManager`, `SafeAccountManager`
+
+## Usage
+
+```
+import {LightAccountManager} from `rly-mobile-sdk`;
+```
+
+### Accounts
+
+#### getAccountAddress
+
+This method returns the smart account address for the specified EOA account owner address on the specified network. In the example below the LightAccountManager returns the light account address for the specified EOA on the mumbai network.
+
+```
+import {
+  LightAccountManager,
+  EoaAccountManager,
+  RlyMumbaiNetwork
+  } from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccountManager.getAccount();
+
+const accountAddress = LightAccountManager.getAccountAddress(eoaAccount, RlyMumbaiNetwork);
+
+```
+
+#### getAccount
+
+This method returns smart account contract instance for the specified EOA account owner address on the specified network
+
+```
+import {
+  LightAccountManager,
+  EoaAccountManager,
+  RlyMumbaiNetwork
+  } from `rly-mobile-sdk`;
+
+const eoaAccount = EoaAccountManager.getAccount();
+
+const accountAddress = LightAccountManager.getAccount(eoaAccount, RlyMumbaiNetwork);
+```
+
+### User Operations
+
+#### createUserOperation
+
+#### createUserOperationBatch
+
+#### signUserOperation
+
+#### sendUserOperation
+
+#### createAndSendUserOperation
+
+#### createAndSendUserOperationBatch

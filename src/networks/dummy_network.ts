@@ -3,7 +3,7 @@ import {
   MissingWalletError,
   PriorDustingError,
 } from '../errors';
-import { getWallet } from '../account';
+import { getWallet } from '../accounts/eoaAccounts/account';
 import type { Network } from '../network';
 
 const balances: Record<string, number> = {};
@@ -87,4 +87,41 @@ export const RlyDummyNetwork: Network = {
   claimRly: claimRly,
   registerAccount: registerAccount,
   setApiKey: setApiKey,
+  config: {
+    contracts: {
+      rlyERC20: '0x',
+      tokenFaucet: '0x',
+    },
+    gsn: {
+      paymasterAddress: '0x',
+      forwarderAddress: '0x',
+      relayHubAddress: '0x',
+      relayWorkerAddress: '0x',
+      relayUrl: '',
+      rpcUrl: '',
+      chainId: '',
+      maxAcceptanceBudget: '',
+      domainSeparatorName: 'GSN Relayed Transaction',
+      gtxDataNonZero: 16,
+      gtxDataZero: 4,
+      requestValidSeconds: 172800,
+      maxPaymasterDataLength: 300,
+      maxApprovalDataLength: 0,
+      maxRelayNonceGap: 3,
+    },
+    aa: {
+      bundlerRpcUrl: '',
+      entrypointAddress: '0x',
+      smartAccountFactoryAddress: '0x',
+      lightAccountImplAddress: '0x',
+      lightAccountFactoryAddress: '0x',
+      kernalImplAddress: '0x',
+      kernalFactoryAddress: '0x',
+      kernalECDSAValidatorAddress: '0x',
+      candideFactoryAddress: '0x',
+      candideImplAddress: '0x',
+      safeMultiSendAddress: '0x',
+      paymaster: '0x',
+    },
+  },
 };

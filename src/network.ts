@@ -5,11 +5,12 @@ import type {
   MetaTxMethod,
 } from './gsnClient/utils';
 
+import type { NetworkConfig } from './network_config/network_config';
+
 import {
   MumbaiNetworkConfig,
   LocalNetworkConfig,
   PolygonNetworkConfig,
-  NetworkConfig,
 } from './network_config/network_config';
 
 export interface Network {
@@ -39,4 +40,6 @@ export interface Network {
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
 export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
 export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
+
 export * from './networks/dummy_network';
+export * from './network_config/network_config';

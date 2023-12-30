@@ -34,5 +34,6 @@ export const LocalNetworkConfig: NetworkConfig = {
     candideFactoryAddress: '0xb73Eb505Abc30d0e7e15B73A492863235B3F4309',
     candideImplAddress: '0x3A0a17Bcc84576b099373ab3Eed9702b07D30402',
     safeMultiSendAddress: '0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526',
+    paymaster: '0x69b4DC57Ec430eFBd5139FEAe80A01E9d366Eaa8',
   },
 };

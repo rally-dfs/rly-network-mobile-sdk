@@ -1,4 +1,6 @@
-import type { GsnTransactionDetails, AccountKeypair, Wallet } from './utils';
+import type { GsnTransactionDetails, PrefixedHexString } from './utils';
+
+import type { Wallet } from 'ethers';
 
 import type { RelayRequest } from './EIP712/RelayRequest';
 import { handleGsnResponse } from './gsnTxHelpers';
@@ -48,7 +50,8 @@ const updateConfig = async (
   });
   const serverConfigUpdate = response.data as GsnServerConfigPayload;
 
-  config.gsn.relayWorkerAddress = serverConfigUpdate.relayWorkerAddress;
+  config.gsn.relayWorkerAddress =
+    serverConfigUpdate.relayWorkerAddress as PrefixedHexString;
 
   setGasFeesForTransaction(transaction, serverConfigUpdate);
 
@@ -67,20 +70,23 @@ const setGasFeesForTransaction = (
   const paddedMaxPriority = Math.round(
     serverSuggestedMinPriorityFeePerGas * 1.4
   );
-  transaction.maxPriorityFeePerGas = paddedMaxPriority.toString();
+  transaction.maxPriorityFeePerGas =
+    paddedMaxPriority.toString() as PrefixedHexString;
 
   //Special handling for mumbai because of quirk with gas estimate returned by GSN for mumbai
   if (serverConfigUpdate.chainId === '80001') {
-    transaction.maxFeePerGas = paddedMaxPriority.toString();
+    transaction.maxFeePerGas =
+      paddedMaxPriority.toString() as PrefixedHexString;
   } else {
-    transaction.maxFeePerGas = serverConfigUpdate.maxMaxFeePerGas;
+    transaction.maxFeePerGas =
+      serverConfigUpdate.maxMaxFeePerGas as PrefixedHexString;
   }
 };
 
 const buildRelayRequest = async (
   transaction: GsnTransactionDetails,
   config: NetworkConfig,
-  account: AccountKeypair,
+  account: Wallet,
   web3Provider: providers.JsonRpcProvider
 ) => {
   //remove call data cost from gas estimate as tx will be called from contract
@@ -88,7 +94,7 @@ const buildRelayRequest = async (
     transaction,
     config.gsn.gtxDataNonZero,
     config.gsn.gtxDataZero
-  );
+  ) as PrefixedHexString;
 
   const secondsNow = Math.round(Date.now() / 1000);
   const validUntilTime = (
@@ -118,7 +124,9 @@ const buildRelayRequest = async (
       relayWorker: config.gsn.relayWorkerAddress,
       paymaster: config.gsn.paymasterAddress,
       forwarder: config.gsn.forwarderAddress,
-      paymasterData: transaction.paymasterData?.toString() || '0x',
+      paymasterData:
+        (transaction.paymasterData?.toString() as PrefixedHexString) ||
+        ('0x' as PrefixedHexString),
       clientId: '1',
     },
   };
@@ -139,7 +147,7 @@ const buildRelayRequest = async (
 const buildRelayHttpRequest = async (
   relayRequest: RelayRequest,
   config: NetworkConfig,
-  account: AccountKeypair,
+  account: Wallet,
   web3Provider: providers.JsonRpcProvider
 ) => {
   const signature = await signRequest(
@@ -198,7 +206,7 @@ export const relayTransaction = async (
 
   const relayRequestId = getRelayRequestID(
     httpRequest.relayRequest,
-    httpRequest.metadata.signature
+    httpRequest.metadata.signature as PrefixedHexString
   );
 
   //update request metadata with relayrequestid

@@ -6,7 +6,6 @@ import type {
   PrefixedHexString,
   GsnTransactionDetails,
   Address,
-  AccountKeypair,
 } from './utils';
 import type {
   GSNConfig,
@@ -69,8 +68,8 @@ export const estimateCalldataCostForRequest = async (
   });
 
   relayRequest.relayData.transactionCalldataGasUsed = '0xffffffffff';
-  relayRequest.relayData.paymasterData =
-    '0x' + 'ff'.repeat(config.maxPaymasterDataLength);
+  relayRequest.relayData.paymasterData = ('0x' +
+    'ff'.repeat(config.maxPaymasterDataLength)) as PrefixedHexString;
   const maxAcceptanceBudget = '0xffffffffff';
   const signature = '0x' + 'ff'.repeat(65);
   const approvalData = '0x' + 'ff'.repeat(config.maxApprovalDataLength);
@@ -90,8 +89,12 @@ export const estimateCalldataCostForRequest = async (
   }
 
   return BigNumber.from(
-    calculateCalldataCost(tx.data, config.gtxDataNonZero, config.gtxDataZero)
-  ).toHexString();
+    calculateCalldataCost(
+      tx.data as PrefixedHexString,
+      config.gtxDataNonZero,
+      config.gtxDataZero
+    )
+  ).toHexString() as PrefixedHexString;
 };
 
 export const getSenderNonce = async (
@@ -112,7 +115,7 @@ export const signRequest = async (
   relayRequest: RelayRequest,
   domainSeparatorName: string,
   chainId: string,
-  account: AccountKeypair
+  account: Wallet
 ) => {
   const cloneRequest = { ...relayRequest };
 

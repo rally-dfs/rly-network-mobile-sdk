@@ -1,8 +1,8 @@
 import { Contract, ethers, Wallet } from 'ethers';
-import type { SmartAccountManager } from '../../smart_account';
+import type { SmartAccountManager } from '../smartAccountManager';
 import type { PrefixedHexString } from 'src/gsnClient/utils';
-import type { UserOperation, Transaction } from '../utils/utils';
-import type { Network } from '../../network';
+import type { UserOperation, Transaction } from '../common/common';
+import type { NetworkConfig } from '../../../network';
 import {
   sendUserOperation,
   confirmUserOperation,
@@ -10,32 +10,31 @@ import {
   estimateUserOperationGas,
   encodeMultiSendCallData,
   getUserOpHash,
-} from '../utils/utils';
-import KernalFactory from '../../contracts/smartAccounts/kernelFactoryData.json';
-import Kernel from '../../contracts/smartAccounts/kernelData.json';
-import MultiSend from '../../contracts/smartAccounts/multiSendData.json';
+} from '../common/common';
+import KernalFactory from '../../../contracts/smartAccounts/kernelFactoryData.json';
+import Kernel from '../../../contracts/smartAccounts/kernelData.json';
+import MultiSend from '../../../contracts/smartAccounts/multiSendData.json';
 
 const getAccountAddress = async (
   owner: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   const factory = new Contract(
-    config.aa.kernalFactoryAddress,
+    network.aa.kernalFactoryAddress,
     KernalFactory.abi,
     provider
   );
 
   const kernal = new Contract(
-    config.aa.kernalImplAddress,
+    network.aa.kernalImplAddress,
     Kernel.abi,
     provider
   );
 
   const data = await kernal.interface.encodeFunctionData('initialize', [
-    config.aa.kernalECDSAValidatorAddress,
+    network.aa.kernalECDSAValidatorAddress,
     owner,
   ]);
 
@@ -44,10 +43,9 @@ const getAccountAddress = async (
 
 const getAccount = async (
   address: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<Contract> => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   return new Contract(address, Kernel.abi, provider);
 };
@@ -57,7 +55,7 @@ const createUserOperation = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<UserOperation> => {
   let op: UserOperation = await fillUserOperation(owner, network);
   op.callData = await getExecuteCall(to, value, callData, network);
@@ -70,7 +68,7 @@ const createUserOperationBatch = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: Network
+  network: NetworkConfig
 ): Promise<UserOperation> => {
   let op: UserOperation = await fillUserOperation(owner, network);
   op.callData = await getExecuteBatchCall(to, value, callData, network);
@@ -81,15 +79,14 @@ const createUserOperationBatch = async (
 const signUserOperation = async (
   owner: Wallet,
   op: UserOperation,
-  network: Network
+  network: NetworkConfig
 ): Promise<UserOperation> => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
   const chainId = await provider.getNetwork().then((n) => n.chainId);
 
   const userOpHash = (await getUserOpHash(
     op,
-    config.aa.entrypointAddress,
+    network.aa.entrypointAddress,
     chainId
   )) as PrefixedHexString;
   const userSig = await owner.signMessage(ethers.utils.arrayify(userOpHash));
@@ -106,7 +103,7 @@ const createAndSendUserOperation = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
   const op = await createUserOperation(owner, to, value, callData, network);
   const signedOp = await signUserOperation(owner, op, network);
@@ -118,7 +115,7 @@ const createAndSendUserOperationBatch = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
   const op = await createUserOperationBatch(
     owner,
@@ -131,15 +128,15 @@ const createAndSendUserOperationBatch = async (
   return await sendUserOperation(signedOp, network);
 };
 
-const fillUserOperation = async (owner: Wallet, network: Network) => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+const fillUserOperation = async (owner: Wallet, network: NetworkConfig) => {
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
   let op: UserOperation = userOpDefaults;
   const sender = await getAccountAddress(
     owner.address as PrefixedHexString,
     network
   );
   op.sender = sender;
+  op.paymasterAndData = network.aa.paymaster;
 
   const code = await provider.getCode(sender);
 
@@ -171,32 +168,31 @@ const fillUserOperation = async (owner: Wallet, network: Network) => {
 
 const getInitCode = async (
   owner: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   const factory = new Contract(
-    config.aa.kernalFactoryAddress,
+    network.aa.kernalFactoryAddress,
     KernalFactory.abi,
     provider
   );
 
   const kernal = new Contract(
-    config.aa.kernalImplAddress,
+    network.aa.kernalImplAddress,
     Kernel.abi,
     provider
   );
 
   const data = await kernal.interface.encodeFunctionData('initialize', [
-    config.aa.kernalECDSAValidatorAddress,
+    network.aa.kernalECDSAValidatorAddress,
     owner,
   ]);
 
   return ethers.utils.hexConcat([
-    config.aa.kernalFactoryAddress,
+    network.aa.kernalFactoryAddress,
     factory.interface.encodeFunctionData('createAccount', [
-      config.aa.kernalImplAddress,
+      network.aa.kernalImplAddress,
       data,
       0,
     ]),
@@ -210,13 +206,12 @@ const getExecuteCall = async (
   to: PrefixedHexString,
   value: string,
   callData: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   const scwImpl = new Contract(
-    config.aa.kernalImplAddress,
+    network.aa.kernalImplAddress,
     Kernel.abi,
     provider
   );
@@ -233,19 +228,18 @@ const getExecuteBatchCall = async (
   to: PrefixedHexString[],
   value: string[],
   callData: PrefixedHexString[],
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
-  const { config } = network;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
 
   const scwImpl = new Contract(
-    config.aa.candideImplAddress,
+    network.aa.candideImplAddress,
     Kernel.abi,
     provider
   );
 
   const multiSend = new Contract(
-    config.aa.safeMultiSendAddress,
+    network.aa.safeMultiSendAddress,
     MultiSend.abi,
     provider
   );
@@ -271,7 +265,7 @@ const getExecuteBatchCall = async (
   // get contract and encode send
 
   return (await scwImpl.interface.encodeFunctionData('execute', [
-    config.aa.safeMultiSendAddress,
+    network.aa.safeMultiSendAddress,
     0,
     multiSendCallData,
     1,

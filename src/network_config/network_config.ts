@@ -12,6 +12,7 @@ export type AAConfig = {
   candideFactoryAddress: PrefixedHexString;
   candideImplAddress: PrefixedHexString;
   safeMultiSendAddress: PrefixedHexString;
+  paymaster: PrefixedHexString;
 };
 
 export type GSNConfig = {

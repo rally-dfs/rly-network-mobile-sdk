@@ -122,7 +122,7 @@ export const hasPermit = async (
     const { r, s, v } = await getPermitEIP712Signature(
       account,
       name,
-      token.address,
+      token.address as PrefixedHexString,
       config,
       nonce.toNumber(),
       amount,
@@ -168,7 +168,7 @@ export const getPermitTx = async (
   const { r, s, v } = await getPermitEIP712Signature(
     account,
     name,
-    token.address,
+    token.address as PrefixedHexString,
     config,
     nonce.toNumber(),
     amount,

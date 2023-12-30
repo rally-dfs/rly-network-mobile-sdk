@@ -1,8 +1,8 @@
 import { ethers, providers, BigNumber, Contract, Event } from 'ethers';
-import type { PrefixedHexString } from '../../gsnClient/utils';
+import type { PrefixedHexString } from '../../../gsnClient/utils';
 import { BundlerJsonRpcProvider } from './bundlerProvider';
-import type { Network } from '../../network';
-import EntryPoint from '../../contracts/accountAbstraction/entryPointData.json';
+import type { NetworkConfig } from '../../../network';
+import EntryPoint from '../../../contracts/accountAbstraction/entryPointData.json';
 
 export type UserOperation = {
   sender: PrefixedHexString;
@@ -28,24 +28,34 @@ export const userOpDefaults: UserOperation = {
   preVerificationGas: BigNumber.from(100000), // should also cover calldata cost.
   maxFeePerGas: BigNumber.from(50000),
   maxPriorityFeePerGas: BigNumber.from(1),
-  paymasterAndData: '0x69b4DC57Ec430eFBd5139FEAe80A01E9d366Eaa8',
+  paymasterAndData: '0x',
   signature: '0x',
 };
 
 export const estimateUserOperationGas = async (
   op: UserOperation,
-  network: Network
+  network: NetworkConfig
 ): Promise<UserOperation> => {
-  const { config } = network;
-  const provider = new providers.JsonRpcProvider(config.gsn.rpcUrl);
-  const bundlerProvider = new BundlerJsonRpcProvider(config.aa.bundlerRpcUrl);
+  const provider = new providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
   const { preVerificationGas, verificationGasLimit, callGasLimit } =
     await bundlerProvider.send('eth_estimateUserOperationGas', [
       OpToJSON(op),
-      config.aa.entrypointAddress,
+      network.aa.entrypointAddress,
     ]);
-  const block = await provider.getBlock('latest');
-  op.maxFeePerGas = block.baseFeePerGas!.add(op.maxPriorityFeePerGas);
+  const [fee, block] = await Promise.all([
+    provider.send('eth_maxPriorityFeePerGas', []),
+    provider.getBlock('latest'),
+  ]);
+
+  const tip = ethers.BigNumber.from(fee);
+  const buffer = tip.div(100).mul(13);
+  const maxPriorityFeePerGas = tip.add(buffer);
+  const maxFeePerGas = block.baseFeePerGas
+    ? block.baseFeePerGas.mul(2).add(maxPriorityFeePerGas)
+    : maxPriorityFeePerGas;
+  op.maxFeePerGas = maxFeePerGas;
+  op.maxPriorityFeePerGas = maxPriorityFeePerGas;
   op.preVerificationGas = op.preVerificationGas.add(
     BigNumber.from(preVerificationGas)
   );
@@ -56,26 +66,24 @@ export const estimateUserOperationGas = async (
 
 export const sendUserOperation = async (
   userOp: UserOperation,
-  network: Network
+  network: NetworkConfig
 ): Promise<PrefixedHexString> => {
-  const { config } = network;
-  const bundlerProvider = new BundlerJsonRpcProvider(config.aa.bundlerRpcUrl);
+  const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
   return bundlerProvider.send('eth_sendUserOperation', [
     OpToJSON(userOp),
-    config.aa.entrypointAddress,
+    network.aa.entrypointAddress,
   ]);
 };
 
 export const confirmUserOperation = async (
   userOpHash: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ): Promise<Event | null | undefined> => {
-  const { config } = network;
   const waitTimeoutMs = 30000;
   const waitIntervalMs = 1000;
-  const provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
   const entryPoint = new Contract(
-    config.aa.entrypointAddress,
+    network.aa.entrypointAddress,
     EntryPoint.abi,
     provider
   );
@@ -98,10 +106,9 @@ export const confirmUserOperation = async (
 
 export const getUserOperationReceipt = async (
   userOpHash: PrefixedHexString,
-  network: Network
+  network: NetworkConfig
 ) => {
-  const { config } = network;
-  const bundlerProvider = new BundlerJsonRpcProvider(config.aa.bundlerRpcUrl);
+  const bundlerProvider = new BundlerJsonRpcProvider(network.aa.bundlerRpcUrl);
   return bundlerProvider.send('eth_getUserOperationReceipt', [userOpHash]);
 };
 
