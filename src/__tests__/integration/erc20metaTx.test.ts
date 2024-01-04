@@ -1,5 +1,5 @@
 import { ethers, Wallet, Contract } from 'ethers';
-import { getWallet } from '../../account';
+import { getWallet } from '../../accounts/eoaAccounts/account';
 import * as TokenFaucet from '../../contracts/tokenFaucetData.json';
 import * as ERC20 from '../../contracts/erc20Data.json';
 import { RlyLocalNetwork } from '../../network';

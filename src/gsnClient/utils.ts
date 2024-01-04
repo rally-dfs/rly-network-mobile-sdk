@@ -1,4 +1,4 @@
-export type PrefixedHexString = string;
+export type PrefixedHexString = `0x${string}`;
 export type Address = string;
 export type IntString = string;
 

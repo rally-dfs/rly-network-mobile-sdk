@@ -1,5 +1,8 @@
 import { Wallet } from 'ethers';
-import { getWallet, permanentlyDeleteAccount } from '../../account';
+import {
+  getWallet,
+  permanentlyDeleteAccount,
+} from '../../accounts/eoaAccounts/account';
 import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
 import { testOnlyRunInCIFullSuite } from '../__utils__/test_utils';
 

@@ -117,7 +117,7 @@ export const hasExecuteMetaTransaction = async (
     const { r, s, v } = await getMetatransactionEIP712Signature(
       account,
       name,
-      token.address,
+      token.address as PrefixedHexString,
       data,
       config,
       nonce.toNumber()
@@ -161,7 +161,7 @@ export const getExecuteMetatransactionTx = async (
   const { r, s, v } = await getMetatransactionEIP712Signature(
     account,
     name,
-    token.address,
+    token.address as PrefixedHexString,
     data,
     config,
     nonce.toNumber()

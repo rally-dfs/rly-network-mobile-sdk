@@ -34,9 +34,11 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "example-expo": "yarn --cwd example_expo",
+    "example-expo-aa": "yarn --cwd example_expo_aa",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build example_expo/android/build example_expo/android/app/build example_expo/ios/build",
     "bootstrap": "yarn example && yarn install && yarn example pods",
-    "bootstrap-expo": "yarn example-expo && yarn install"
+    "bootstrap-expo": "yarn example-expo && yarn install",
+    "bootstrap-expo-aa": "yarn example-expo-aa && yarn install"
   },
   "keywords": [
     "react-native",

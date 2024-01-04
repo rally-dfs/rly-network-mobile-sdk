@@ -5,7 +5,7 @@ import {
   PriorDustingError,
   TransferMethodNotSupportedError,
 } from '../errors';
-import { getWallet } from '../account';
+import { getWallet } from '../accounts/eoaAccounts/account';
 import type { NetworkConfig } from '../network_config/network_config';
 import { erc20 } from '../contract';
 import { relayTransaction } from '../gsnClient/gsnClient';
@@ -289,5 +289,6 @@ export function getEvmNetwork(network: NetworkConfig) {
     setApiKey: function (apiKey: string) {
       network.relayerApiKey = apiKey;
     },
+    config: network,
   };
 }

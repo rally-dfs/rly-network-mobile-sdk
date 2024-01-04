@@ -6,8 +6,8 @@ import {
   getWallet,
   signTransaction,
   signHash,
-} from '../account';
-import type { KeyStorageConfig } from 'src/keyManagerTypes';
+} from '../accounts/eoaAccounts/account';
+import type { KeyStorageConfig } from 'src/keyManager.types';
 
 // mock native code, just testing signing function
 // address is 0x88046468228953d17c7DAaE39cfEF9B4b082164D, pk is 0x8666ebf0f4d397955c55932642fb9dd97fb60a2df121a9d2a39f7f1930958ca3)

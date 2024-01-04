@@ -5,6 +5,8 @@ import type {
   MetaTxMethod,
 } from './gsnClient/utils';
 
+import type { NetworkConfig } from './network_config/network_config';
+
 import {
   MumbaiNetworkConfig,
   LocalNetworkConfig,
@@ -32,9 +34,15 @@ export interface Network {
   registerAccount: () => Promise<string>;
   relay?: (tx: GsnTransactionDetails) => Promise<string>;
   setApiKey: (apiKey: string) => void;
+  config: NetworkConfig;
 }
 
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
 export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
 export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
+export { RlyMumbaiNetwork as Mumbai };
+export { RlyLocalNetwork as Local };
+export { RlyPolygonNetwork as Polygon };
+
 export * from './networks/dummy_network';
+export * from './network_config/network_config';

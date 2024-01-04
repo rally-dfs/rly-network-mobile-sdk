@@ -1,5 +1,5 @@
 import { ethers, Contract } from 'ethers';
-import { getWallet } from '../../account';
+import { getWallet } from '../../accounts/eoaAccounts/account';
 import { RlyPolygonNetwork } from '../../network';
 import { PolygonNetworkConfig } from '../../network_config/network_config_polygon';
 import * as ERC20 from '../../contracts/erc20Data.json';
