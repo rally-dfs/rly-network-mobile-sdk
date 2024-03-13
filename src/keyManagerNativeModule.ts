@@ -22,6 +22,10 @@ export const getMnemonic = async (): Promise<string | null> => {
   return RlyNativeModule.getMnemonic();
 };
 
+export const walletBackedUpToCloud = async (): Promise<string | null> => {
+  return RlyNativeModule.mnemonicBackedUpToCloud();
+};
+
 export const generateMnemonic = async (): Promise<string> => {
   return RlyNativeModule.generateMnemonic();
 };

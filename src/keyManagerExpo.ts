@@ -51,6 +51,10 @@ export const getMnemonic = async (): Promise<string | null> => {
   return SecureStore.getItemAsync(MNEMONIC_ACCOUNT_KEY);
 };
 
+export const walletBackedUpToCloud = async (): Promise<boolean> => {
+  return false;
+};
+
 export const generateMnemonic = async (): Promise<string> => {
   return utils.entropyToMnemonic(utils.randomBytes(24));
 };

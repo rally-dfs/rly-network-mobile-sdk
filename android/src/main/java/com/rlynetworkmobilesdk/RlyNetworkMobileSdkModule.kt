@@ -36,8 +36,15 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getMnemonic(promise:Promise){
-    mnemonicHelper.read(MNEMONIC_STORAGE_KEY) { mnemonic: String? ->
+    mnemonicHelper.read(MNEMONIC_STORAGE_KEY) { mnemonic: String?, fromBlockstore ->
       promise.resolve(mnemonic)
+    }
+  }
+
+  @ReactMethod
+  fun mnemonicBackedUpToCloud(promise:Promise) {
+    mnemonicHelper.read(MNEMONIC_STORAGE_KEY) { mnemonic, fromBlockstore ->
+      promise.resolve(mnemonic != null && fromBlockstore);
     }
   }
 

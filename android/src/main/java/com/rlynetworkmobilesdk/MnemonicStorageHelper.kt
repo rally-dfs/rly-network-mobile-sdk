@@ -61,7 +61,7 @@ class MnemonicStorageHelper(context: Context) {
     editor.commit()
   }
 
-  fun read(key: String, onSuccess: (mnemonic: String?) -> Unit) {
+  fun read(key: String, onSuccess: (mnemonic: String?, fromBlockstore: Boolean) -> Unit) {
 
     val retrieveRequest = RetrieveBytesRequest.Builder()
       .setKeys(listOf(key))
@@ -73,19 +73,19 @@ class MnemonicStorageHelper(context: Context) {
 
         if (blockstoreDataMap.isEmpty()) {
           val mnemonic = readFromSharedPref(key)
-          onSuccess(mnemonic)
+          onSuccess(mnemonic, false)
         } else {
           val mnemonic = blockstoreDataMap[key]
           if (mnemonic !== null) {
-            onSuccess(mnemonic.bytes.toString(Charsets.UTF_8))
+            onSuccess(mnemonic.bytes.toString(Charsets.UTF_8), true)
           } else {
-            onSuccess(null)
+            onSuccess(null, true)
           }
         }
       }
       .addOnFailureListener {
         val mnemonic = readFromSharedPref(key)
-        onSuccess(mnemonic)
+        onSuccess(mnemonic, false)
       }
   }
 

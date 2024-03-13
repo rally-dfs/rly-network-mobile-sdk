@@ -97,6 +97,10 @@ export async function getWallet() {
   return wallet;
 }
 
+export async function walletBackedUpToCloud() {
+  return await KeyManager.walletBackedUpToCloud();
+}
+
 export async function getAccount() {
   const wallet = await getWallet();
 

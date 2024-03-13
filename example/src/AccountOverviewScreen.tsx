@@ -7,6 +7,7 @@ import {
   Linking,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -16,6 +17,7 @@ import {
   RlyMumbaiNetwork,
   permanentlyDeleteAccount,
   MetaTxMethod,
+  walletBackedUpToCloud
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
@@ -32,6 +34,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();
 
   const [balance, setBalance] = useState<number>();
+  const [usingCloudBackup, setUsingCloudBackup] = useState<boolean>();
 
   const [transferBalance, setTransferBalance] = useState('');
   const [transferAddress, setTranferAddress] = useState('');
@@ -44,8 +47,15 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     setBalance(bal);
   };
 
+  const fetchCloudStatus = async () => {
+    const isBackedUp = await walletBackedUpToCloud();
+
+    setUsingCloudBackup(isBackedUp);
+  };
+
   useEffect(() => {
     fetchBalance();
+    fetchCloudStatus();
   }, []);
 
   const claimRlyTokens = async () => {
@@ -104,6 +114,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <SelectableText>
               {props.rlyAccount || 'No Account Exists'}
             </SelectableText>
+            <Text style={{ color: "white" }}>Backed up: {usingCloudBackup ? "yes" : "no"}</Text>
           </View>
           <RlyCard style={styles.balanceCard}>
             <View style={styles.balanceContainer}>
