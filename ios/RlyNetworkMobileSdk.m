@@ -17,6 +17,11 @@ RCT_EXTERN_METHOD(getMnemonic:
     rejecter: (RCTPromiseRejectBlock) reject
 )
 
+RCT_EXTERN_METHOD(mnemonicBackedUpToCloud:
+    (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
 RCT_EXTERN_METHOD(generateMnemonic:
     (RCTPromiseResolveBlock) resolve
     rejecter: (RCTPromiseRejectBlock) reject

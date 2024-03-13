@@ -5,6 +5,7 @@ export type KeyStorageConfig = {
 
 export interface KeyManager {
   getMnemonic: () => Promise<string | null>;
+  walletBackedUpToCloud: () => Promise<boolean>;
   generateMnemonic: () => Promise<string>;
   saveMnemonic: (mnemonic: string, options?: KeyStorageConfig) => Promise<void>;
   deleteMnemonic: () => Promise<void>;

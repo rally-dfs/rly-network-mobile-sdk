@@ -36,7 +36,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [mnemonic, setMnemonic] = useState<string>();
 
   const fetchBalance = async () => {
-    const bal = await RlyNetwork.getBalance();
+    const bal = await RlyNetwork.getDisplayBalance();
 
     setBalance(bal);
   };

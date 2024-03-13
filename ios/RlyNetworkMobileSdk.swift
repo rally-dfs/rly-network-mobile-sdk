@@ -31,7 +31,23 @@ class RlyNetworkMobileSdk: NSObject {
             resolve(mnemonicString)
         }
     }
-    
+
+    @objc public func mnemonicBackedUpToCloud(
+      _ resolve: RCTPromiseResolveBlock,
+      rejecter reject: RCTPromiseRejectBlock
+    ) -> Void {
+        let mnemonicAttributes = KeychainHelper.standard.readAttributes(service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
+
+        if (mnemonicAttributes == nil) {
+            resolve(false)
+            return
+        }
+
+        let keyAccessibility = mnemonicAttributes?[kSecAttrAccessible as String] as? String
+
+        resolve(keyAccessibility == (kSecAttrAccessibleWhenUnlocked as String))
+    }
+
     @objc public func generateMnemonic(
       _ resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
