@@ -17,6 +17,7 @@ import {
 } from './gsnTxHelpers';
 
 import { ethers, providers } from 'ethers';
+import { getProvider } from '../provider';
 
 interface GsnServerConfigPayload {
   relayWorkerAddress: string;
@@ -181,7 +182,7 @@ export const relayTransaction = async (
   config: NetworkConfig,
   transaction: GsnTransactionDetails
 ) => {
-  const web3Provider = new ethers.providers.JsonRpcProvider(config.gsn.rpcUrl);
+  const web3Provider = getProvider(config);
   const updatedConfig = await updateConfig(config, transaction);
   const relayRequest = await buildRelayRequest(
     updatedConfig.transaction,

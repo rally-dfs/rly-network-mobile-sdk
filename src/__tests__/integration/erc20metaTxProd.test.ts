@@ -5,14 +5,13 @@ import { PolygonNetworkConfig } from '../../network_config/network_config_polygo
 import * as ERC20 from '../../contracts/erc20Data.json';
 import { MetaTxMethod } from '../../gsnClient/utils';
 import { testSkipInCI } from '../__utils__/test_utils';
+import { getProvider } from '../../provider';
 
 let ethersProvider: ethers.providers.JsonRpcProvider;
 const tokenAddress = '0xd872b7fFca41a67eDA85b04A9185c6b270006b58';
 
 beforeAll(async () => {
-  ethersProvider = new ethers.providers.JsonRpcProvider(
-    PolygonNetworkConfig.gsn.rpcUrl
-  );
+  ethersProvider = getProvider(PolygonNetworkConfig);
 });
 
 // mock native code, just testing signing function

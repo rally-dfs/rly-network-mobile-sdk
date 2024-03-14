@@ -22,6 +22,7 @@ import type {
 } from '../gsnClient/utils';
 
 import { MetaTxMethod } from '../gsnClient/utils';
+import { getProvider } from '../provider';
 
 async function transfer(
   destinationAddress: string,
@@ -30,7 +31,7 @@ async function transfer(
   tokenAddress?: PrefixedHexString,
   metaTxMethod?: MetaTxMethod
 ): Promise<string> {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = getProvider(network);
 
   const account = await getWallet();
   if (!account) {
@@ -60,7 +61,7 @@ async function transferExact(
   tokenAddress?: PrefixedHexString,
   metaTxMethod?: MetaTxMethod
 ): Promise<string> {
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = getProvider(network);
   const account = await getWallet();
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
 
@@ -168,7 +169,7 @@ async function getDisplayBalance(
 ) {
   tokenAddress = tokenAddress || network.contracts.rlyERC20;
 
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = getProvider(network);
   const token = erc20(provider, tokenAddress);
 
   const decimals = await token.decimals();
@@ -189,7 +190,7 @@ async function getExactBalance(
     throw MissingWalletError;
   }
 
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = getProvider(network);
 
   const token = erc20(provider, tokenAddress);
   const bal = await token.balanceOf(account.address);
@@ -209,7 +210,7 @@ async function claimRly(network: NetworkConfig): Promise<string> {
     throw PriorDustingError;
   }
 
-  const provider = new ethers.providers.JsonRpcProvider(network.gsn.rpcUrl);
+  const provider = getProvider(network);
 
   const claimTx = await getClaimTx(account, network, provider);
 
