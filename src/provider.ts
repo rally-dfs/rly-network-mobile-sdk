@@ -9,9 +9,7 @@ const authHeader = (config: NetworkConfig) => {
   };
 };
 
-export const getProvider = (
-  config: NetworkConfig,
-) => {
+export const getProvider = (config: NetworkConfig) => {
   const connection: ConnectionInfo = {
     headers: { ...authHeader(config) },
     url: config.gsn.rpcUrl,

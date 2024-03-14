@@ -17,7 +17,7 @@ import {
   RlyMumbaiNetwork,
   permanentlyDeleteAccount,
   MetaTxMethod,
-  walletBackedUpToCloud
+  walletBackedUpToCloud,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
@@ -114,7 +114,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             <SelectableText>
               {props.rlyAccount || 'No Account Exists'}
             </SelectableText>
-            <Text style={{ color: "white" }}>Backed up: {usingCloudBackup ? "yes" : "no"}</Text>
+            <Text style={{ color: 'white' }}>
+              Backed up: {usingCloudBackup ? 'yes' : 'no'}
+            </Text>
           </View>
           <RlyCard style={styles.balanceCard}>
             <View style={styles.balanceContainer}>
