@@ -11,7 +11,7 @@ export const MumbaiNetworkConfig: NetworkConfig = {
     relayHubAddress: '0x3232f21A6E08312654270c78A773f00dd61d60f5',
     relayWorkerAddress: '0xb9950b71ec94cbb274aeb1be98e697678077a17f',
     relayUrl: 'https://api.rallyprotocol.com',
-    rpcUrl: 'https://sassy-staging.fly.dev/rpc',
+    rpcUrl: 'https://api.rallyprotocol.com/rpc',
     chainId: '80001',
     maxAcceptanceBudget: '285252',
     domainSeparatorName: 'GSN Relayed Transaction',
