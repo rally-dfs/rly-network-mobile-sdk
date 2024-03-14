@@ -11,8 +11,7 @@ export const PolygonNetworkConfig: NetworkConfig = {
     relayHubAddress: '0xfCEE9036EDc85cD5c12A9De6b267c4672Eb4bA1B',
     relayWorkerAddress: '0x579de7c56cd9a07330504a7c734023a9f703778a',
     relayUrl: 'https://api.rallyprotocol.com',
-    rpcUrl:
-      'https://polygon-mainnet.g.alchemy.com/v2/-dYNjZXvre3GC9kYtwDzzX4N8tcgomU4',
+    rpcUrl: 'https://api.rallyprotocol.com/rpc',
     chainId: '137',
     maxAcceptanceBudget: '285252',
     domainSeparatorName: 'GSN Relayed Transaction',
