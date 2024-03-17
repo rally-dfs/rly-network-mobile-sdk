@@ -5,6 +5,7 @@ import {
 } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
+import { TestNetworkConfig } from 'src/network_config/network_config_test';
 
 const balances: Record<string, number> = {};
 
@@ -79,6 +80,9 @@ function setApiKey(apiKeyParam: string) {
 }
 
 export const RlyDummyNetwork: Network = {
+  networkConfig: {
+    ...TestNetworkConfig,
+  },
   transfer: transfer,
   transferExact: transferExact,
   getBalance: getBalance,
