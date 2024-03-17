@@ -5,7 +5,7 @@ import {
 } from '../errors';
 import { getWallet } from '../account';
 import type { Network } from '../network';
-import { TestNetworkConfig } from 'src/network_config/network_config_test';
+import { TestNetworkConfig } from '../network_config/network_config_test';
 
 const balances: Record<string, number> = {};
 

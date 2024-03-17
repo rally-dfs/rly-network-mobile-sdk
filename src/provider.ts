@@ -1,4 +1,4 @@
-import type { NetworkConfig } from 'src/network_config/network_config';
+import type { NetworkConfig } from './network_config/network_config';
 
 import { providers } from 'ethers';
 import type { ConnectionInfo } from 'ethers/lib/utils';

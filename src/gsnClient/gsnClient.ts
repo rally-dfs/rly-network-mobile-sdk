@@ -5,7 +5,7 @@ import { handleGsnResponse } from './gsnTxHelpers';
 
 import axios from 'axios';
 
-import type { NetworkConfig } from 'src/network_config/network_config';
+import type { NetworkConfig } from '../network_config/network_config';
 
 import {
   estimateGasWithoutCallData,

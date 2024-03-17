@@ -16,7 +16,7 @@ import { tokenFaucet } from '../contract';
 
 import relayHubAbi from './ABI/IRelayHub.json';
 import forwarderAbi from './ABI/IForwarder.json';
-import { NativeCodeWrapper } from '../../src/native_code_wrapper';
+import { NativeCodeWrapper } from '../native_code_wrapper';
 import type { AxiosResponse } from 'axios';
 import { RelayError } from '../errors';
 
