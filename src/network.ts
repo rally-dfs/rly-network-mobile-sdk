@@ -9,9 +9,12 @@ import {
   MumbaiNetworkConfig,
   LocalNetworkConfig,
   PolygonNetworkConfig,
+  TestNetworkConfig,
+  NetworkConfig,
 } from './network_config/network_config';
 
 export interface Network {
+  networkConfig: NetworkConfig;
   getBalance: (tokenAddress?: PrefixedHexString) => Promise<number>;
   getDisplayBalance: (tokenAddress?: PrefixedHexString) => Promise<number>;
   getExactBalance: (tokenAddress?: PrefixedHexString) => Promise<string>;
@@ -36,5 +39,6 @@ export interface Network {
 
 export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
 export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
+export const RlyTestNetwork: Network = getEvmNetwork(TestNetworkConfig);
 export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
 export * from './networks/dummy_network';

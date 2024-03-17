@@ -239,6 +239,7 @@ export async function relay(
 
 export function getEvmNetwork(network: NetworkConfig) {
   return {
+    networkConfig: network,
     transfer: function (
       destinationAddress: string,
       amount: number,

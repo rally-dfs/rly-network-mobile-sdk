@@ -28,5 +28,6 @@ export interface NetworkConfig {
 }
 
 export * from './network_config_local';
+export * from './network_config_test';
 export * from './network_config_mumbai';
 export * from './network_config_polygon';
