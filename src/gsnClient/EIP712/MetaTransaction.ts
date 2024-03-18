@@ -104,12 +104,10 @@ export const hasExecuteMetaTransaction = async (
 ): Promise<boolean> => {
   try {
     const token = erc20(provider, contractAddress);
-    const [name, nonce] = await Promise.all([
-      token.name(),
-      getSenderContractNonce(token, account.address),
-      token.decimals(),
-    ]);
-    const data = await token.interface.encodeFunctionData('transfer', [
+    const name = await token.name();
+    const nonce = await getSenderContractNonce(token, account.address);
+
+    const data = token.interface.encodeFunctionData('transfer', [
       destinationAddress,
       amount,
     ]);
@@ -147,13 +145,11 @@ export const getExecuteMetatransactionTx = async (
   provider: ethers.providers.JsonRpcProvider
 ): Promise<GsnTransactionDetails> => {
   const token = erc20(provider, contractAddress);
-  const [name, nonce] = await Promise.all([
-    token.name(),
-    getSenderContractNonce(token, account.address),
-  ]);
+  const name = await token.name();
+  const nonce = await getSenderContractNonce(token, account.address);
 
   // get function signature
-  const data = await token.interface.encodeFunctionData('transfer', [
+  const data = token.interface.encodeFunctionData('transfer', [
     destinationAddress,
     amount,
   ]);

@@ -225,9 +225,24 @@ export const getSenderContractNonce = async (
   token: Contract,
   address: Address
 ): Promise<BigNumber> => {
-  try {
-    return await token.nonces(address);
-  } catch {
+  // 0x2d0335ab is the function selector for the 'getNonce' function
+  // 0x7ecebe00 is the function selector for the 'nonces' function
+  const getNonceSelector = '2d0335ab';
+  const noncesSelector = '7ecebe00';
+
+  const bytecode = await token.provider.getCode(token.address);
+
+  if (bytecode.length <= 2) {
+    throw new Error('Could not get nonce: No bytecode found for token');
+  }
+
+  // check if the bytecode includes the function selector for the relative functions
+  // there is still an issue with fallback functions, and data that may include the function selector
+  if (bytecode.includes(getNonceSelector)) {
     return await token.getNonce(address);
+  } else if (bytecode.includes(noncesSelector)) {
+    return await token.nonces(address);
+  } else {
+    throw new Error('Could not get nonce: No nonce function found for token');
   }
 };

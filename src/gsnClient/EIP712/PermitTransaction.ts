@@ -6,6 +6,7 @@ import type {
 } from '../utils';
 import { erc20 } from '../../contract';
 import type { NetworkConfig } from '../../network_config/network_config';
+import { getSenderContractNonce } from '../gsnTxHelpers';
 
 export interface Permit {
   name: string;
@@ -110,12 +111,10 @@ export const hasPermit = async (
   try {
     const token = erc20(provider, contractAddress);
 
-    const [name, nonce, deadline, eip712Domain] = await Promise.all([
-      token.name(),
-      token.nonces(account.address),
-      await getPermitDeadline(provider),
-      await token.eip712Domain(),
-    ]);
+    const name = await token.name();
+    const nonce = await getSenderContractNonce(token, account.address);
+    const deadline = await getPermitDeadline(provider);
+    const eip712Domain = await token.eip712Domain();
 
     const { salt } = eip712Domain;
 
@@ -156,12 +155,10 @@ export const getPermitTx = async (
 ): Promise<GsnTransactionDetails> => {
   const token = erc20(provider, contractAddress);
 
-  const [name, nonce, deadline, eip712Domain] = await Promise.all([
-    token.name(),
-    token.nonces(account.address),
-    await getPermitDeadline(provider),
-    await token.eip712Domain(),
-  ]);
+  const name = await token.name();
+  const nonce = await getSenderContractNonce(token, account.address);
+  const deadline = await getPermitDeadline(provider);
+  const eip712Domain = await token.eip712Domain();
 
   const { salt } = eip712Domain;
 
