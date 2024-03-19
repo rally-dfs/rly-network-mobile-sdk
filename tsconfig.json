@@ -2,9 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@rly-network/mobile-sdk": [
-        "./src/index"
-      ]
+      "@rly-network/mobile-sdk": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -12,9 +10,7 @@
     "importsNotUsedAsValues": "error",
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -28,5 +24,6 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext"
-  }
+  },
+  "exclude": ["example", "example_expo"]
 }
