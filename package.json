@@ -30,6 +30,7 @@
     "test": "jest",
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "docs": "typedoc src/index.tsx",
     "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
