@@ -12,7 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
-  RlyMumbaiNetwork,
+  RlyAmoyNetwork,
   permanentlyDeleteAccount,
   MetaTxMethod,
 } from '@rly-network/mobile-sdk';
@@ -20,7 +20,7 @@ import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 import { PrivateConfig } from './private_config';
 
-const RlyNetwork = RlyMumbaiNetwork;
+const RlyNetwork = RlyAmoyNetwork;
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY);
 
 const customTokenAddress: string | undefined = undefined;
@@ -104,7 +104,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
                 title="View on Polygon"
                 onPress={() => {
                   Linking.openURL(
-                    `https://mumbai.polygonscan.com/address/${props.rlyAccount}`
+                    `https://www.oklink.com/amoy/address/${props.rlyAccount}`
                   );
                 }}
               />

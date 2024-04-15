@@ -1,6 +1,6 @@
 import { Wallet } from 'ethers';
 import { getWallet, permanentlyDeleteAccount } from '../../account';
-import { RlyMumbaiNetwork, RlyDummyNetwork } from '../../network';
+import { RlyAmoyNetwork, RlyDummyNetwork } from '../../network';
 import { testOnlyRunInCIFullSuite } from '../__utils__/test_utils';
 
 let mockMnemonic: string;
@@ -35,11 +35,11 @@ jest.mock('react-native', () => {
 testOnlyRunInCIFullSuite(
   'claim mumbai legacy method name',
   async () => {
-    RlyMumbaiNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
+    RlyAmoyNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
 
-    const oldBal = await RlyMumbaiNetwork.getBalance();
-    const txHash = await RlyMumbaiNetwork.registerAccount();
-    const newBal = await RlyMumbaiNetwork.getBalance();
+    const oldBal = await RlyAmoyNetwork.getBalance();
+    const txHash = await RlyAmoyNetwork.registerAccount();
+    const newBal = await RlyAmoyNetwork.getBalance();
     expect(oldBal).toEqual(0);
     expect(txHash).toMatch(/^0x/);
     expect(newBal).toEqual(10);
@@ -50,11 +50,11 @@ testOnlyRunInCIFullSuite(
 testOnlyRunInCIFullSuite(
   'claim mumbai',
   async () => {
-    RlyMumbaiNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
+    RlyAmoyNetwork.setApiKey(process.env.RALLY_PROTOCOL_MUMBAI_TOKEN!);
 
-    const oldBal = await RlyMumbaiNetwork.getDisplayBalance();
-    const txHash = await RlyMumbaiNetwork.claimRly();
-    const newBal = await RlyMumbaiNetwork.getDisplayBalance();
+    const oldBal = await RlyAmoyNetwork.getDisplayBalance();
+    const txHash = await RlyAmoyNetwork.claimRly();
+    const newBal = await RlyAmoyNetwork.getDisplayBalance();
 
     expect(oldBal).toEqual(0);
     expect(txHash).toMatch(/^0x/);

@@ -6,7 +6,7 @@ import type {
 } from './gsnClient/utils';
 
 import {
-  MumbaiNetworkConfig,
+  AmoyNetworkConfig,
   LocalNetworkConfig,
   PolygonNetworkConfig,
   TestNetworkConfig,
@@ -37,7 +37,7 @@ export interface Network {
   setApiKey: (apiKey: string) => void;
 }
 
-export const RlyMumbaiNetwork: Network = getEvmNetwork(MumbaiNetworkConfig);
+export const RlyAmoyNetwork: Network = getEvmNetwork(AmoyNetworkConfig);
 export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
 export const RlyTestNetwork: Network = getEvmNetwork(TestNetworkConfig);
 export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
