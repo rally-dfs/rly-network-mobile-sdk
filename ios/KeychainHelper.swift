@@ -141,9 +141,7 @@ final class KeychainHelper {
         ] as CFDictionary
 
         var result: AnyObject?
-        let status = withUnsafeMutablePointer(to: &result) {
-            SecItemCopyMatching(query, UnsafeMutablePointer($0))
-        }
+        SecItemCopyMatching(query, &result)
 
         return (result as? Data)
     }
