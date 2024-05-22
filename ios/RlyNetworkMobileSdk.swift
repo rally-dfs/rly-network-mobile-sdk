@@ -10,14 +10,14 @@ class RlyNetworkMobileSdk: NSObject {
     ) -> Void {
         resolve("Hello World")
     }
-    
+
     @objc public func getBundleId(
         _ resolve: RCTPromiseResolveBlock,
         rejecter reject: RCTPromiseRejectBlock
     ) -> Void {
         resolve(Bundle.main.bundleIdentifier!)
     }
-    
+
     @objc public func getMnemonic(
       _ resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
@@ -36,16 +36,9 @@ class RlyNetworkMobileSdk: NSObject {
       _ resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
     ) -> Void {
-        let mnemonicAttributes = KeychainHelper.standard.readAttributes(service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
+        let cloudData = KeychainHelper.standard.readFromiCloudKeychain(service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
 
-        if (mnemonicAttributes == nil) {
-            resolve(false)
-            return
-        }
-
-        let keyAccessibility = mnemonicAttributes?[kSecAttrAccessible as String] as? String
-
-        resolve(keyAccessibility == (kSecAttrAccessibleWhenUnlocked as String))
+        resolve(cloudData != nil)
     }
 
     @objc public func generateMnemonic(
@@ -54,10 +47,10 @@ class RlyNetworkMobileSdk: NSObject {
     ) -> Void {
         var data = [UInt8](repeating: 0, count: MNEMONIC_STRENGTH)
         let result = SecRandomCopyBytes(kSecRandomDefault, data.count, &data)
-        
+
         if result == errSecSuccess {
             let mnemonicString = String(cString: mnemonic_from_data(&data, CInt(MNEMONIC_STRENGTH)))
-            
+
             if (mnemonic_check(mnemonicString) == 0) {
                 reject("mnemonic_generation_failure", "mnemonic failed to pass check", nil);
                 return;
@@ -68,7 +61,7 @@ class RlyNetworkMobileSdk: NSObject {
             reject("mnemonic_generation_failure", "failed to generate secure bytes", nil);
         }
     }
-    
+
     @objc public func saveMnemonic(
       _ mnemonic: String,
       saveToCloud: Bool,
@@ -80,7 +73,7 @@ class RlyNetworkMobileSdk: NSObject {
 
         resolve(true)
     }
-    
+
     @objc public func deleteMnemonic(
       _ resolve: RCTPromiseResolveBlock,
       rejecter reject: RCTPromiseRejectBlock
@@ -89,7 +82,7 @@ class RlyNetworkMobileSdk: NSObject {
 
         resolve(true)
     }
-    
+
     @objc public func getPrivateKeyFromMnemonic(
       _ mnemonic: String,
       resolver resolve: RCTPromiseResolveBlock,
@@ -99,12 +92,12 @@ class RlyNetworkMobileSdk: NSObject {
             reject("mnemonic_verification_failure", "mnemonic failed to pass check", nil);
             return;
         }
-        
+
         var seed = [UInt8](repeating: 0, count: (512 / 8));
         seed.withUnsafeMutableBytes { destBytes in
             mnemonic_to_seed(mnemonic, "", destBytes.baseAddress!.assumingMemoryBound(to: UInt8.self), nil)
         }
-        
+
         var node = HDNode();
         hdnode_from_seed(&seed, CInt(seed.count), "secp256k1", &node);
 
@@ -120,7 +113,7 @@ class RlyNetworkMobileSdk: NSObject {
         for i in reflection.children {
             pkey.append(i.value as! UInt8)
         }
-        
+
         resolve(pkey)
     }
 }
