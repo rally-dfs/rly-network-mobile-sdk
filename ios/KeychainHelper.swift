@@ -124,11 +124,6 @@ final class KeychainHelper {
 
         let localData = readFromDeviceKeychain(service: service, account: account)
 
-        // Auto migrate data to iCloud Keychain when appropriate conditions are met
-        if (localData != nil && shouldMigrateToiCloudKeychain(service: service, account: account)) {
-            saveToiCloudKeychain(localData!, service: service, account: account)
-        }
-
         return localData
     }
 
