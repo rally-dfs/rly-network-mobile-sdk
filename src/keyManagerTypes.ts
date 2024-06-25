@@ -1,7 +1,4 @@
-export type KeyStorageConfig = {
-  saveToCloud: boolean;
-  rejectOnCloudSaveFailure: boolean;
-};
+import type { KeyStorageConfig } from './key_storage_config';
 
 export interface KeyManager {
   getMnemonic: () => Promise<string | null>;
@@ -9,6 +6,7 @@ export interface KeyManager {
   generateMnemonic: () => Promise<string>;
   saveMnemonic: (mnemonic: string, options?: KeyStorageConfig) => Promise<void>;
   deleteMnemonic: () => Promise<void>;
+  deleteCloudMnemonic: () => Promise<void>;
   getPrivateKeyFromMnemonic: (mnemonic: string) => Promise<Uint8Array>;
 }
 

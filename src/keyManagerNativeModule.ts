@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
-import type { KeyStorageConfig } from './keyManagerTypes';
+import type { KeyStorageConfig } from './key_storage_config';
 
 const LINKING_ERROR =
   `The package 'rly-network-mobile-sdk' doesn't seem to be linked. Make sure: \n\n` +
@@ -48,6 +48,10 @@ export const saveMnemonic = async (
 
 export const deleteMnemonic = async (): Promise<void> => {
   return RlyNativeModule.deleteMnemonic();
+};
+
+export const deleteCloudMnemonic = async (): Promise<void> => {
+  return RlyNativeModule.deleteCloudMnemonic();
 };
 
 export const getPrivateKeyFromMnemonic = async (

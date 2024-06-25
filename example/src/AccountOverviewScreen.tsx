@@ -18,6 +18,7 @@ import {
   permanentlyDeleteAccount,
   MetaTxMethod,
   walletBackedUpToCloud,
+  updateWalletStorage,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
@@ -57,6 +58,21 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     fetchBalance();
     fetchCloudStatus();
   }, []);
+
+  const swapStorageLocation = async () => {
+    if (usingCloudBackup === undefined) {
+      console.log('Unable to swap location, wallet not initialized');
+      return;
+    }
+
+    const storage = {
+      saveToCloud: !usingCloudBackup,
+      rejectOnCloudSaveFailure: true,
+    };
+    await updateWalletStorage(storage);
+
+    await fetchCloudStatus();
+  };
 
   const claimRlyTokens = async () => {
     setPerformingAction('Registering Account');
@@ -176,6 +192,16 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
               <BodyText>Export Your Account</BodyText>
             </View>
             <Button title="Reveal my Mnemonic" onPress={revealMnemonic} />
+          </RlyCard>
+
+          <RlyCard style={styles.balanceCard}>
+            <View style={styles.alignMiddle}>
+              <BodyText>Change wallet storage</BodyText>
+            </View>
+            <Button
+              title="Swap Storage Location"
+              onPress={swapStorageLocation}
+            />
           </RlyCard>
 
           <RlyCard style={styles.balanceCard}>

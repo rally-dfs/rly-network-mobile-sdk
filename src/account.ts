@@ -1,7 +1,7 @@
 import { Wallet, utils, BigNumber } from 'ethers';
 import type { TypedDataDomain, TypedDataField } from 'ethers';
 import KeyManager from './keyManager';
-import type { KeyStorageConfig } from './keyManagerTypes';
+import type { KeyStorageConfig } from './key_storage_config';
 
 let _cachedWallet: Wallet | undefined;
 
@@ -68,6 +68,36 @@ async function _saveAccount(
   return newWallet.address;
 }
 
+/**
+ * Updates the storage settings for an existing wallet.
+ *
+ * @param config A `KeyStorageConfig` object to specify the storage options for the wallet.
+ *
+ * @throws Throws an error if no wallet is found.
+ * @rejects Rejects the promise if cloud save fails and `rejectOnCloudSaveFailure` is set to `true`.
+ * @remarks
+ * If `rejectOnCloudSaveFailure` is `false`, cloud save failure will fallback to on-device-only storage without rejecting.
+ *
+ * **Important Considerations:**
+ *
+ * - **Cloud Transition:**  When moving from `KeyStorageConfig.saveToCloud = false` to `true`, the wallet will be moved to device cloud,
+ *  potentially replacing a non-cloud wallet on other devices.
+ *  Ensure users are aware of this potential for overwriting data.
+ * - **Device-Only Transition:** When moving from cloud to device-only storage, the wallet will be removed from cloud storage and any other devices.
+ */
+export async function updateWalletStorage(storageOptions: KeyStorageConfig) {
+  const mnemonic = await getAccountPhrase();
+  if (!mnemonic) {
+    throw new Error('Can not update storage, no wallet found');
+  }
+
+  await KeyManager.saveMnemonic(mnemonic, storageOptions);
+
+  if (!storageOptions.saveToCloud) {
+    await KeyManager.deleteCloudMnemonic();
+  }
+}
+
 export async function createAccount(options: CreateAccountOptions = {}) {
   return await _saveAccount(KeyManager.generateMnemonic(), options);
 }
@@ -97,7 +127,31 @@ export async function getWallet() {
   return wallet;
 }
 
+/**
+ * @deprecated This method is deprecated and will be removed in a future version. Use `walletEligibleForCloudSync` instead.
+ * The naming of this method was confusing and has been deprecated in favor of walletEligibleForCloudSync.
+ * Name implied a level of control over device syncing that is not possible given the operating system constraints. See walletEligibleForCloudSync for more details.
+ */
 export async function walletBackedUpToCloud() {
+  return await KeyManager.walletBackedUpToCloud();
+}
+
+/**
+ * Determines if the current wallet is eligible for OS-provided cloud backup and cross-device sync.
+ *
+ * @returns `true` if the wallet is stored in a way that makes it eligible for cloud backup and sync, `false` otherwise.
+ *
+ * @remarks
+ * This does NOT guarantee that the wallet is actively backed up. It simply indicates eligibility.
+ * Actual cloud backup depends on user and app-level settings for secure key storage.
+ *
+ * - **iOS:** Checks if the wallet will sync when iCloud Keychain sync is enabled.
+ * - **Android:** Checks if the wallet is in Google Play Keystore and will sync when Google backup is enabled.
+ *
+ * **Important Note:**
+ * Do NOT use this method to check for wallet existence. It will return `false` if no wallet is found OR if the wallet exists but isn't configured for cloud backup.
+ */
+export async function walletEligibleForCloudSync() {
   return await KeyManager.walletBackedUpToCloud();
 }
 

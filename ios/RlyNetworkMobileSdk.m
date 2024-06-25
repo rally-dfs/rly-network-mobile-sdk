@@ -42,6 +42,11 @@ RCT_EXTERN_METHOD(deleteMnemonic:
     rejecter: (RCTPromiseRejectBlock) reject
 )
 
+RCT_EXTERN_METHOD(deleteCloudMnemonic:
+    (RCTPromiseResolveBlock) resolve
+    rejecter: (RCTPromiseRejectBlock) reject
+)
+
 
 RCT_EXTERN_METHOD(getPrivateKeyFromMnemonic:
     (NSString) mnemonic
