@@ -65,9 +65,11 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
       return;
     }
 
+    const changeToCloud = !usingCloudBackup;
+
     const storage = {
-      saveToCloud: !usingCloudBackup,
-      rejectOnCloudSaveFailure: true,
+      saveToCloud: changeToCloud,
+      rejectOnCloudSaveFailure: changeToCloud,
     };
     await updateWalletStorage(storage);
 
