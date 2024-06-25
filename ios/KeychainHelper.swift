@@ -81,40 +81,6 @@ final class KeychainHelper {
         }
     }
 
-    func readDeviceKeychainAttributes(service: String, account: String) -> [String: Any]? {
-        let query = [
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-            kSecClass: kSecClassGenericPassword,
-            kSecReturnAttributes: true
-        ] as CFDictionary
-
-        var result: AnyObject?
-        SecItemCopyMatching(query, &result)
-
-        return (result as? [String: Any])
-    }
-
-    func shouldMigrateToiCloudKeychain(service: String, account: String) -> Bool {
-        let readResult = readDeviceKeychainAttributes(service: service, account: account)
-
-        if (readResult == nil) {
-            return false
-        }
-
-        let keyAccessibility = readResult?[kSecAttrAccessible as String] as? String
-
-        // This will return true when the following conditions are met
-        // Data is found
-        // Data is saved with    kSecAttrSynchronizable: false
-        // Data is saved with    kSecAttrAccessible: kSecAttrAccessibleWhenUnlocked,
-        // These conditions are met with data intended to be saved to cloud on iOS
-        // with RLY SDK versions prior to this fix
-
-        return keyAccessibility == (kSecAttrAccessibleWhenUnlocked as String)
-    }
-
-
     func read(service: String, account: String) -> Data? {
         let iCloudData = readFromiCloudKeychain(service: service, account: account) ;
 
