@@ -83,6 +83,21 @@ class RlyNetworkMobileSdk: NSObject {
         resolve(true)
     }
 
+
+    /*
+    * Necessary for RN level logic that allows dev to migrate key from cloud storage to device storage
+    * For now there is no need for a delete of the local only version since that risks complete key loss,
+    * and having an extra copy scoped to device only when dev asks for cloud is not a security risk.
+    */
+    @objc public func deleteCloudMnemonic(
+      _ resolve: RCTPromiseResolveBlock,
+      rejecter reject: RCTPromiseRejectBlock
+    ) -> Void {
+        KeychainHelper.standard.deleteFromiCloudKeychain(service: SERVICE_KEY, account: MNEMONIC_ACCOUNT_KEY)
+
+        resolve(true)
+    }
+
     @objc public func getPrivateKeyFromMnemonic(
       _ mnemonic: String,
       resolver resolve: RCTPromiseResolveBlock,
