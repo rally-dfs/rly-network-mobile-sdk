@@ -68,6 +68,36 @@ async function _saveAccount(
   return newWallet.address;
 }
 
+/**
+ * Updates the storage settings for an existing wallet.
+ *
+ * @param config A `KeyStorageConfig` object to specify the storage options for the wallet.
+ *
+ * @throws Throws an error if no wallet is found.
+ * @rejects Rejects the promise if cloud save fails and `rejectOnCloudSaveFailure` is set to `true`.
+ * @remarks
+ * If `rejectOnCloudSaveFailure` is `false`, cloud save failure will fallback to on-device-only storage without rejecting.
+ *
+ * **Important Considerations:**
+ *
+ * - **Cloud Transition:**  When moving from `KeyStorageConfig.saveToCloud = false` to `true`, the wallet will be moved to device cloud,
+ *  potentially replacing a non-cloud wallet on other devices.
+ *  Ensure users are aware of this potential for overwriting data.
+ * - **Device-Only Transition:** When moving from cloud to device-only storage, the wallet will be removed from cloud storage and any other devices.
+ */
+export async function updateWalletStorage(storageOptions: KeyStorageConfig) {
+  const wallet = await getWallet();
+  if (!wallet) {
+    throw new Error('Can not update storage, no wallet found');
+  }
+
+  await KeyManager.saveMnemonic(wallet.mnemonic.phrase, storageOptions);
+
+  if (!storageOptions.saveToCloud) {
+    await KeyManager.deleteCloudMnemonic();
+  }
+}
+
 export async function createAccount(options: CreateAccountOptions = {}) {
   return await _saveAccount(KeyManager.generateMnemonic(), options);
 }
