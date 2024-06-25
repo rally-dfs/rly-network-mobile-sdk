@@ -75,6 +75,12 @@ class RlyNetworkMobileSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun deleteCloudMnemonic(promise:Promise){
+    mnemonicHelper.deleteFromCloudKeystore(MNEMONIC_STORAGE_KEY)
+    promise.resolve(true)
+  }
+
+  @ReactMethod
   fun getPrivateKeyFromMnemonic(mnemonic:String, promise:Promise){
     if (!MnemonicWords(mnemonic).validate(WORDLIST_ENGLISH)) {
       promise.reject("mnemonic_verification_failure", "mnemonic failed to pass check");

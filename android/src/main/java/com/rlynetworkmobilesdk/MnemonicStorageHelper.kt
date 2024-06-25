@@ -118,14 +118,22 @@ class MnemonicStorageHelper(context: Context) {
   }
 
   fun delete(key: String) {
+    deleteFromCloudKeystore(key)
+    deleteFromSharedPref(key)
+  }
+
+  fun deleteFromCloudKeystore(key: String) {
     val retrieveRequest = DeleteBytesRequest.Builder()
-      .setKeys(listOf(key))
-      .build()
+        .setKeys(listOf(key))
+        .build()
 
     blockstoreClient.deleteBytes(retrieveRequest)
+  }
 
+  fun deleteFromSharedPref(key: String) {
     val editor = getSharedPreferences().edit()
     editor.remove(key)
     editor.commit()
   }
+
 }
