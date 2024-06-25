@@ -127,7 +127,31 @@ export async function getWallet() {
   return wallet;
 }
 
+/**
+ * @deprecated This method is deprecated and will be removed in a future version. Use `walletEligibleForCloudSync` instead.
+ * The naming of this method was confusing and has been deprecated in favor of walletEligibleForCloudSync.
+ * Name implied a level of control over device syncing that is not possible given the operating system constraints. See walletEligibleForCloudSync for more details.
+ */
 export async function walletBackedUpToCloud() {
+  return await KeyManager.walletBackedUpToCloud();
+}
+
+/**
+ * Determines if the current wallet is eligible for OS-provided cloud backup and cross-device sync.
+ *
+ * @returns `true` if the wallet is stored in a way that makes it eligible for cloud backup and sync, `false` otherwise.
+ *
+ * @remarks
+ * This does NOT guarantee that the wallet is actively backed up. It simply indicates eligibility.
+ * Actual cloud backup depends on user and app-level settings for secure key storage.
+ *
+ * - **iOS:** Checks if the wallet will sync when iCloud Keychain sync is enabled.
+ * - **Android:** Checks if the wallet is in Google Play Keystore and will sync when Google backup is enabled.
+ *
+ * **Important Note:**
+ * Do NOT use this method to check for wallet existence. It will return `false` if no wallet is found OR if the wallet exists but isn't configured for cloud backup.
+ */
+export async function walletEligibleForCloudSync() {
   return await KeyManager.walletBackedUpToCloud();
 }
 
