@@ -1,7 +1,7 @@
 import { Wallet, utils, BigNumber } from 'ethers';
 import type { TypedDataDomain, TypedDataField } from 'ethers';
 import KeyManager from './keyManager';
-import type { KeyStorageConfig } from './keyManagerTypes';
+import type { KeyStorageConfig } from './key_storage_config';
 
 let _cachedWallet: Wallet | undefined;
 

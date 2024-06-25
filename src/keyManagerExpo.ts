@@ -1,5 +1,5 @@
 import { utils, Wallet } from 'ethers';
-import type { KeyStorageConfig } from './keyManagerTypes';
+import type { KeyStorageConfig } from './key_storage_config';
 
 type ExpoObject = {
   modules: undefined | { [key: string]: any };

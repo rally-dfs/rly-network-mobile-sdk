@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
-import type { KeyStorageConfig } from './keyManagerTypes';
+import type { KeyStorageConfig } from './key_storage_config';
 
 const LINKING_ERROR =
   `The package 'rly-network-mobile-sdk' doesn't seem to be linked. Make sure: \n\n` +
