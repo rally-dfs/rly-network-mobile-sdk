@@ -86,12 +86,12 @@ async function _saveAccount(
  * - **Device-Only Transition:** When moving from cloud to device-only storage, the wallet will be removed from cloud storage and any other devices.
  */
 export async function updateWalletStorage(storageOptions: KeyStorageConfig) {
-  const wallet = await getWallet();
-  if (!wallet) {
+  const mnemonic = await getAccountPhrase();
+  if (!mnemonic) {
     throw new Error('Can not update storage, no wallet found');
   }
 
-  await KeyManager.saveMnemonic(wallet.mnemonic.phrase, storageOptions);
+  await KeyManager.saveMnemonic(mnemonic, storageOptions);
 
   if (!storageOptions.saveToCloud) {
     await KeyManager.deleteCloudMnemonic();
