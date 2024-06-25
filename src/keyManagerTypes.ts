@@ -6,6 +6,7 @@ export interface KeyManager {
   generateMnemonic: () => Promise<string>;
   saveMnemonic: (mnemonic: string, options?: KeyStorageConfig) => Promise<void>;
   deleteMnemonic: () => Promise<void>;
+  deleteCloudMnemonic: () => Promise<void>;
   getPrivateKeyFromMnemonic: (mnemonic: string) => Promise<Uint8Array>;
 }
 

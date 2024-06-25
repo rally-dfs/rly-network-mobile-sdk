@@ -50,6 +50,10 @@ export const deleteMnemonic = async (): Promise<void> => {
   return RlyNativeModule.deleteMnemonic();
 };
 
+export const deleteCloudMnemonic = async (): Promise<void> => {
+  return RlyNativeModule.deleteCloudMnemonic();
+};
+
 export const getPrivateKeyFromMnemonic = async (
   mnemonic: string
 ): Promise<Uint8Array> => {
