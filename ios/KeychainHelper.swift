@@ -5,12 +5,12 @@ final class KeychainHelper {
     private init() {}
 
     func save(
-      _ data: Data,
-      service: String,
-      account: String,
-      saveToCloud: Bool
+        _ data: Data,
+        service: String,
+        account: String,
+        saveToCloud: Bool
     ) {
-        if (saveToCloud) {
+        if saveToCloud {
             saveToiCloudKeychain(data, service: service, account: account)
         } else {
             saveToDeviceKeychain(data, service: service, account: account)
@@ -18,9 +18,9 @@ final class KeychainHelper {
     }
 
     func saveToiCloudKeychain(
-      _ data: Data,
-      service: String,
-      account: String
+        _ data: Data,
+        service: String,
+        account: String
     ) {
         let query = [
             kSecValueData: data,
@@ -51,9 +51,9 @@ final class KeychainHelper {
     }
 
     func saveToDeviceKeychain(
-      _ data: Data,
-      service: String,
-      account: String
+        _ data: Data,
+        service: String,
+        account: String
     ) {
         let query = [
             kSecValueData: data,
@@ -82,9 +82,9 @@ final class KeychainHelper {
     }
 
     func read(service: String, account: String) -> Data? {
-        let iCloudData = readFromiCloudKeychain(service: service, account: account) ;
+        let iCloudData = readFromiCloudKeychain(service: service, account: account)
 
-        if (iCloudData != nil) {
+        if iCloudData != nil {
             return iCloudData
         }
 
@@ -132,7 +132,7 @@ final class KeychainHelper {
             kSecAttrService: service,
             kSecAttrAccount: account,
             kSecClass: kSecClassGenericPassword,
-            ] as CFDictionary
+        ] as CFDictionary
 
         // Delete item from keychain
         SecItemDelete(query)
@@ -144,7 +144,7 @@ final class KeychainHelper {
             kSecAttrAccount: account,
             kSecAttrSynchronizable: true,
             kSecClass: kSecClassGenericPassword,
-            ] as CFDictionary
+        ] as CFDictionary
 
         // Delete item from keychain
         SecItemDelete(query)
