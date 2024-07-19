@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
+  RlyBaseSepoliaNetwork,
   RlyAmoyNetwork,
   permanentlyDeleteAccount,
   MetaTxMethod,
@@ -121,6 +122,15 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
     setMnemonic(value);
   };
 
+  const viewOnBlockExplorer = async () => {
+    let explorerUrl = `https://www.oklink.com/amoy/address/${props.rlyAccount}`;
+
+    if (RlyNetwork === RlyBaseSepoliaNetwork) {
+      explorerUrl = `https://sepolia.basescan.org/address/${props.rlyAccount}`;
+    }
+    Linking.openURL(explorerUrl);
+  };
+
   return (
     <>
       <AppContainer>
@@ -143,11 +153,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
             </View>
             <View style={styles.balanceContainer}>
               <Button
-                title="View on Polygon"
+                title="View on Explorer"
                 onPress={() => {
-                  Linking.openURL(
-                    `https://www.oklink.com/amoy/address/${props.rlyAccount}`
-                  );
+                  viewOnBlockExplorer();
                 }}
               />
             </View>
