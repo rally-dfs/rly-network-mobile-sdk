@@ -51,6 +51,9 @@ export const getMnemonic = async (): Promise<string | null> => {
   return SecureStore.getItemAsync(MNEMONIC_ACCOUNT_KEY);
 };
 
+/**
+ * This method will always return false, as expo without prebuild does not have support for icloud keychain
+ */
 export const walletBackedUpToCloud = async (): Promise<boolean> => {
   return false;
 };
@@ -66,6 +69,12 @@ export const saveMnemonic = async (
     rejectOnCloudSaveFailure: false,
   }
 ): Promise<void> => {
+  if (options.saveToCloud && options.rejectOnCloudSaveFailure) {
+    throw new Error(
+      'Cloud is not supported, please use expo prebuild if you need cloud storage'
+    );
+  }
+
   const keychainAccessible = options.saveToCloud
     ? WHEN_UNLOCKED
     : WHEN_UNLOCKED_THIS_DEVICE_ONLY;
