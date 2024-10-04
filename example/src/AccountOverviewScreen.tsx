@@ -15,6 +15,8 @@ import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
   RlyBaseSepoliaNetwork,
+  RlyBaseNetwork,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   RlyAmoyNetwork,
   permanentlyDeleteAccount,
   MetaTxMethod,
@@ -30,7 +32,7 @@ const RlyNetwork = RlyAmoyNetwork;
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
 // If you want to test using a custom token, set the hex address of the token here
-const customTokenAddress: string | undefined = undefined;
+const tokenTransactionType: MetaTxMethod = MetaTxMethod.Permit;
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();
@@ -96,12 +98,13 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
         transferAddress,
         parseInt(transferBalance, 10),
         customTokenAddress,
-        MetaTxMethod.ExecuteMetaTransaction
+        tokenTransactionType
       );
       await fetchBalance();
       setTransferBalance('');
       setTranferAddress('');
     } catch (e: any) {
+      console.log('Something went wrong', e.message);
       Alert.alert('Something went wrong', e.message);
     } finally {
       setPerformingAction(undefined);

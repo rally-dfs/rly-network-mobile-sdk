@@ -13,6 +13,7 @@ import {
   NetworkConfig,
 } from './network_config/network_config';
 import { BaseSepoliaNetworkConfig } from './network_config/network_config_base_sepolia';
+import { BaseNetworkConfig } from './network_config/network_config_base';
 
 export interface Network {
   networkConfig: NetworkConfig;
@@ -42,6 +43,7 @@ export const RlyAmoyNetwork: Network = getEvmNetwork(AmoyNetworkConfig);
 export const RlyBaseSepoliaNetwork: Network = getEvmNetwork(
   BaseSepoliaNetworkConfig
 );
+export const RlyBaseNetwork: Network = getEvmNetwork(BaseNetworkConfig);
 export const RlyLocalNetwork: Network = getEvmNetwork(LocalNetworkConfig);
 export const RlyTestNetwork: Network = getEvmNetwork(TestNetworkConfig);
 export const RlyPolygonNetwork: Network = getEvmNetwork(PolygonNetworkConfig);
