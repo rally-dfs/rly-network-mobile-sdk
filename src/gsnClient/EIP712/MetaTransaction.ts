@@ -1,8 +1,9 @@
 import { BigNumber, ethers, Wallet } from 'ethers';
-import type {
-  PrefixedHexString,
-  GsnTransactionDetails,
-  Address,
+import {
+  type PrefixedHexString,
+  type GsnTransactionDetails,
+  type Address,
+  MetaTxMethod,
 } from '../utils';
 import { erc20 } from '../../contract';
 import type { NetworkConfig } from '../../network_config/network_config';
@@ -105,7 +106,11 @@ export const hasExecuteMetaTransaction = async (
   try {
     const token = erc20(provider, contractAddress);
     const name = await token.name();
-    const nonce = await getSenderContractNonce(token, account.address);
+    const nonce = await getSenderContractNonce(
+      token,
+      account.address,
+      MetaTxMethod.ExecuteMetaTransaction
+    );
 
     const data = token.interface.encodeFunctionData('transfer', [
       destinationAddress,
@@ -146,7 +151,11 @@ export const getExecuteMetatransactionTx = async (
 ): Promise<GsnTransactionDetails> => {
   const token = erc20(provider, contractAddress);
   const name = await token.name();
-  const nonce = await getSenderContractNonce(token, account.address);
+  const nonce = await getSenderContractNonce(
+    token,
+    account.address,
+    MetaTxMethod.ExecuteMetaTransaction
+  );
 
   // get function signature
   const data = token.interface.encodeFunctionData('transfer', [
