@@ -74,6 +74,7 @@ export interface EIP712Domain {
   version?: string;
   chainId?: number;
   verifyingContract?: string;
+  salt?: string;
 }
 
 export class TypedGsnRequestData {

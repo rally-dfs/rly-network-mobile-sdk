@@ -23,13 +23,15 @@ import type {
 
 import { MetaTxMethod } from '../gsnClient/utils';
 import { getProvider } from '../provider';
+import type { TokenConfig } from 'src/transactions/supported_tokens';
 
 async function transfer(
   destinationAddress: string,
   amount: number,
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString,
-  metaTxMethod?: MetaTxMethod
+  metaTxMethod?: MetaTxMethod,
+  tokenConfig?: TokenConfig
 ): Promise<string> {
   const provider = getProvider(network);
 
@@ -50,7 +52,8 @@ async function transfer(
     amountBigNum.toString(),
     network,
     tokenAddress,
-    metaTxMethod
+    metaTxMethod,
+    tokenConfig
   );
 }
 
@@ -59,7 +62,8 @@ async function transferExact(
   amount: string,
   network: NetworkConfig,
   tokenAddress?: PrefixedHexString,
-  metaTxMethod?: MetaTxMethod
+  metaTxMethod?: MetaTxMethod,
+  tokenConfig?: TokenConfig
 ): Promise<string> {
   const provider = getProvider(network);
   const account = await getWallet();
@@ -94,7 +98,8 @@ async function transferExact(
         amountBigNum,
         network,
         tokenAddress,
-        provider
+        provider,
+        tokenConfig?.eip712Domain
       );
     } else {
       transferTx = await getExecuteMetatransactionTx(
