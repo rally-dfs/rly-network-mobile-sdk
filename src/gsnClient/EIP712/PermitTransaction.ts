@@ -1,8 +1,9 @@
 import { ethers, Wallet, BigNumber } from 'ethers';
-import type {
-  PrefixedHexString,
-  GsnTransactionDetails,
-  Address,
+import {
+  type PrefixedHexString,
+  type GsnTransactionDetails,
+  type Address,
+  MetaTxMethod,
 } from '../utils';
 import { erc20 } from '../../contract';
 import type { NetworkConfig } from '../../network_config/network_config';
@@ -112,7 +113,11 @@ export const hasPermit = async (
     const token = erc20(provider, contractAddress);
 
     const name = await token.name();
-    const nonce = await getSenderContractNonce(token, account.address);
+    const nonce = await getSenderContractNonce(
+      token,
+      account.address,
+      MetaTxMethod.Permit
+    );
     const deadline = await getPermitDeadline(provider);
     const eip712Domain = await token.eip712Domain();
 
@@ -156,10 +161,13 @@ export const getPermitTx = async (
   const token = erc20(provider, contractAddress);
 
   const name = await token.name();
-  const nonce = await getSenderContractNonce(token, account.address);
+  const nonce = await getSenderContractNonce(
+    token,
+    account.address,
+    MetaTxMethod.Permit
+  );
   const deadline = await getPermitDeadline(provider);
   const eip712Domain = await token.eip712Domain();
-
   const { salt } = eip712Domain;
 
   const { r, s, v } = await getPermitEIP712Signature(

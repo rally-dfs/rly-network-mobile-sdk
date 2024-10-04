@@ -2,11 +2,12 @@ import { ethers, BigNumber, Contract } from 'ethers';
 import { Buffer } from 'buffer';
 import { TypedGsnRequestData } from './EIP712/typedSigning';
 import type { RelayRequest } from './EIP712/RelayRequest';
-import type {
+import {
   PrefixedHexString,
   GsnTransactionDetails,
   Address,
   AccountKeypair,
+  MetaTxMethod,
 } from './utils';
 import type {
   GSNConfig,
@@ -223,26 +224,12 @@ export const handleGsnResponse = async (
 
 export const getSenderContractNonce = async (
   token: Contract,
-  address: Address
+  address: Address,
+  metaTxMethod: MetaTxMethod
 ): Promise<BigNumber> => {
-  // 0x2d0335ab is the function selector for the 'getNonce' function
-  // 0x7ecebe00 is the function selector for the 'nonces' function
-  const getNonceSelector = '2d0335ab';
-  const noncesSelector = '7ecebe00';
-
-  const bytecode = await token.provider.getCode(token.address);
-
-  if (bytecode.length <= 2) {
-    throw new Error('Could not get nonce: No bytecode found for token');
-  }
-
-  // check if the bytecode includes the function selector for the relative functions
-  // there is still an issue with fallback functions, and data that may include the function selector
-  if (bytecode.includes(getNonceSelector)) {
+  if (metaTxMethod === MetaTxMethod.ExecuteMetaTransaction) {
     return await token.getNonce(address);
-  } else if (bytecode.includes(noncesSelector)) {
-    return await token.nonces(address);
-  } else {
-    throw new Error('Could not get nonce: No nonce function found for token');
   }
+
+  return await token.nonces(address);
 };
