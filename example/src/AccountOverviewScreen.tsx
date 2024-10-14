@@ -15,8 +15,8 @@ import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
   RlyBaseSepoliaNetwork,
-  RlyBaseNetwork,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  RlyBaseNetwork,
   RlyAmoyNetwork,
   permanentlyDeleteAccount,
   walletBackedUpToCloud,
@@ -29,7 +29,7 @@ import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 import { PrivateConfig } from './private_config';
 
-const RlyNetwork = RlyBaseNetwork;
+const RlyNetwork = RlyAmoyNetwork;
 
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
