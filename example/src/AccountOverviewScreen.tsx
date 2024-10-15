@@ -15,14 +15,10 @@ import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
   RlyBaseSepoliaNetwork,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  RlyBaseNetwork,
   RlyAmoyNetwork,
   permanentlyDeleteAccount,
   walletBackedUpToCloud,
   updateWalletStorage,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  BaseUSDC,
   TokenConfig,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
