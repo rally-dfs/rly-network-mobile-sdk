@@ -15,13 +15,11 @@ import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
   RlyBaseSepoliaNetwork,
-  RlyBaseNetwork,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   RlyAmoyNetwork,
   permanentlyDeleteAccount,
-  MetaTxMethod,
   walletBackedUpToCloud,
   updateWalletStorage,
+  TokenConfig,
 } from '@rly-network/mobile-sdk';
 import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
@@ -31,8 +29,10 @@ const RlyNetwork = RlyAmoyNetwork;
 
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
-// If you want to test using a custom token, set the hex address of the token here
-const tokenTransactionType: MetaTxMethod = MetaTxMethod.Permit;
+// If you want to test using a custom token, you need to build the object by hand.
+// You can find a list of pre-built supported tokens in supported_tokens.
+// If no value is provided, the default token is RLY
+const customToken: TokenConfig | undefined = undefined;
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();
@@ -46,7 +46,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [mnemonic, setMnemonic] = useState<string>();
 
   const fetchBalance = async () => {
-    const bal = await RlyNetwork.getDisplayBalance(customTokenAddress);
+    const bal = await RlyNetwork.getDisplayBalance(customToken?.address);
 
     setBalance(bal);
   };
@@ -97,8 +97,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
       await RlyNetwork.transfer(
         transferAddress,
         parseInt(transferBalance, 10),
-        customTokenAddress,
-        tokenTransactionType
+        customToken?.address,
+        customToken?.metaTxnMethod,
+        customToken
       );
       await fetchBalance();
       setTransferBalance('');

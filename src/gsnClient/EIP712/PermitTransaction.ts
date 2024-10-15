@@ -8,6 +8,7 @@ import {
 import { erc20 } from '../../contract';
 import type { NetworkConfig } from '../../network_config/network_config';
 import { getSenderContractNonce } from '../gsnTxHelpers';
+import type { EIP712Domain } from './typedSigning';
 
 export interface Permit {
   name: string;
@@ -70,7 +71,8 @@ export const getPermitEIP712Signature = async (
   nonce: number,
   amount: BigNumber,
   deadline: number,
-  salt: string
+  salt: string,
+  eipDomainVersion?: string
 ) => {
   // chainId to be used in EIP712
 
@@ -79,7 +81,7 @@ export const getPermitEIP712Signature = async (
   // typed data for signing
   const eip712Data = getTypedPermitTransaction({
     name: contractName,
-    version: `1`,
+    version: eipDomainVersion || `1`,
     chainId: Number(chainId),
     verifyingContract: contractAddress,
     owner: account.address,
@@ -156,7 +158,8 @@ export const getPermitTx = async (
   amount: BigNumber,
   config: NetworkConfig,
   contractAddress: PrefixedHexString,
-  provider: ethers.providers.JsonRpcProvider
+  provider: ethers.providers.JsonRpcProvider,
+  eip712Domain?: EIP712Domain
 ): Promise<GsnTransactionDetails> => {
   const token = erc20(provider, contractAddress);
 
@@ -167,8 +170,11 @@ export const getPermitTx = async (
     MetaTxMethod.Permit
   );
   const deadline = await getPermitDeadline(provider);
-  const eip712Domain = await token.eip712Domain();
-  const { salt } = eip712Domain;
+  let eip712DomainData = eip712Domain;
+
+  if (!eip712DomainData) {
+    eip712DomainData = await token.eip712Domain();
+  }
 
   const { r, s, v } = await getPermitEIP712Signature(
     account,
@@ -178,7 +184,8 @@ export const getPermitTx = async (
     nonce.toNumber(),
     amount,
     deadline,
-    salt
+    eip712DomainData?.salt || '',
+    eip712DomainData?.version
   );
 
   const tx = await token.populateTransaction.permit?.(
