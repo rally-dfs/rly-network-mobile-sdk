@@ -4,3 +4,4 @@ import '@ethersproject/shims';
 export * from './account';
 export { MetaTxMethod } from './gsnClient/utils';
 export * from './network';
+export * from './transactions/supported_tokens';
