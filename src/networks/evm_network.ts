@@ -249,28 +249,32 @@ export function getEvmNetwork(network: NetworkConfig) {
       destinationAddress: string,
       amount: number,
       tokenAddress?: PrefixedHexString,
-      metaTxMethod?: MetaTxMethod
+      metaTxMethod?: MetaTxMethod,
+      tokenConfig?: TokenConfig
     ) {
       return transfer(
         destinationAddress,
         amount,
         network,
         tokenAddress,
-        metaTxMethod
+        metaTxMethod,
+        tokenConfig
       );
     },
     transferExact: function (
       destinationAddress: string,
       amount: string,
       tokenAddress?: PrefixedHexString,
-      metaTxMethod?: MetaTxMethod
+      metaTxMethod?: MetaTxMethod,
+      tokenConfig?: TokenConfig
     ) {
       return transferExact(
         destinationAddress,
         amount,
         network,
         tokenAddress,
-        metaTxMethod
+        metaTxMethod,
+        tokenConfig
       );
     },
     getBalance: function (tokenAddress?: PrefixedHexString) {
