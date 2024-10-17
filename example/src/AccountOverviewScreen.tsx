@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import {
   getAccountPhrase,
   RlyBaseSepoliaNetwork,
-  RlyAmoyNetwork,
+  BaseSepoliaRLY,
   permanentlyDeleteAccount,
   walletBackedUpToCloud,
   updateWalletStorage,
@@ -25,14 +25,14 @@ import { RlyCard } from './components/RlyCard';
 import { LoadingModal, StandardModal } from './components/LoadingModal';
 import { PrivateConfig } from './private_config';
 
-const RlyNetwork = RlyAmoyNetwork;
+const RlyNetwork = RlyBaseSepoliaNetwork;
 
 RlyNetwork.setApiKey(PrivateConfig.RALLY_API_KEY || '');
 
 // If you want to test using a custom token, you need to build the object by hand.
 // You can find a list of pre-built supported tokens in supported_tokens.
 // If no value is provided, the default token is RLY
-const customToken: TokenConfig | undefined = undefined;
+const token: TokenConfig = BaseSepoliaRLY;
 
 export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [performingAction, setPerformingAction] = useState<string>();
@@ -46,7 +46,7 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
   const [mnemonic, setMnemonic] = useState<string>();
 
   const fetchBalance = async () => {
-    const bal = await RlyNetwork.getDisplayBalance(customToken?.address);
+    const bal = await RlyNetwork.getDisplayBalance(token.address);
 
     setBalance(bal);
   };
@@ -97,9 +97,9 @@ export const AccountOverviewScreen = (props: { rlyAccount: string }) => {
       await RlyNetwork.transfer(
         transferAddress,
         parseInt(transferBalance, 10),
-        customToken?.address,
-        customToken?.metaTxnMethod,
-        customToken
+        token.address,
+        token.metaTxnMethod,
+        token
       );
       await fetchBalance();
       setTransferBalance('');
