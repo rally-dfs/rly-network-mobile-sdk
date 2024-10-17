@@ -184,7 +184,7 @@ export const getPermitTx = async (
     nonce.toNumber(),
     amount,
     deadline,
-    eip712DomainData?.salt || '',
+    eip712DomainData?.salt || ethers.constants.HashZero,
     eip712DomainData?.version
   );
 
