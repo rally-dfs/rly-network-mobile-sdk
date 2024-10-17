@@ -51,31 +51,7 @@ const updateConfig = async (
 
   config.gsn.relayWorkerAddress = serverConfigUpdate.relayWorkerAddress;
 
-  setGasFeesForTransaction(transaction, serverConfigUpdate);
-
   return { config, transaction };
-};
-
-const setGasFeesForTransaction = (
-  transaction: GsnTransactionDetails,
-  serverConfigUpdate: GsnServerConfigPayload
-) => {
-  const serverSuggestedMinPriorityFeePerGas = parseInt(
-    serverConfigUpdate.minMaxPriorityFeePerGas,
-    10
-  );
-
-  const paddedMaxPriority = Math.round(
-    serverSuggestedMinPriorityFeePerGas * 1.4
-  );
-  transaction.maxPriorityFeePerGas = paddedMaxPriority.toString();
-
-  //Special handling for mumbai because of quirk with gas estimate returned by GSN for mumbai
-  if (serverConfigUpdate.chainId === '80001') {
-    transaction.maxFeePerGas = paddedMaxPriority.toString();
-  } else {
-    transaction.maxFeePerGas = serverConfigUpdate.maxMaxFeePerGas;
-  }
 };
 
 const buildRelayRequest = async (
