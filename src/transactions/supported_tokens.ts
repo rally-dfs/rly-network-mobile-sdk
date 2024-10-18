@@ -27,6 +27,7 @@ export const BaseUSDC: TokenConfig = {
 
 /*
  * Pre built configuration for USDC on Sepolia Base.
+ * To get access to USDC on Sepolia Base, you can use the faucet at https://faucet.circle.com/
  */
 export const BaseSepoliaUSDC: TokenConfig = {
   address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
