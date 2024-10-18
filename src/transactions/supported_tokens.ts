@@ -26,6 +26,17 @@ export const BaseUSDC: TokenConfig = {
 };
 
 /*
+ * Pre built configuration for USDC on Sepolia Base.
+ */
+export const BaseSepoliaUSDC: TokenConfig = {
+  address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+  metaTxnMethod: MetaTxMethod.Permit,
+  eip712Domain: {
+    version: '2',
+  },
+};
+
+/*
  * Pre built configuration for RLY on Sepolia Base.
  * This is the token this SDK tests with by default.
  */
